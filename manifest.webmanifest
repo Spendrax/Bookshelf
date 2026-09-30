@@ -1,16 +1,30 @@
 {
+  "id": "./",
   "name": "My Bookshelf",
   "short_name": "Bookshelf",
-  "description": "A cosy bookshelf for the books I've read",
+  "description": "A cozy room for every book you read. Log books, rate them, scan barcodes, set reading goals and keep quotes. Your library stays on your device.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#e9dcc4",
   "theme_color": "#6d4523",
+  "categories": ["books", "lifestyle", "productivity"],
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
     {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "screenshots": [
+    {"src": "screenshots/phone-1-room.jpg", "sizes": "720x1280", "type": "image/jpeg", "form_factor": "narrow", "label": "Your bookshelf room"},
+    {"src": "screenshots/phone-2-book.jpg", "sizes": "720x1280", "type": "image/jpeg", "form_factor": "narrow", "label": "Book details, ratings and series"},
+    {"src": "screenshots/phone-4-goals.jpg", "sizes": "720x1280", "type": "image/jpeg", "form_factor": "narrow", "label": "Reading goal, streak and quotes"},
+    {"src": "screenshots/wide-1-room.jpg", "sizes": "1280x720", "type": "image/jpeg", "form_factor": "wide", "label": "Your bookshelf room"},
+    {"src": "screenshots/wide-3-stats.jpg", "sizes": "1280x720", "type": "image/jpeg", "form_factor": "wide", "label": "Reading stats"}
+  ],
+  "shortcuts": [
+    {"name": "Add a book", "short_name": "Add", "url": "./?add=1", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]}
   ]
 }
