@@ -97,7 +97,7 @@ button{font:inherit;cursor:pointer}
 .catw[data-spot=sill]{left:16px;bottom:-9px}
 .catw[data-spot=top]{left:108px;bottom:100%;margin-bottom:-2px}
 .catw[data-spot=floor]{left:max(10px,calc(50% - 400px));top:-24px}
-.catw.travel{position:fixed!important;bottom:auto!important;right:auto!important;margin:0!important;z-index:4!important;translate:none!important;transition:none!important;pointer-events:none}
+.catw.travel{position:absolute!important;bottom:auto!important;right:auto!important;margin:0!important;z-index:4!important;translate:none!important;transition:none!important;pointer-events:none}
 .catw.flying .cat{animation:flap .22s ease-in-out infinite alternate}
 @keyframes flap{to{transform:translateY(-3px) scaleY(.93)}}
 /* the animal stands in front of its bowls */
@@ -1174,12 +1174,15 @@ function petPath0(way,dx,dy){
 /* carry the animal along a path above everything, from rect a to rect b (feet to feet), growing or shrinking smoothly on the way */
 function petFly(a,b,way,dir,done){
  petBusy=true;const spot=catw.dataset.spot;
- document.body.append(catw);catw.classList.add('travel');catw.dataset.spot=spot;catw.style.left=b.left+'px';catw.style.top=b.top+'px';catw.style.transformOrigin='50% 100%';
+ /* travel inside the wall itself (not pinned to the screen), so if you scroll while it moves, it stays on its path in the room */
+ const host=[RV,GV,SV].find(w=>w.contains(catw))||RV,hr=host.getBoundingClientRect();
+ host.append(catw);catw.classList.add('travel');catw.dataset.spot=spot;catw.style.left=(b.left-hr.left+host.scrollLeft)+'px';catw.style.top=(b.top-hr.top+host.scrollTop)+'px';catw.style.transformOrigin='50% 100%';
  catw.style.setProperty('--dir',dir);catw.classList.toggle('walking',way==='walk');catw.classList.toggle('flying',way==='fly');
  /* the animal is mirrored when it faces the other way, so the sideways part of the path is mirrored too */
  const dx=(a.left+a.width/2)-(b.left+b.width/2),dy=a.bottom-b.bottom,s0=b.width?a.width/b.width:1;
- const [kf,dur]=petPath(way,dx*dir,dy,s0),an=catw.animate(kf,{duration:dur,easing:way==='walk'?'linear':'ease-in-out'});
- let ended=false;const fin=()=>{if(ended)return;ended=true;catw.classList.remove('travel','walking','flying');catw.style.top='';catw.style.transformOrigin='';catw.style.setProperty('--dir',1);petBusy=false;done()};
+ /* start already at the first point of the path: an animation only kicks in on the next frame, and for that one frame the animal showed where it was going */
+ const [kf,dur]=petPath(way,dx*dir,dy,s0);catw.style.transform=kf[0].transform;const an=catw.animate(kf,{duration:dur,easing:way==='walk'?'linear':'ease-in-out'});
+ let ended=false;const fin=()=>{if(ended)return;ended=true;catw.style.transform='';catw.classList.remove('travel','walking','flying');catw.style.top='';catw.style.transformOrigin='';catw.style.setProperty('--dir',1);petBusy=false;done()};
  an.onfinish=fin;an.oncancel=fin}
 const landSquash=()=>{cat.classList.remove('landed');void cat.getBoundingClientRect();cat.classList.add('landed')};
 /* how far each kind of animal can go in one go (screen pixels): up, down, total. Birds fly anywhere. */
@@ -1213,19 +1216,36 @@ function petLeave(){
  petFly(a,{left:x,top:y,width:a.width,height:a.height,bottom:y+a.height},way==='jump'?'walk':way,side>0?-1:1,()=>{placePet(t.el,t.kind,.1+Math.random()*.8,t.zone,t.idx);petNext(6000)});
  return true}
 /* come over from another wall: in from the side of the screen it would come from */
-function petCome(){
+function petCome(toFloor,after){
  if(turning())return false;
  const vw=typeof view==='string'?view:'room',pw=petWall(),order={goals:-1,room:0,stats:1};if(vw===pw)return false;
  const way=petWay(),side=order[pw]>order[vw]?1:-1;
  try{if(vw!=='room'&&!(vw==='goals'?GV:SV).querySelector('.card'))vw==='goals'?renderGoals():renderStats()}catch(e){}
  const a0={left:0,top:0,width:catw.offsetWidth||52,height:catw.offsetHeight||40};
- const opts=petSpots(vw).filter(t=>way==='fly'||GROUND.includes(t.kind)).map(t=>({...t,...petLanding(t,{left:side>0?innerWidth:0,width:0})})).filter(t=>t.y>60&&t.y<innerHeight-6);
+ const opts=petSpots(vw).filter(t=>(way==='fly'||GROUND.includes(t.kind))&&(!toFloor||t.kind==='floor')).map(t=>({...t,...petLanding(t,{left:side>0?innerWidth:0,width:0})})).filter(t=>toFloor||(t.y>60&&t.y<innerHeight-6));
  if(!opts.length)return false;
  const t=opts[Math.floor(Math.random()*opts.length)];placePet(t.el,t.kind,t.ratio,t.zone,t.idx);const b=catw.getBoundingClientRect();
  const x=side>0?innerWidth+40:-b.width-40,y=way==='fly'?Math.max(10,b.top-140):b.top;
  petFly({left:x,top:y,width:b.width,height:b.height,bottom:y+b.height},b,way==='jump'?'walk':way,side>0?1:-1,()=>{
-  if(t.el.isConnected)placePet(t.el,t.kind,t.ratio,t.zone,t.idx);else placePet(document.querySelector('.floor'),'floor',.5);petNext(5000+Math.random()*4000)});
+  if(t.el.isConnected)placePet(t.el,t.kind,t.ratio,t.zone,t.idx);else placePet(document.querySelector('.floor'),'floor',.5);if(after)after();else petNext(5000+Math.random()*4000)});
  return true}
+/* get down to the floor from wherever the animal is: one reachable jump/hop at a time, always going lower, until the floor is in reach */
+function petToFloor(ratio,done,n=0){
+ const floor=document.querySelector('.floor');
+ if(!floor||catw.parentElement===floor){done();return}
+ /* animals that walk but were put up high climb down in small hops */
+ const way=petWay()==='walk'&&!GROUND.includes(catw.dataset.spot)?'hop':petWay(),a=catw.getBoundingClientRect(),fr=floor.getBoundingClientRect(),w=a.width||52;
+ const tx=fr.left+6+ratio*Math.max(1,fr.width-w-12)+w/2,ty=fr.top;
+ const fx=a.left+a.width/2,fy=a.bottom,R=REACH[way];
+ const ok=(x,y)=>{if(!R)return true;const up=fy-y,dn=y-fy,d=Math.hypot(x-fx,y-fy);return up<=R[0]&&dn<=R[1]&&d<=R[2]};
+ const hop=(el,kind,r,zone,idx,next)=>{petBusy=true;placePet(el,kind,r,zone,idx);const b=catw.getBoundingClientRect();
+  const mode=way==='walk'||(GROUND.includes(catw.dataset.spot)&&GROUND.includes(kind)&&way!=='fly'&&Math.abs(a.bottom-b.bottom)<30)?'walk':way;
+  petFly(a,b,mode,fx>(b.left+b.width/2)?1:-1,()=>{if(el.isConnected)placePet(el,kind,r,zone,idx);else placePet(floor,'floor',ratio);if(mode==='jump'||mode==='hop')landSquash();next()})};
+ if(way==='fly'||way==='walk'||n>=8||ok(tx,ty)){hop(floor,'floor',ratio,undefined,undefined,done);return}
+ const opts=petSpots('room').filter(t=>t.el!==catw.parentElement&&t.kind!=='floor').map(t=>({...t,...petLanding(t,{left:tx,width:0})})).filter(t=>t.y>fy+10&&ok(t.x,t.y));
+ if(!opts.length){hop(floor,'floor',ratio,undefined,undefined,done);return}
+ opts.sort((p,q)=>Math.hypot(p.x-tx,p.y-ty)-Math.hypot(q.x-tx,q.y-ty));const t=opts[0];
+ hop(t.el,t.kind,t.ratio,t.zone,t.idx,()=>setTimeout(()=>petToFloor(ratio,done,n+1),300))}
 /* ---------- food and water bowls: the animal wanders over for a snack ---------- */
 let eatTok=0,lastMeal=0,bowlLv={day:'',food:3,water:3};
 try{bowlLv=Object.assign(bowlLv,JSON.parse(localStorage.getItem('bookshelf-bowls')||'{}'))}catch(e){}
@@ -1247,15 +1267,19 @@ function goEat(which,now){
     const dur=4500+Math.random()*3500;petT=setTimeout(()=>{if(tok!==eatTok)return;catw.classList.remove('eating');bw.classList.remove('nom');
      lastMeal=Date.now();bowlLv[which]=Math.max(0,bowlLv[which]-1);try{localStorage.setItem('bookshelf-bowls',JSON.stringify(bowlLv))}catch(e){}drawBowls();
      petNext(2500+Math.random()*3000)},dur)},260)},t*1000)};
+ /* not on the floor yet: get down there the way this animal moves (step by step from high shelves), never by appearing there */
  if(catw.parentElement!==floor){const fr=floor.getBoundingClientRect(),br=$('bowls').getBoundingClientRect(),w=catw.offsetWidth||52;
-  placePet(floor,'floor',Math.min(1,Math.max(0,(br.right-fr.left+40)/(fr.width-w))));tok=++eatTok;
-  cat.classList.remove('arrive');void cat.getBoundingClientRect();cat.classList.add('arrive');setTimeout(walkOver,900)}
+  catw.classList.remove('sleeping');
+  petToFloor(Math.min(1,Math.max(0,(br.right-fr.left+40)/(fr.width-w))),()=>{tok=eatTok;setTimeout(walkOver,350)})}
  else walkOver();
  return true}
 document.querySelectorAll('.bowl').forEach(b=>b.onclick=()=>{
  drawBowls();bowlLv.food=3;bowlLv.water=3;try{localStorage.setItem('bookshelf-bowls',JSON.stringify(bowlLv))}catch(e){}drawBowls();try{sfx('pop')}catch(e){}
  b.animate([{transform:'none'},{transform:'translateY(-4px) rotate(-4deg)'},{transform:'none'}],{duration:300});
- if(goEat(b.id==='foodbowl'?'food':'water'))toast(L('Snack time!'))});
+ const which=b.id==='foodbowl'?'food':'water';
+ /* the animal is on another wall: it comes in from that side along the floor, then goes to the bowl */
+ if(sid('pet')!=='none'&&!reduce&&!petBusy&&!$('roomv').contains(catw)){if(petCome(true,()=>goEat(which)))toast(L('Snack time!'));return}
+ if(goEat(which))toast(L('Snack time!'))});
 drawBowls();
 applyLook();
 async function keepSafe(){try{if(navigator.storage&&navigator.storage.persist){return (await navigator.storage.persisted())||(await navigator.storage.persist())}}catch(e){}return false}
