@@ -296,18 +296,21 @@ html,body{height:100%;overflow:hidden}
 #roomv{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;z-index:1}
 #roomv>*{flex-shrink:0}
 /* tell the phone these layers are about to move, so it draws them once and keeps that drawing instead of redrawing every frame */
-body.turningview #roomv,body.turningview .statsv,.wallext,.hexwall{will-change:transform}
+/* the walls stay on their own layers all the time: adding and removing that at the start and end of a turn made the phone redraw them, which showed as a one-frame blink */
+#roomv,.statsv,.wallext,.hexwall{will-change:transform}
 .wallext:after{content:"";position:absolute;inset:0;background:#000;opacity:var(--shade,0);pointer-events:none}
 
 .hexwall{position:fixed;inset:0;z-index:3;display:none;pointer-events:none;backface-visibility:hidden;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
 .hexwall:after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
 .hexwall .molding{position:absolute;left:0;right:0;top:0;height:10px;background:var(--base);opacity:.8}
 body.turningview .hexwall{display:block}
-.hexback{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;background:linear-gradient(to bottom,var(--wall2) 0 50%,var(--fl2) 50% 100%);filter:brightness(.8)}
+.hexback{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;background:#0c0907}
 body.turningview .hexback{display:block}
 /* one continuous room while turning: behind every wall sits a taller copy of it (same stripes above, floor below), turned exactly like the wall */
 .wallext{position:fixed;left:0;right:0;top:-100vh;height:300vh;z-index:0;display:none;pointer-events:none;transform-origin:50% 50%;backface-visibility:hidden}
-body.turningview .wallext{display:block}
+/* walls turn alone again: dark above and below while turning */
+body.turningview .wallext{display:none}
+html:has(body.turningview),body.turningview{background:#0c0907}
 .wallext .wt{position:absolute;left:0;right:0;top:0;height:66.67%;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
 .wallext .wf{position:absolute;left:0;right:0;bottom:0;height:33.33%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
 .hexback{background:linear-gradient(to bottom,var(--wall) 0 50%,var(--fl2) 50% 100%)!important}
@@ -783,6 +786,7 @@ function renderZone(zone){
  meas.remove()}
 let dataVer=0,wallVer=-1,wallAt=0,wallLang='';
 function render(){
+ try{petSync()}catch(e){}
  dataVer++;try{computeSeriesH()}catch(e){}
  migrate();
  ['reading','want','read','dnf'].forEach(renderZone);
@@ -983,6 +987,12 @@ function moveCat(here){
  cat.classList.remove('arrive');void cat.getBoundingClientRect();cat.classList.add('arrive');
  petNext(2500+Math.random()*3000)
 }
+/* remember where the animal really is (after walking around), so redrawing the shelves puts it back on the same spot instead of where it first sat */
+function petSync(){
+ if(!petPlace||!catw.parentElement||catw.parentElement===document.body||catw.classList.contains('travel')||!catw.isConnected)return;
+ const par=catw.parentElement,pr=par.getBoundingClientRect(),cr=catw.getBoundingClientRect();if(!pr.width)return;
+ const pad=catw.dataset.spot==='sill'?-14:6,w=catw.offsetWidth||52;
+ petPlace.ratio=Math.max(0,Math.min(1,(cr.left-pr.left-pad)/Math.max(1,pr.width-w-2*pad)))}
 function petAfterRender(){
  if(!petPlace||document.body.contains(catw))return;
  if(petPlace.kind==='card'){const w=petPlace.zone==='goals'?GV:SV,cards=[...w.querySelectorAll('.card')];
@@ -1095,7 +1105,8 @@ $('lov').onclick=e=>{if(e.target===$('lov'))$('lov').classList.remove('on')};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('lov').classList.remove('on')});
 $('mvcat').onclick=()=>moveCat(true);
 $('rst').onclick=()=>{look={};try{localStorage.removeItem(LK)}catch(e){}applyLook();buildPanel()};
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')moveCat()});
+/* coming back to the app: the animal stays where it was (it used to jump somewhere new, which looked like teleporting) */
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!petBusy)petNext(4000)});
 /* ---------- little friend's routine: wander, sit, nap ---------- */
 let petT=null,petX=0,petDir=1;
 ['animationend','animationcancel'].forEach(ev=>cat.addEventListener(ev,e=>{if(e.target===cat&&(e.animationName==='arrive'||e.animationName==='hop'||e.animationName==='landed'))cat.classList.remove('arrive','hop','landed')}));
@@ -1710,7 +1721,7 @@ function turnStart(){
  const ce=wallEl(WALLS[view]),fb=Math.max(0,ce.scrollHeight-ce.clientHeight-ce.scrollTop);
  [GV,RV,SV].forEach(e=>{if(e!==ce)e.scrollTop=Math.max(0,e.scrollHeight-e.clientHeight-fb)});
  /* the real walls turn, one screen each; the stripes keep going above and below */
- [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]].concat(EXTS.map(([x,k])=>[x,k,1]))}
+ [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]]}
 function camSet(c){cam=c;const back=innerWidth*.866*.2*Math.abs(Math.sin(Math.PI*c));TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);if(ov)e.style.setProperty('--shade',(Math.min(1,Math.abs(a)/60)*.26).toFixed(3));else e.style.filter=shade(a)})}
 function turnEnd(){
  const k=Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
@@ -1984,7 +1995,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;
  else if($('yrov').classList.contains('on')){e.stopImmediatePropagation();$('yrov').classList.remove('on')}
  else if($('genov').classList.contains('on')){e.stopImmediatePropagation();$('genov').classList.remove('on')}},true);
 /* ---------- the pet keeps its seat when a side wall redraws ---------- */
-{const rs=renderStats,rg=renderGoals;renderStats=function(){rs();petAfterRender()};renderGoals=function(){rg();petAfterRender()}}
+{const rs=renderStats,rg=renderGoals;renderStats=function(){try{petSync()}catch(e){}rs();petAfterRender()};renderGoals=function(){try{petSync()}catch(e){}rg();petAfterRender()}}
 /* ---------- live window: the real time of day, and the real weather when a place is set ---------- */
 const WXK='bookshelf-wxloc',WXC='bookshelf-wx',FAHR=/^en-US/i.test(navigator.language||'');
 let wxLoc=null,wxData=null;try{wxLoc=JSON.parse(localStorage.getItem(WXK)||'null');wxData=JSON.parse(localStorage.getItem(WXC)||'null')}catch(e){}
