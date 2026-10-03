@@ -209,16 +209,16 @@ body.dragmode{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .sheet{background:var(--card);border-radius:14px;max-width:800px;width:100%;max-height:100%;overflow:auto;display:grid;grid-template-columns:230px 1fr;gap:6px 18px;padding:18px}
 @media(max-width:640px){.sheet{grid-template-columns:1fr}}
 .stage{perspective:900px;height:270px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.book{width:150px;height:220px;position:relative;transform-style:preserve-3d;transform:rotateY(-28deg);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
+.book{width:var(--bw,150px);height:220px;position:relative;transform-style:preserve-3d;transform:rotateY(-28deg);transition:transform .7s cubic-bezier(.3,.7,.2,1)}
 .book.flip{transform:rotateY(152deg)}
 .f{position:absolute;inset:0;backface-visibility:hidden;border-radius:2px 6px 6px 2px;background-size:cover;background-position:center}
 .front{transform:translateZ(14px);background-color:var(--c);color:#fff;padding:22px 14px;display:flex;flex-direction:column;justify-content:space-between;text-align:center;box-shadow:inset 0 0 0 5px rgba(255,255,255,.12)}
-.front.img{box-shadow:none}.front.img *{display:none}
+.front{overflow:hidden}.front.img{box-shadow:none}.front.img *{display:none}
 .front b{font-size:19px;line-height:1.15;word-break:break-word}.front i{font-size:12px;opacity:.85}
 .back{transform:rotateY(180deg) translateZ(14px);background-color:#f6eedd;color:#2a2118;padding:14px;font-size:11.5px;overflow:auto;white-space:pre-wrap;box-shadow:inset 0 0 0 4px var(--c)}
 .back.img{padding:0;box-shadow:none}
-.sp{position:absolute;width:28px;height:100%;left:61px;transform:rotateY(-90deg) translateZ(75px);background-color:var(--c);background-size:100% 100%;filter:brightness(.8)}
-.pg{position:absolute;width:28px;height:96%;top:2%;left:61px;transform:rotateY(90deg) translateZ(75px);background:repeating-linear-gradient(0deg,#f4ecdc,#f4ecdc 2px,#d8ccb2 3px)}
+.sp{position:absolute;width:28px;height:100%;left:calc(var(--bw,150px)/2 - 14px);transform:rotateY(-90deg) translateZ(calc(var(--bw,150px)/2));background-color:var(--c);background-size:100% 100%;filter:brightness(.8)}
+.pg{position:absolute;width:28px;height:96%;top:2%;left:calc(var(--bw,150px)/2 - 14px);transform:rotateY(90deg) translateZ(calc(var(--bw,150px)/2));background:repeating-linear-gradient(0deg,#f4ecdc,#f4ecdc 2px,#d8ccb2 3px)}
 .hint{text-align:center;font:12px system-ui,sans-serif;color:var(--muted)}
 form{display:flex;flex-direction:column;gap:10px;font-family:system-ui,sans-serif;grid-row:1/3;grid-column:2}
 @media(max-width:640px){form{grid-row:auto;grid-column:1}}
@@ -1017,6 +1017,10 @@ function pv(){
  const c=$('color').value;$('book').style.setProperty('--c',c);
  $('fT').textContent=$('title').value||L('Untitled');{const sr=$('series').value.trim(),no=$('seriesNo').value,of=$('seriesOf').value;$('fS').textContent=sr&&no?(of?L('Book {n} of {m} · {s}',{n:no,m:of,s:sr}):L('Book {n} · {s}',{n:no,s:sr})):sr}$('fA').textContent=$('author').value;$('fR').textContent=fStatus==='read'?(starStr(fStars)||L('Not rated yet'))+($('finished').value?'\n'+L('Finished {d}',{d:fmtDate($('finished').value)}):''):fStatus==='dnf'?L("Didn't finish"):fStatus==='reading'?(+$('pages').value?L('p. {p} / {n}',{p:+$('page').value||0,n:$('pages').value}):L('Reading')):L('Want to read');
  const f=$('front');f.classList.toggle('img',!!draft.cover);f.style.backgroundImage=draft.cover?`url(${draft.cover})`:'';
+ /* the book takes the proportions of its cover picture, so the picture is shown whole and centred instead of having its edges cut */
+ {const bw=w=>$('book').style.setProperty('--bw',w+'px'),src=draft.cover;if(!src){pv.src='';bw(150)}else if(pv.src!==src){pv.src=src;const im=new Image();im.onload=()=>{if(draft.cover===src&&im.naturalHeight)bw(Math.round(Math.max(118,Math.min(190,220*im.naturalWidth/im.naturalHeight))))};im.src=src}}
+ /* a long title is made smaller until everything fits on the cover */
+ {const t=$('fT');t.style.fontSize='';if(!draft.cover){let s=19;while(f.scrollHeight>f.clientHeight+1&&s>11){s--;t.style.fontSize=s+'px'}}}
  const k=$('bk');k.classList.toggle('img',!!draft.back);k.style.backgroundImage=draft.back?`url(${draft.back})`:'';k.textContent=draft.back?'':($('blurb').value||L('No blurb yet.'));
  $('sp').style.backgroundImage=draft.spine?`url(${draft.spine})`:'';drawStars();
  document.querySelectorAll('.slot').forEach(s=>{const n=s.dataset.k;s.querySelector('.th').style.backgroundImage=draft[n]?`url(${draft[n]})`:'';s.querySelector('.rm').style.display=draft[n]?'':'none'})
@@ -1555,7 +1559,7 @@ keepSafe();
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let busy=false,justDragged=false;
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
-function bookRect(){const r=$('stage').getBoundingClientRect();return{left:r.left+r.width/2-75,top:r.top+r.height/2-110,width:150,height:220}}
+function bookRect(){const r=$('stage').getBoundingClientRect(),w=$('book').offsetWidth||150;return{left:r.left+r.width/2-w/2,top:r.top+r.height/2-110,width:w,height:220}}
 const bez=(x1,y1,x2,y2)=>t=>{const cx=3*x1,bx=3*(x2-x1)-cx,ax=1-cx-bx,cy=3*y1,by=3*(y2-y1)-cy,ay=1-cy-by,X=s=>((ax*s+bx)*s+cx)*s,Y=s=>((ay*s+by)*s+cy)*s;let lo=0,hi=1,s=t;for(let i=0;i<24;i++){const x=X(s);if(Math.abs(x-t)<1e-4)break;if(x>t)hi=s;else lo=s;s=(lo+hi)/2}return Y(s)};
 function flyBook(b,from,to,opening,done,liveTo){
  busy=true;
