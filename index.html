@@ -297,22 +297,19 @@ html,body{height:100%;overflow:hidden}
 #roomv>*{flex-shrink:0}
 /* tell the phone these layers are about to move, so it draws them once and keeps that drawing instead of redrawing every frame */
 /* the walls stay on their own layers all the time: adding and removing that at the start and end of a turn made the phone redraw them, which showed as a one-frame blink */
-#roomv,.statsv,.hexwall{will-change:transform}
+#roomv,.statsv,.wallext,.hexwall{will-change:transform}
 .wallext:after{content:"";position:absolute;inset:0;background:#000;opacity:var(--shade,0);pointer-events:none}
 
 .hexwall{position:fixed;inset:0;z-index:3;display:none;pointer-events:none;backface-visibility:hidden;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
-.hexwall:after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--flh,22%);box-sizing:border-box;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
+.hexwall:after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
 .hexwall .molding{position:absolute;left:0;right:0;top:0;height:10px;background:var(--base);opacity:.8}
 body.turningview .hexwall{display:block}
 .hexback{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;background:#0c0907}
 body.turningview .hexback{display:block}
 /* one continuous room while turning: behind every wall sits a taller copy of it (same stripes above, floor below), turned exactly like the wall */
-/* the wall carries on above and below while the room turns: two strips per wall (half a screen each, far smaller than the old full-height copies), turned exactly like their wall. They always exist, parked just off screen, so nothing has to be built when a turn starts */
-.wallext{position:fixed;left:0;right:0;height:50vh;z-index:0;pointer-events:none;backface-visibility:hidden;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
-.wallext.t{top:-50vh;transform-origin:50% 200%}
-.wallext.b{top:100vh;transform-origin:50% -100%}
-.wallext.b.fl{background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
+.wallext{position:fixed;left:0;right:0;top:-100vh;height:300vh;z-index:0;display:none;pointer-events:none;transform-origin:50% 50%;backface-visibility:hidden}
 /* walls turn alone again: dark above and below while turning */
+body.turningview .wallext{display:none}
 html:has(body.turningview),body.turningview{background:#0c0907}
 .wallext .wt{position:absolute;left:0;right:0;top:0;height:66.67%;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
 .wallext .wf{position:absolute;left:0;right:0;bottom:0;height:33.33%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
@@ -705,15 +702,6 @@ input,textarea,.pnl select,.btns button,.isbnrow button,.scanb{border-radius:10p
 /* buttons give a little under the finger */
 button:not(.bk):not(.spine):not(.cov):active{scale:.97}
 @media(prefers-reduced-motion:reduce){button:active{scale:1}}
-
-/* ---------- walls that keep going: each wall is really taller than the screen, with half a screen of the real room hidden above and below.
-   Nothing is copied and nothing is resized when a turn starts; turning just lets you see the bookcase, the cards and the floor carry on past the edge ---------- */
-#roomv,.statsv,.hexwall{top:-50vh;bottom:-50vh;height:auto;scroll-padding:50vh 0}
-#roomv:before,.statsv:before{content:"";display:block;flex:none;height:50vh}
-#roomv:after,.statsv:after{content:"";display:block;flex:none;height:50vh;background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
-.statsv>.leaves{top:50vh}
-.hexwall:after{height:calc(var(--flh,22%) + 50vh)}
-.wallext{display:none}
 </style></head>
 <body>
 <div id="roomv">
@@ -1953,7 +1941,7 @@ function renderStats(){
 $('styear').onchange=()=>{stYear=$('styear').value;renderStats()};
 /* ---------- the hexagonal room: goals & quotes (left) · bookshelf · stats (right), no loop ---------- */
 const GV=$('goalsv'),WALLS={goals:-1,room:0,stats:1},FACES=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]];
-const EXTS=FACES.flatMap(([,k])=>['t','b'].map(p=>{const x=document.createElement('div');x.className='wallext '+p;x.setAttribute('aria-hidden','true');document.body.append(x);return[x,k]}));
+const EXTS=FACES.map(([,k])=>{const x=document.createElement('div');x.className='wallext';x.setAttribute('aria-hidden','true');x.innerHTML='<i class="wt"></i><i class="wf"></i>';document.body.append(x);return[x,k]});
 let cam=0,camAnim=0,swipe=null,swipeBlock=false,frozenY=0;
 const wallEl=k=>k<0?GV:k>0?SV:RV,wallName=k=>k<0?'goals':k>0?'stats':'room';
 /* while turning (and while another wall is shown) the room is pinned to exactly one screen, scrolled to where you were */
@@ -1970,16 +1958,9 @@ function turnStart(){
  RV.classList.remove('away');GV.hidden=false;SV.hidden=false;document.body.classList.add('turningview');
  /* keep the floor at the same height on every wall */
  const ce=wallEl(WALLS[view]),fb=Math.max(0,ce.scrollHeight-ce.clientHeight-ce.scrollTop);
- /* the floor line of the wall you're on decides it: the other walls get a floor just as tall and are scrolled so their floor starts at the very same height */
- const fEl=w=>w===RV?RV.querySelector('.floor'):w.querySelector('.wallfloor'),cf=fEl(ce),ftop=cf?cf.getBoundingClientRect().top:innerHeight+1,fvis=ftop<innerHeight-1;
- [GV,RV,SV].forEach(e=>{if(e===ce)return;const f=fEl(e);if(f)f.style.minHeight='';
-  if(fvis&&f){f.style.minHeight=Math.ceil(innerHeight-ftop)+'px';e.scrollTop=e.scrollHeight;e.scrollTop+=f.getBoundingClientRect().top-ftop}
-  else e.scrollTop=Math.max(0,e.scrollHeight-e.clientHeight-fb)});
- document.body.style.setProperty('--flh',fvis?Math.ceil(innerHeight-ftop)+'px':'0px');
+ [GV,RV,SV].forEach(e=>{if(e!==ce)e.scrollTop=Math.max(0,e.scrollHeight-e.clientHeight-fb)});
  /* the real walls turn, one screen each; the stripes keep going above and below */
- [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]];
- /* below the wall is floor when you're at the bottom of the room, and more wall when you're higher up */
- EXTS.forEach(([x])=>{if(x.classList.contains('b'))x.classList.toggle('fl',fvis)})}
+ [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]]}
 function camSet(c){cam=c;const back=innerWidth*.866*.2*Math.abs(Math.sin(Math.PI*c));TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);if(ov)e.style.setProperty('--shade',(Math.min(1,Math.abs(a)/60)*.26).toFixed(3));else e.style.filter=shade(a)})}
 function turnEnd(){
  const k=Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
