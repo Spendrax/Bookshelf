@@ -290,7 +290,7 @@ html{scrollbar-gutter:stable}
 #roomv.frozen{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:1}
 #roomv.frozen>*{flex-shrink:0}
 #roomv.turning{will-change:transform;backface-visibility:hidden}
-#roomv.away{visibility:hidden;pointer-events:none}
+#roomv.away{pointer-events:none}
 /* the room always scrolls inside itself, like the other walls: switching scroll modes when turning made phones blink */
 html,body{height:100%;overflow:hidden}
 #roomv{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;z-index:1}
@@ -311,7 +311,7 @@ body.turningview .hexback{display:block}
 /* walls turn alone again: dark above and below while turning */
 body.turningview .wallext{display:none}
 /* behind the turning walls: the wall colour, so the hairline where two walls meet (and anything a phone fails to cover) reads as wall, not as a dark crack */
-html:has(body.turningview),body.turningview{background:var(--wall2)}
+
 .wallext .wt{position:absolute;left:0;right:0;top:0;height:66.67%;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
 .wallext .wf{position:absolute;left:0;right:0;bottom:0;height:33.33%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
 .hexback{background:linear-gradient(to bottom,var(--wall) 0 50%,var(--fl2) 50% 100%)!important}
@@ -354,7 +354,7 @@ html:has(body.turningview),body.turningview{background:var(--wall2)}
 @keyframes edgeR{0%,100%{opacity:.15}50%{opacity:.55;translate:3px 0}}
 @keyframes edgeL{0%,100%{opacity:.15}50%{opacity:.55;translate:-3px 0}}
 @media(prefers-reduced-motion:reduce){.edgetab{animation:none;opacity:.35}}
-body.onstats .edgetab,body.turningview .edgetab{display:none}
+body.onstats .edgetab,body.turningview .edgetab{clip-path:inset(50%);pointer-events:none}
 .gsugg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 .gsugg:empty{display:none}
 .chip.sug{background:transparent;border-style:dashed}
@@ -703,6 +703,11 @@ input,textarea,.pnl select,.btns button,.isbnrow button,.scanb{border-radius:10p
 /* buttons give a little under the finger */
 button:not(.bk):not(.spine):not(.cov):active{scale:.97}
 @media(prefers-reduced-motion:reduce){button:active{scale:1}}
+
+/* the spare walls and the backing always exist (parked off screen) instead of being switched on and off around a turn */
+.hexwall{display:block;transform:translateX(-300vw)}
+.hexback{display:block;background:var(--wall2)!important}
+[inert] .leaf,[inert] .leaf i,[inert] .cat *{animation-play-state:paused!important}
 </style></head>
 <body>
 <div id="roomv">
@@ -1956,7 +1961,7 @@ function turnStart(){
  if(turning())return;turning.busy=true;
  /* only rebuild the other walls when something changed: rebuilding them every time made the start of a turn stutter */
  if(dataVer!==wallVer||Date.now()-wallAt>60000||lang!==wallLang||!SV.querySelector('.card')||!GV.querySelector('.card')){if(view!=='stats')renderStats();if(view!=='goals')renderGoals();wallVer=dataVer;wallAt=Date.now();wallLang=lang}
- RV.classList.remove('away');GV.hidden=false;SV.hidden=false;document.body.classList.add('turningview');
+ RV.classList.remove('away');[GV,RV,SV].forEach(e=>{e.hidden=false;e.inert=false});document.body.classList.add('turningview');
  /* keep the floor at the same height on every wall */
  const ce=wallEl(WALLS[view]),fb=Math.max(0,ce.scrollHeight-ce.clientHeight-ce.scrollTop);
  /* the floor line of the wall you're on decides it: the other walls get a floor just as tall and are scrolled so their floor starts at the very same height */
@@ -1969,15 +1974,18 @@ function turnStart(){
  /* the real walls turn, one screen each; the stripes keep going above and below */
  [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]]}
 /* turning is now like turning your head in the middle of the room: instead of stepping back (which left gaps above and below the walls), the view moves in just enough that the corner between two walls always reaches from the top of the screen to the bottom. The walls stay one screen big, so there is nothing extra for the phone to draw */
-function camSet(c){cam=c;const fr=c-Math.floor(c),back=innerWidth*.866*(1-1.1547*Math.cos((60*fr-30)*Math.PI/180))*1.03;TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);if(ov)e.style.setProperty('--shade',(Math.min(1,Math.abs(a)/60)*.26).toFixed(3));else e.style.filter=shade(a)})}
+function camSet(c){cam=c;const fr=c-Math.floor(c),back=innerWidth*.866*(1-1.1547*Math.cos((60*fr-30)*Math.PI/180))*1.03;TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);})}
 function turnEnd(){
  const k=Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
- view=wallName(k);GV.hidden=k!==-1;SV.hidden=k!==1;
- [GV,RV,SV].forEach(e=>{e.style.transform='';e.style.filter='';e.style.transformOrigin=''});
+ view=wallName(k);
+ /* nothing is hidden, shown, created or removed when you land: on some phones that made the books blink for a frame. The other two walls simply wait just off screen, switched off (inert), ready for the next turn */
+ [[GV,-1],[RV,0],[SV,1]].forEach(([e,j])=>{const on=j===k;e.inert=!on;e.style.transformOrigin='';e.style.transform=on?'':`translateX(${j<k?-100.5:100.5}vw)`});
  if(k===0){RV.classList.remove('away');document.body.classList.remove('onstats')}
  else{RV.classList.add('away');document.body.classList.add('onstats');wallEl(k).focus({preventScroll:true})}
- requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!turning())document.body.classList.remove('turningview');
-  [[$('hexw1')],[$('hexw2')]].concat(EXTS).forEach(([e])=>{if(!turning()){e.style.transform='';e.style.filter='';e.style.removeProperty('--shade')}})}))}
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!turning())document.body.classList.remove('turningview')}))}
+/* a moment after opening, the two side walls are prepared and parked off screen, so even the first turn has nothing to build */
+setTimeout(()=>{try{if(turning()||view!=='room'||!GV.hidden)return;if(!SV.querySelector('.card'))renderStats();if(!GV.querySelector('.card'))renderGoals();wallVer=dataVer;wallAt=Date.now();wallLang=lang;
+ [[GV,-100.5],[SV,100.5]].forEach(([e,x])=>{e.style.transform=`translateX(${x}vw)`;e.inert=true;e.hidden=false})}catch(e){}},2600);
 function turnTo(target,from){
  cancelAnimationFrame(camAnim);turnStart();
  if(reduce){camSet(target);turnEnd();return}
