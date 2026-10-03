@@ -301,7 +301,7 @@ html,body{height:100%;overflow:hidden}
 .wallext:after{content:"";position:absolute;inset:0;background:#000;opacity:var(--shade,0);pointer-events:none}
 
 .hexwall{position:fixed;inset:0;z-index:3;display:none;pointer-events:none;backface-visibility:hidden;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
-.hexwall:after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
+.hexwall:after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--flh,22%);box-sizing:border-box;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
 .hexwall .molding{position:absolute;left:0;right:0;top:0;height:10px;background:var(--base);opacity:.8}
 body.turningview .hexwall{display:block}
 .hexback{position:fixed;inset:0;z-index:-1;display:none;pointer-events:none;background:#0c0907}
@@ -310,7 +310,8 @@ body.turningview .hexback{display:block}
 .wallext{position:fixed;left:0;right:0;top:-100vh;height:300vh;z-index:0;display:none;pointer-events:none;transform-origin:50% 50%;backface-visibility:hidden}
 /* walls turn alone again: dark above and below while turning */
 body.turningview .wallext{display:none}
-html:has(body.turningview),body.turningview{background:#0c0907}
+/* behind the turning walls: the wall colour, so the hairline where two walls meet (and anything a phone fails to cover) reads as wall, not as a dark crack */
+html:has(body.turningview),body.turningview{background:var(--wall2)}
 .wallext .wt{position:absolute;left:0;right:0;top:0;height:66.67%;background:var(--wallbg,repeating-linear-gradient(90deg,var(--wall) 0 46px,var(--wall2) 46px 92px));background-color:var(--wall)}
 .wallext .wf{position:absolute;left:0;right:0;bottom:0;height:33.33%;border-top:12px solid var(--base);background:var(--floorbg,repeating-linear-gradient(90deg,var(--fl1) 0 118px,var(--fl2) 118px 120px))}
 .hexback{background:linear-gradient(to bottom,var(--wall) 0 50%,var(--fl2) 50% 100%)!important}
@@ -1958,10 +1959,17 @@ function turnStart(){
  RV.classList.remove('away');GV.hidden=false;SV.hidden=false;document.body.classList.add('turningview');
  /* keep the floor at the same height on every wall */
  const ce=wallEl(WALLS[view]),fb=Math.max(0,ce.scrollHeight-ce.clientHeight-ce.scrollTop);
- [GV,RV,SV].forEach(e=>{if(e!==ce)e.scrollTop=Math.max(0,e.scrollHeight-e.clientHeight-fb)});
+ /* the floor line of the wall you're on decides it: the other walls get a floor just as tall and are scrolled so their floor starts at the very same height */
+ const fEl=w=>w===RV?RV.querySelector('.floor'):w.querySelector('.wallfloor'),cf=fEl(ce),ftop=cf?cf.getBoundingClientRect().top:innerHeight+1,fvis=ftop<innerHeight-1;
+ [GV,RV,SV].forEach(e=>{if(e===ce)return;const f=fEl(e);if(f)f.style.minHeight='';
+  if(fvis&&f){f.style.minHeight=Math.ceil(innerHeight-ftop)+'px';e.scrollTop=e.scrollHeight;e.scrollTop+=f.getBoundingClientRect().top-ftop}
+  /* no floor in view: the walls stay level with each other from the top (top of one wall = top of the next), stopping before the other wall's floor would show */
+  else{const fy=f?f.getBoundingClientRect().top-e.getBoundingClientRect().top+e.scrollTop:e.scrollHeight;e.scrollTop=Math.max(0,Math.min(ce.scrollTop,fy-e.clientHeight-2))}});
+ document.body.style.setProperty('--flh',fvis?Math.ceil(innerHeight-ftop)+'px':'0px');
  /* the real walls turn, one screen each; the stripes keep going above and below */
  [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]]}
-function camSet(c){cam=c;const back=innerWidth*.866*.2*Math.abs(Math.sin(Math.PI*c));TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);if(ov)e.style.setProperty('--shade',(Math.min(1,Math.abs(a)/60)*.26).toFixed(3));else e.style.filter=shade(a)})}
+/* turning is now like turning your head in the middle of the room: instead of stepping back (which left gaps above and below the walls), the view moves in just enough that the corner between two walls always reaches from the top of the screen to the bottom. The walls stay one screen big, so there is nothing extra for the phone to draw */
+function camSet(c){cam=c;const fr=c-Math.floor(c),back=innerWidth*.866*(1-1.1547*Math.cos((60*fr-30)*Math.PI/180))*1.03;TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);if(ov)e.style.setProperty('--shade',(Math.min(1,Math.abs(a)/60)*.26).toFixed(3));else e.style.filter=shade(a)})}
 function turnEnd(){
  const k=Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
  view=wallName(k);GV.hidden=k!==-1;SV.hidden=k!==1;
