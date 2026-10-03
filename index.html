@@ -664,7 +664,7 @@ body.night-live.nightroom.lampon:not(.nolamp) #nightshade{opacity:.17;background
 /* leaves now fall by being moved, not by changing their position, so the page is no longer re-measured on every frame */
 .leaves{container-type:size}
 @keyframes fall{to{translate:0 calc(100cqh + 80px)}}
-#roomv.away .leaf,#roomv.away .leaf i{animation-play-state:paused}
+/* animations on the walls you aren't looking at are no longer paused and resumed around a turn: starting and stopping them at the moment of landing is the kind of change that made things blink */
 /* the scanner's red line only moves while the scanner is open */
 .cam .guide:after{animation-play-state:paused}
 #scan.on .cam .guide:after{animation-play-state:running}
@@ -707,7 +707,8 @@ button:not(.bk):not(.spine):not(.cov):active{scale:.97}
 /* the spare walls and the backing always exist (parked off screen) instead of being switched on and off around a turn */
 .hexwall{display:block;transform:translateX(-300vw)}
 .hexback{display:block;background:var(--wall2)!important}
-[inert] .leaf,[inert] .leaf i,[inert] .cat *{animation-play-state:paused!important}
+/* a wall is given keyboard focus when you land on it; it must not draw a focus ring (that ring showed as a coloured line at the corner while turning) */
+#roomv:focus,#roomv:focus-visible,.statsv:focus,.statsv:focus-visible{outline:none}
 </style></head>
 <body>
 <div id="roomv">
