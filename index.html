@@ -1810,8 +1810,10 @@ function toIsbn13(raw){
  return null}
 /* one request with a time limit, so a slow book site can't hold everything up */
 /* a Google Books key of your own goes here (optional): the app then gets its own daily allowance */
-const GBKEY='';
-const tfetch=(u,ms=7000)=>{if(GBKEY&&u.includes('googleapis.com/books'))u+='&key='+GBKEY;const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(u,{signal:c.signal}).then(r=>{if(!r.ok)throw 0;return r.json()}).finally(()=>clearTimeout(t))};
+/* the key only works from the app's own address, so it is only sent from there; if Google refuses it, the same question is asked again without it */
+const GBKEY=location.hostname==='spendrax.github.io'?'AIzaSyC2WGK3gGwzQYwFQQLQeQBhHCMKlHuSwpo':'';
+const tfetch1=(u,ms)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(u,{signal:c.signal}).then(r=>{if(!r.ok)throw 0;return r.json()}).finally(()=>clearTimeout(t))};
+const tfetch=(u,ms=7000)=>GBKEY&&u.includes('googleapis.com/books')?tfetch1(u+'&key='+GBKEY,ms).catch(()=>tfetch1(u,ms)):tfetch1(u,ms);
 /* the places asked about an ISBN, all at once */
 function isbnSources(isbn){return [
   tfetch('https://openlibrary.org/search.json?limit=1&fields=key,title,author_name,cover_i,number_of_pages_median,subject&q=isbn:'+isbn).then(j=>{const d=j.docs&&j.docs[0];if(!d||!d.title)throw 0;return{...d,isbn}}),
