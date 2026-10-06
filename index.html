@@ -705,7 +705,8 @@ input[type=date]{min-width:0}
 /* one rule for corners: inputs and form buttons 10px, small secondary actions are pills, cards 14px */
 input,textarea,.pnl select,.btns button,.isbnrow button,.scanb{border-radius:10px}
 /* buttons give a little under the finger */
-button:not(.bk):not(.spine):not(.cov):active{scale:.97}
+/* the press is shown by darkening, not shrinking: shrinking made the phone build a drawing layer on every tap, which blanked the screen for a frame */
+button:not(.bk):not(.spine):not(.cov):active{box-shadow:inset 0 0 0 99px rgba(0,0,0,.14)}
 @media(prefers-reduced-motion:reduce){button:active{scale:1}}
 
 /* the spare walls and the backing always exist (parked off screen) instead of being switched on and off around a turn */
@@ -858,6 +859,9 @@ body.dressing #roomv{padding-bottom:58vh}
 #lov .pnl{transform:translateZ(0);contain:paint}
 body.dressing #leaves,body.dressing .leaves{display:none}
 @media(prefers-reduced-motion:reduce){.czpulse{animation:none}}
+
+/* pop-up windows keep their own drawing layer: it used to be thrown away the moment the fade-in ended, and the phone showed one frame without the window */
+.ov{will-change:opacity}
 </style></head>
 <body>
 <div id="roomv">
