@@ -262,9 +262,9 @@ input[type=color]{padding:2px;height:36px;width:70px}
 .cropstage{position:relative;overflow:hidden;border-radius:6px;touch-action:none;background:#000}
 .cropstage canvas{display:block}
 .cropbox{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move;touch-action:none}
-.cropbox i{position:absolute;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--acc);box-shadow:0 1px 4px rgba(0,0,0,.5)}
-.cropbox i[data-h=nw]{left:-13px;top:-13px;cursor:nwse-resize}.cropbox i[data-h=ne]{right:-13px;top:-13px;cursor:nesw-resize}
-.cropbox i[data-h=sw]{left:-13px;bottom:-13px;cursor:nesw-resize}.cropbox i[data-h=se]{right:-13px;bottom:-13px;cursor:nwse-resize}
+
+
+
 .croptools{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .croptools button{font:13px system-ui,sans-serif;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .slot .cam{font-size:12px}
@@ -862,6 +862,20 @@ body.dressing #leaves,body.dressing .leaves{display:none}
 
 /* pop-up windows keep their own drawing layer: it used to be thrown away the moment the fade-in ended, and the phone showed one frame without the window */
 .ov{will-change:opacity}
+/* the grips are see-through: only thin corner marks and small bars on the sides are drawn, so the picture under them stays visible; the area that answers the finger is larger than the mark */
+.cropbox{border-width:1px}
+.cropbox i{position:absolute;width:38px;height:38px}
+.cropbox i:before{content:"";position:absolute;width:16px;height:16px;border:0 solid #fff;filter:drop-shadow(0 0 1.5px rgba(0,0,0,.8))}
+.cropbox i[data-h=nw]{left:-19px;top:-19px;cursor:nwse-resize}.cropbox i[data-h=nw]:before{left:17px;top:17px;border-width:4px 0 0 4px}
+.cropbox i[data-h=ne]{right:-19px;top:-19px;cursor:nesw-resize}.cropbox i[data-h=ne]:before{right:17px;top:17px;border-width:4px 4px 0 0}
+.cropbox i[data-h=sw]{left:-19px;bottom:-19px;cursor:nesw-resize}.cropbox i[data-h=sw]:before{left:17px;bottom:17px;border-width:0 0 4px 4px}
+.cropbox i[data-h=se]{right:-19px;bottom:-19px;cursor:nwse-resize}.cropbox i[data-h=se]:before{right:17px;bottom:17px;border-width:0 4px 4px 0}
+.cropbox i[data-h=n],.cropbox i[data-h=s]{left:19px;right:19px;width:auto;height:28px;cursor:ns-resize}
+.cropbox i[data-h=w],.cropbox i[data-h=e]{top:19px;bottom:19px;height:auto;width:28px;cursor:ew-resize}
+.cropbox i[data-h=n]{top:-14px}.cropbox i[data-h=s]{bottom:-14px}.cropbox i[data-h=w]{left:-14px}.cropbox i[data-h=e]{right:-14px}
+.cropbox i[data-h=n]:before,.cropbox i[data-h=s]:before{width:22px;height:4px;background:#fff;left:50%;margin-left:-11px}
+.cropbox i[data-h=w]:before,.cropbox i[data-h=e]:before{width:4px;height:22px;background:#fff;top:50%;margin-top:-11px}
+.cropbox i[data-h=n]:before{top:12px}.cropbox i[data-h=s]:before{bottom:12px}.cropbox i[data-h=w]:before{left:12px}.cropbox i[data-h=e]:before{right:12px}
 </style></head>
 <body>
 <div id="roomv">
@@ -968,7 +982,7 @@ body.dressing #leaves,body.dressing .leaves{display:none}
 </div></div>
 <div class="ov" id="cropov"><div class="pnl croppnl" role="dialog" aria-modal="true" aria-labelledby="croptitle"><h2 id="croptitle"></h2>
  <p class="crophint" id="crophint"></p>
- <div class="cropwrap"><div class="cropstage" id="cropstage"><canvas id="cropcv"></canvas><div class="cropbox" id="cropbox"><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div>
+ <div class="cropwrap"><div class="cropstage" id="cropstage"><canvas id="cropcv"></canvas><div class="cropbox" id="cropbox"><i data-h="n"></i><i data-h="s"></i><i data-h="w"></i><i data-h="e"></i><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div></div></div>
  <div class="croptools"><button type="button" id="croprot" data-i18n>↻ Rotate</button><button type="button" id="cropauto" data-i18n>✨ Find the book</button><button type="button" id="cropfull" data-i18n>Whole photo</button></div>
  <div class="btns"><button type="button" class="pri" id="cropok" data-i18n>Use this</button><button type="button" id="cropx" data-i18n>Cancel</button></div>
 </div></div>
@@ -2876,7 +2890,8 @@ async function cropPhoto(file,kind){
  return new Promise(res=>{
   cropDone=ok=>{ov.classList.remove('on');cropDone=null;if(!ok){res(null);return}
    const o=document.createElement('canvas'),bw=Math.max(1,Math.round(box.w)),bh=Math.max(1,Math.round(box.h));o.width=bw;o.height=bh;o.getContext('2d').drawImage(src,Math.round(box.x),Math.round(box.y),bw,bh,0,0,bw,bh);
-   o.toBlob(b=>res(b),'image/jpeg',.92)};
+   /* a spine always goes on the shelf standing up: a selection that is wider than tall is turned */
+   (kind==='spine'&&bw>bh?rotateCanvas(o,90):o).toBlob(b=>res(b),'image/jpeg',.92)};
   $('cropok').onclick=()=>cropDone&&cropDone(true);$('cropx').onclick=()=>cropDone&&cropDone(false)})}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&cropDone){e.stopPropagation();cropDone(false)}},true);
 /* ---------- the lamp: tap to switch it on or off ---------- */
