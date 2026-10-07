@@ -887,6 +887,26 @@ body.dressing #leaves,body.dressing .leaves{display:none}
 @property --tx{syntax:'<length>';inherits:false;initial-value:0px}
 @property --ty{syntax:'<length>';inherits:false;initial-value:0px}
 @property --tsc{syntax:'<number>';inherits:false;initial-value:1}
+
+/* Fewer drawing layers at rest. Anything that animates its position or opacity gets its own layer, and everything drawn after it in the room is then cut into extra full-size layers too; each time a layer comes or goes the phone redraws those, which showed as a one-frame blink. These small animations now run on plain numbers instead, which needs no layer. */
+@property --zo{syntax:'<number>';inherits:false;initial-value:0}
+@property --zx{syntax:'<length>';inherits:false;initial-value:0px}
+@property --zy{syntax:'<length>';inherits:false;initial-value:0px}
+@property --eo{syntax:'<number>';inherits:false;initial-value:.35}
+@property --ex{syntax:'<length>';inherits:false;initial-value:0px}
+@keyframes zz{0%{--zo:0;--zx:0px;--zy:0px}25%{--zo:.9}100%{--zo:0;--zx:10px;--zy:-22px}}
+.zz{opacity:var(--zo);translate:var(--zx) var(--zy)}
+@keyframes edgeR{0%,100%{--eo:.15;--ex:0px}50%{--eo:.55;--ex:3px}}
+@keyframes edgeL{0%,100%{--eo:.15;--ex:0px}50%{--eo:.55;--ex:-3px}}
+.edgetab{opacity:var(--eo);translate:var(--ex) 0}
+.bk .lnote .ltag,.csb .lnote .ltag,.lnote .ltag{animation:none!important}
+/* the twinkling stars and the storm flash were the worst case: they sit in the window, near the top of the room, so the whole rest of the room (bookcases, shelves, clock) was pushed onto one huge extra layer that blinked whenever a book flew in or out */
+@property --tw{syntax:'<number>';inherits:false;initial-value:1}
+@keyframes twinkle{to{--tw:.6}}
+.window .stars{filter:brightness(var(--tw))}
+@property --fl{syntax:'<number>';inherits:false;initial-value:1}
+@keyframes flash{0%,91%,95%,100%{--fl:1}92%,94%{--fl:2.3}}
+.window[data-wx=storm] .sky{filter:brightness(var(--fl))}
 </style></head>
 <body>
 <div id="roomv">
@@ -1739,7 +1759,8 @@ function flyBook(b,from,to,opening,done,liveTo){
  const tf=(box,r,rot,k=1,dy=0)=>`translate(${r.left+r.width/2-box.width/2}px,${r.top+r.height/2-box.height/2+dy}px) perspective(900px) rotateY(${rot}deg) scale(${r.height/box.height*k})`;
  const shelf=opening?from:to,modal=opening?to:from,FW=1.14,LIFT=-6;
  const sh0='drop-shadow(0 0 0 rgba(0,0,0,0))',sh1='drop-shadow(0 10px 10px rgba(0,0,0,.4))';
- const fin=()=>{ls.remove();lc.remove();busy=false;if(done)done()};
+ /* hand over without a gap: what the flying copy turns into is shown first, and the copy is only taken away two frames later, once the phone has had time to draw the real thing */
+ let fined=false;const fin=()=>{if(fined)return;fined=true;busy=false;if(done)done();requestAnimationFrame(()=>requestAnimationFrame(()=>{ls.remove();lc.remove()}))};
  let a1;
  if(opening){
   const D=820,o={duration:D,fill:'forwards'};
@@ -1772,8 +1793,10 @@ function closeModal(savedId){
  if(b&&el&&!reduce){
   el.scrollIntoView({block:'nearest'});
   const from=bookRect(),to=el.getBoundingClientRect();
-  el.style.visibility='hidden';$('book').style.visibility='hidden';
+  el.style.visibility='hidden';
   $('ov').classList.remove('on');
+  /* the big book stays two frames longer, until its flying copy is really on screen */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!$('ov').classList.contains('on'))$('book').style.visibility='hidden'}));
   flyBook(b,from,to,false,()=>{el.style.visibility=''},()=>el.isConnected?el.getBoundingClientRect():null);
  }else $('ov').classList.remove('on');
 }
