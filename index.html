@@ -914,6 +914,12 @@ body.dressing #leaves,body.dressing .leaves{display:none}
 .recquote{margin:0;font:14px/1.4 Georgia,serif;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
 .recline{margin:0;font:italic 13px/1.4 Georgia,serif;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
 #recov{z-index:22}#recov .pnl{display:flex;flex-direction:column;gap:9px}
+
+/* the book window only scrolls up and down: a long word without spaces (an e-book file name, a link) made it wider than the screen, so it could be pushed sideways */
+.sheet{overflow-x:hidden;overscroll-behavior:contain}
+.sheet>*{min-width:0}
+#ebnote,.sheet p,.sheet small,.sheet label,.sheet .recline,.ebrow a{overflow-wrap:anywhere}
+.pnl{overflow-x:hidden}.pnl p,.pnl li,.pnl small{overflow-wrap:anywhere}
 </style></head>
 <body>
 <div id="roomv">
