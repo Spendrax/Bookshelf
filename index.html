@@ -3436,6 +3436,9 @@ async function rdOpen(id){
  body.addEventListener('touchend',e=>{if(!rdPaged()||!noSel())return;const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5)rdTurn(dx<0?1:-1)},{passive:true});
  await rdShow(Math.max(0,Math.min(bk.spine.length-1,pos.ch||0)),pos.fr||0);try{body.focus({preventScroll:true})}catch(e){}rdWake();try{hSync()}catch(e){}}
 function rdFrag(frag){if(!frag)return;let t=null;try{t=document.getElementById('rdx-'+decodeURIComponent(frag))}catch(e){}if(t)rdGoRect(t.getBoundingClientRect(),8)}
+/* a picture with nothing on it (all white, or see-through) is left out instead of leaving a big empty gap in the text */
+function rdBlank(im){try{const w=im.naturalWidth,h=im.naturalHeight;if(!w||!h)return false;const S=32,c=document.createElement('canvas');c.width=S;c.height=S;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0,S,S);const d=x.getImageData(0,0,S,S).data;
+ let ink=0;for(let i=0;i<d.length;i+=4){const a=d[i+3];if(a<16)continue;if(Math.min(d[i],d[i+1],d[i+2])<235)ink++}return ink<3}catch(e){return false}}
 function rdClean(n,out,base,imgs){
  for(const c of n.childNodes){
   if(c.nodeType===3){out.append(c.nodeValue);continue}
@@ -3460,7 +3463,7 @@ async function rdShow(i,fr,frag){
  const frg=document.createDocumentFragment(),imgs=[];
  RD.ch=i;rdClean(rdSrc(raw),frg,sp.path,imgs);
  /* pictures are taken out of the file and sized before the page is shown, so the place you stopped at doesn't shift */
- const urls=[];await Promise.all(imgs.map(async([im,p])=>{try{const by=await RD.bk.z.read(p);if(!by)return;const u=URL.createObjectURL(new Blob([by],{type:RD_MIME[(p.split('.').pop()||'').toLowerCase()]||'image/jpeg'}));urls.push(u);im.src=u;await im.decode().catch(()=>{})}catch(e){}}));
+ const urls=[];await Promise.all(imgs.map(async([im,p])=>{try{const by=await RD.bk.z.read(p);if(!by)return;const u=URL.createObjectURL(new Blob([by],{type:RD_MIME[(p.split('.').pop()||'').toLowerCase()]||'image/jpeg'}));urls.push(u);im.src=u;await im.decode().catch(()=>{});if(!im.complete)await new Promise(r=>{im.onload=im.onerror=r;setTimeout(r,3000)});if(rdBlank(im))im.remove()}catch(e){}}));
  if(!RD||tok!==RD.tok){urls.forEach(u=>URL.revokeObjectURL(u));return}
  RD.urls.forEach(u=>URL.revokeObjectURL(u));RD.urls=urls;try{if(window.CSS&&CSS.highlights)CSS.highlights.delete('rdhit')}catch(e){}text.replaceChildren(frg);
  if(i<RD.bk.spine.length-1){const nb=el('button','rdnext',L('Next chapter')+' ›');nb.type='button';nb.onclick=()=>rdShow(i+1,0);text.append(nb)}
