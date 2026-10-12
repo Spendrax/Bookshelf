@@ -929,6 +929,46 @@ body.dressing #leaves,body.dressing .leaves{display:none}
 
 /* pictures in a book blend into the page: a white background (often around a small ornament between scenes) no longer shows as a white square */
 #rdr:not([data-th=dark]) #rdtext img{mix-blend-mode:multiply}
+
+/* the flying book carries a plain shadow instead of an animated shadow filter: the filter needed an extra drawing surface every frame, and on the phone that pushed the room's own drawing out of memory, so the whole room blinked once the book landed */
+.fly .fl{box-shadow:0 10px 14px rgba(0,0,0,calc(.4 * var(--fsh,1)))}
+
+/* The animal, its bowls and the little message at the bottom no longer get drawing layers of their own while they move: each time one appeared or went away the phone redrew the room and blanked it for a frame (seen when the animal goes to eat). Their movements now run on plain numbers, which needs no extra layer. */
+@property --cy{syntax:'<length>';inherits:false;initial-value:0px}
+@property --cr{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --csx{syntax:'<number>';inherits:false;initial-value:1}
+@property --csy{syntax:'<number>';inherits:false;initial-value:1}
+@property --co{syntax:'<number>';inherits:false;initial-value:1}
+@property --px{syntax:'<length>';inherits:false;initial-value:0px}
+@property --dir{syntax:'<number>';inherits:true;initial-value:1}
+@property --fx{syntax:'<length>';inherits:false;initial-value:0px}
+@property --fd{syntax:'<number>';inherits:false;initial-value:-1}
+@property --bty{syntax:'<length>';inherits:false;initial-value:0px}
+@property --brt{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --lv{syntax:'<number>';inherits:true;initial-value:1}
+@property --jy{syntax:'<length>';inherits:false;initial-value:0px}
+.cat{translate:0 var(--cy);rotate:var(--cr);scale:var(--csx) var(--csy);opacity:var(--co)}
+@keyframes nom{0%,100%{--cr:-15deg;--cy:0px}50%{--cr:-9deg;--cy:1px}}
+@keyframes hop{40%{--cy:-16px}}
+@keyframes landed{0%{--csx:1.18;--csy:.78;--cy:0px}45%{--csx:.94;--csy:1.08;--cy:-3px}75%{--csx:1.03;--csy:.97;--cy:0px}100%{--csx:1;--csy:1;--cy:0px}}
+@keyframes arrive{0%{--cy:-44px;--co:0}60%{--cy:4px;--co:1}100%{--cy:0px;--co:1}}
+@keyframes walkbob{50%{--cy:-2.5px}}
+@keyframes flap{to{--cy:-3px;--csy:.93}}
+@keyframes kick{from{--ps:1.07}to{--ps:.98}}
+.heart{translate:0 var(--cy);opacity:var(--co)}
+@keyframes up{to{--cy:-34px;--co:0}}
+.bowl{translate:0 var(--bty);rotate:var(--brt);transition:--lv .6s}
+.bowl .fill{transition:none;translate:0 var(--jy)}
+.bowl .wat{transition:none}
+@keyframes jig{to{--jy:.6px}}
+@media (prefers-reduced-motion:no-preference){
+ .catw{transition:--px var(--walk,0s) linear,--dir .2s ease}
+ .friend{transition:--fx var(--fw,0s) linear,--fd .2s ease}
+}
+/* the message at the bottom always exists and is only shown or hidden */
+#toast{display:block!important;will-change:opacity;opacity:0;pointer-events:none}
+#toast.on{opacity:1}
+#toast:empty{padding:0}
 </style></head>
 <body>
 <div id="roomv">
@@ -1753,10 +1793,11 @@ function goEat(which,now){
  const walkOver=()=>{
   if(tok!==eatTok)return;catw.classList.remove('sleeping');
   const bw=$(which==='food'?'foodbowl':'waterbowl'),fr=floor.getBoundingClientRect(),br=bw.getBoundingClientRect();
-  const want=br.left-fr.left+br.width/2-14,[lo,hi]=petRange(),to=Math.max(lo,Math.min(hi,want-catw.offsetLeft)),d=Math.abs(to-petX),t=Math.max(.5,d/60);
+  /* walk up so the head is over the bowl, whichever side it comes from, and keep facing it while eating (turning round on arrival looked like the animal vanished and reappeared) */
+  const w0=catw.offsetWidth||52,cx0=catw.getBoundingClientRect().left+w0/2,bc=br.left+br.width/2,right=bc>cx0+4,want=bc-fr.left-(right?w0-14:14),[lo,hi]=petRange(),to=Math.max(lo,Math.min(hi,want-catw.offsetLeft)),d=Math.abs(to-petX),t=Math.max(.5,d/60);
   petDir=to>petX?-1:1;petX=to;catw.style.setProperty('--dir',petDir);catw.style.setProperty('--walk',t+'s');catw.style.setProperty('--px',to+'px');catw.classList.add('walking');
   clearTimeout(petT);petT=setTimeout(()=>{if(tok!==eatTok)return;
-   catw.classList.remove('walking');catw.style.setProperty('--walk','0s');petDir=1;catw.style.setProperty('--dir',1);
+   catw.classList.remove('walking');catw.style.setProperty('--walk','0s');
    setTimeout(()=>{if(tok!==eatTok)return;catw.classList.add('eating');bw.classList.add('nom');
     const dur=4500+Math.random()*3500;petT=setTimeout(()=>{if(tok!==eatTok)return;catw.classList.remove('eating');bw.classList.remove('nom');
      lastMeal=Date.now();bowlLv[which]=Math.max(0,bowlLv[which]-1);try{localStorage.setItem('bookshelf-bowls',JSON.stringify(bowlLv))}catch(e){}drawBowls();
@@ -1769,7 +1810,7 @@ function goEat(which,now){
  return true}
 document.querySelectorAll('.bowl').forEach(b=>b.onclick=()=>{
  drawBowls();bowlLv.food=3;bowlLv.water=3;try{localStorage.setItem('bookshelf-bowls',JSON.stringify(bowlLv))}catch(e){}drawBowls();try{sfx('pop')}catch(e){}
- b.animate([{transform:'none'},{transform:'translateY(-4px) rotate(-4deg)'},{transform:'none'}],{duration:300});
+ b.animate([{'--bty':'0px','--brt':'0deg'},{'--bty':'-4px','--brt':'-4deg'},{'--bty':'0px','--brt':'0deg'}],{duration:300});
  const which=b.id==='foodbowl'?'food':'water';
  /* the animal is on another wall: it comes in from that side along the floor, then goes to the bowl */
  if(sid('pet')!=='none'&&!reduce&&!petBusy&&!$('roomv').contains(catw)){if(petCome(true,()=>goEat(which)))toast(L('Snack time!'));return}
@@ -1800,9 +1841,9 @@ function flyBook(b,from,to,opening,done,liveTo){
  if(opening){
   const D=820,o={duration:D,fill:'forwards'};
   const path=box=>[
-   {offset:0,transform:tf(box,shelf,0),filter:sh0,easing:'cubic-bezier(.3,0,.3,1)'},
-   {offset:.24,transform:tf(box,shelf,0,FW,LIFT),filter:sh1,easing:'cubic-bezier(.35,.1,.2,1)'},
-   {offset:1,transform:tf(box,modal,-28),filter:sh1}];
+   {offset:0,transform:tf(box,shelf,0),easing:'cubic-bezier(.3,0,.3,1)'},
+   {offset:.24,transform:tf(box,shelf,0,FW,LIFT),easing:'cubic-bezier(.35,.1,.2,1)'},
+   {offset:1,transform:tf(box,modal,-28)}];
   a1=ls.animate(path(small),o);lc.animate(path(big),o);
   ls.animate([{opacity:1,offset:0},{opacity:1,offset:.3},{opacity:0,offset:.75},{opacity:0,offset:1}],{duration:D,fill:'forwards'});
   lc.animate([{opacity:0,offset:0},{opacity:0,offset:.3},{opacity:1,offset:.75},{opacity:1,offset:1}],{duration:D,fill:'forwards'})}
@@ -1815,7 +1856,7 @@ function flyBook(b,from,to,opening,done,liveTo){
   const step=now=>{const t=Math.min(1,(now-t0)/D);let r=shelf;try{if(liveTo){const q=liveTo();if(q&&q.width)r=q}}catch(e){}
    const sg=segs.find(x=>t<=x[1])||segs[2],u=sg[4](Math.max(0,Math.min(1,(t-sg[0])/(sg[1]-sg[0])))),A=pose(sg[2],r),B=pose(sg[3],r),sh=lerp(A.sh,B.sh,u);
    ls.style.transform=tf(small,lr(A.r,B.r,u),lerp(A.rot,B.rot,u),lerp(A.k,B.k,u),lerp(A.dy,B.dy,u));
-   ls.style.filter=`drop-shadow(0 ${(10*sh).toFixed(1)}px ${(10*sh).toFixed(1)}px rgba(0,0,0,${(.4*sh).toFixed(2)}))`;
+   ls.firstChild&&ls.firstChild.style.setProperty('--fsh',sh.toFixed(2));
    if(t<1)requestAnimationFrame(step);else fin()};
   step(t0);requestAnimationFrame(step)}
  if(a1){a1.onfinish=fin;a1.oncancel=fin}
@@ -4046,5 +4087,9 @@ setTimeout(()=>{try{petAcc();roomRewards()}catch(e){}},1500);
   if(!m){const inp=$('askin'),t0=inp.type;inp.type='text';inp.removeAttribute('inputmode');inp.value='';inp.maxLength=4000;inp.hidden=false;const ok=await ask(L('Paste the recommendation link here'),L('Open'));inp.hidden=true;const v=inp.value;inp.type=t0;inp.setAttribute('inputmode','numeric');inp.value='';if(!ok)return;m=/#rec=([\w-]+)/.exec(v||'')}
   if(!m){toast(L('No recommendation link found.'));return}
   if(location.hash==='#rec='+m[1])recCheck();else location.hash='#rec='+m[1]}}
+
+/* the message at the bottom is shown and hidden instead of being added and removed (see the styles) */
+{const t=$('toast');if(!t.textContent)t.textContent='\u00a0'}
+toast=function(m){const t=$('toast');t.textContent=m;t.style.display='block';t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>{t.classList.remove('on');t.style.display='none'},3000)};
 </script>
 </body></html>
