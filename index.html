@@ -969,6 +969,12 @@ body.dressing #leaves,body.dressing .leaves{display:none}
 #toast{display:block!important;will-change:opacity;opacity:0;pointer-events:none}
 #toast.on{opacity:1}
 #toast:empty{padding:0}
+
+/* fewer full-screen drawing layers while you are in the room, so the phone has memory to spare and does not have to drop the room's drawing (that is what showed as the room going blank for a moment):
+   the plain colour behind the walls is painted by the page itself instead of an extra full-screen layer, and the two side arrows get small layers of their own instead of being merged into a full-screen one */
+html{background:var(--wall2)}
+.hexback{display:none!important}
+.edgetab{will-change:transform}
 </style></head>
 <body>
 <div id="roomv">
