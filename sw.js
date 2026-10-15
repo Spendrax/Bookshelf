@@ -1,5 +1,5 @@
-const V = 'bookshelf-v82';
-const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'privacy.html', 'terms.html'];
+const V = 'bookshelf-v83';
+const FILES = ['./', 'index.html', 'app.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'privacy.html', 'terms.html'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
 });
@@ -19,4 +19,19 @@ self.addEventListener('fetch', e => {
     if (hit) { e.waitUntil(net.catch(() => {})); return hit; }
     return net.catch(() => caches.match('index.html'));
   }));
+});
+
+// Daily reading reminder (turned on in Customize > More). Android wakes this about once a day.
+self.addEventListener('periodicsync', e => {
+  if (e.tag !== 'read-reminder') return;
+  e.waitUntil(new Promise(res => {
+    const r = indexedDB.open('my-bookshelf', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => { try { const g = r.result.transaction('kv').objectStore('kv').get('remind'); g.onsuccess = () => res(g.result); g.onerror = () => res(null); } catch (x) { res(null); } };
+    r.onerror = () => res(null);
+  }).then(m => self.registration.showNotification((m && m.t) || '📚 Time to read!', { body: (m && m.b) || '', icon: 'icon-192.png', tag: 'read-reminder' })));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.matchAll({ type: 'window' }).then(w => w.length ? w[0].focus() : clients.openWindow('./')));
 });
