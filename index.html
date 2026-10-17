@@ -55,6 +55,7 @@ button{font:inherit;cursor:pointer}
 .cat .ear2{transform-origin:50% 100%;animation:twitch 7s infinite}
 .catw{translate:var(--px,0px) 0;scale:var(--dir,1) 1;transition:translate var(--walk,0s) linear}
 .catw.walking .cat{animation:walkbob .32s ease-in-out infinite}
+.drw{transform-box:view-box;transform-origin:0 0}.catw.walking .drw,.catw.travel .drw{animation:flap .3s ease-in-out infinite alternate}@keyframes flap{to{transform:rotate(-22deg) scaleY(.8)}}
 .catw.walking .cat .tail{animation-duration:.8s}
 @keyframes walkbob{50%{transform:translateY(-2.5px)}}
 .catw.sleeping .cat{transform:scale(1.08,.74);transform-origin:50% 100%;transition:transform .8s ease}
