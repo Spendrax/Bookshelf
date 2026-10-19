@@ -2830,6 +2830,8 @@ const dragonOn=()=>{try{return localStorage.getItem('bookshelf-dragon')==='1'}ca
 /* ---------- silver spirit: after reading Harry Potter, a quiz finds your spirit animal and it can glow silver-blue ---------- */
 const spiritOn=()=>{try{return localStorage.getItem('bookshelf-spirit')==='1'}catch(e){return false}};
 const spiritShow=()=>spiritOn()&&look._spirit==='1'&&sid('pet')!=='none';
+/* the spirit comes with the third book (the one with the silver guardian), or any later one */
+const hp3=()=>books.some(b=>(st(b)==='read'||(b.reads||[]).some(r=>r.finished))&&(/prisoner of azkaban|goblet of fire|order of the phoenix|half.blood prince|deathly hallows|prisonnier d.azkaban|coupe de feu|ordre du ph[eé]nix|prince de sang|reliques de la mort/.test([b.title,b.series].join(' ').toLowerCase())||(/harry potter/.test((b.series||'').toLowerCase())&&+b.seriesNo>=3)));
 const SPIRITS=['dog','bird','turtle','owl','hedgehog','fox','bunny','cat'];
 {const al=applyLook;applyLook=function(){const r=al.apply(this,arguments);try{catw.classList.toggle('spirit',spiritShow())}catch(e){}return r}}
 /* the room was already drawn when this loads, so set the glow once now too */
@@ -2851,7 +2853,7 @@ async function checkUnlocks(){if(unlockBusy)return;unlockBusy=true;try{
  const fresh=BOOKDECOS.filter(d=>!seen.includes(d[0])&&readMatch(d[2]));
  if(fresh.length){try{localStorage.setItem('bookshelf-bdecos',JSON.stringify(seen.concat(fresh.map(d=>d[0]))))}catch(e){}
   toast('\u{1F381} '+L('New decoration: {n}',{n:fresh.map(d=>L(d[1])).join(', ')}));try{buildPanel()}catch(e){}await new Promise(r=>setTimeout(r,3200))}
- if(!spiritOn()&&readMatch(/harry potter/)){await spiritHatch();await new Promise(r=>setTimeout(r,3200))}
+ if(!spiritOn()&&hp3()){await spiritHatch();await new Promise(r=>setTimeout(r,3200))}
  if(dragonOn()||!readMatch(DRAGON_RX))return;
  try{localStorage.setItem('bookshelf-dragon','1')}catch(e){}
  const quiz=await ask(L('\u{1F95A} You found a dragon egg! A baby dragon is about to hatch. How do you want to find its color?'),L('Take the quiz'),L('I already know my dragon'));
