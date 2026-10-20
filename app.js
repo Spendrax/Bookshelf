@@ -237,7 +237,7 @@ async function pick(d){
 /* ---------- find a book from a photo of its front cover: read the words printed on it, then search with them ---------- */
 let tess=null,coverShot=null;
 const OCRL={fr:'fra',es:'spa',pt:'por',de:'deu',it:'ita',ht:'fra'};
-function getTess(){if(tess)return tess;tess=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';sc.onload=()=>res(window.Tesseract);sc.onerror=()=>{tess=null;rej(new Error('load'))};document.head.append(sc)});return tess}
+function getTess(){if(tess)return tess;tess=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';sc.integrity='sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F';sc.crossOrigin='anonymous';sc.onload=()=>res(window.Tesseract);sc.onerror=()=>{tess=null;rej(new Error('load'))};document.head.append(sc)});return tess}
 /* the biggest words on a cover are almost always the title, then the author: keep the well-read words, biggest lines first */
 function coverLines(data){
  const out=[];(data.lines||[]).forEach(l=>{const ws=(l.words||[]).filter(w=>w.confidence>=55).map(w=>({t:w.text.replace(/[^\p{L}\p{N}'’-]/gu,''),h:w.bbox.y1-w.bbox.y0})).filter(w=>w.t.replace(/[^\p{L}]/gu,'').length>=2);
@@ -927,7 +927,7 @@ async function getNative(){
  det=false;return null}
 function getZX(){
  if(zx)return zx;
- zx=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
+ zx=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';sc.integrity='sha384-BzBxP10ZE72aitqj5UMmUsbKFliP/DZqA8Wq+BNNhlIJDGoEd1tpkMYXOg9+n6sB';sc.crossOrigin='anonymous';
   sc.onload=()=>{try{const Z=window.ZXing,h=new Map();h.set(Z.DecodeHintType.POSSIBLE_FORMATS,[Z.BarcodeFormat.EAN_13,Z.BarcodeFormat.EAN_8,Z.BarcodeFormat.UPC_A]);h.set(Z.DecodeHintType.TRY_HARDER,true);
    const r=new Z.MultiFormatReader();r.setHints(h);res({Z,r})}catch(e){rej(e)}};
   sc.onerror=()=>{zx=null;rej(new Error('load'))};document.head.append(sc)});
@@ -3093,3 +3093,6 @@ toast=function(m){const t=$('toast');t.textContent=m;t.style.display='block';t.c
  $('iosbanner').hidden=!IOS||inApp||later;
  $('iosinst').onclick=()=>{try{installHelp()}catch(e){}};
  $('ioslater').onclick=()=>{$('iosbanner').hidden=true;try{sessionStorage.setItem('bookshelf-ioslater','1')}catch(e){}}}
+
+/* the bookstore buttons (no inline onclick: the page's security rules block those) */
+$('rbgo').onclick=()=>rbFind();$('llgo').onclick=()=>rbFind('ll');
