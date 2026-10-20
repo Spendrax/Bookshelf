@@ -1352,7 +1352,11 @@ async function driveMenu(){
  if(!driveOn()){if(await ask(L('Save a copy of your library in your own Google Drive? Only this app can see the file. You can also restore it on a new phone.'),L('Connect'),L('Restore from Drive')))driveBackup();else driveRestore();return}
  if(await ask(L('Google Drive backup is on. Back up now, or replace this shelf with the copy in your Drive?'),L('Back up now'),L('Restore from Drive')))driveBackup();else driveRestore()}
 /* the backup reminder's button saves to Drive once it's connected */
-$('bknow').onclick=()=>driveOn()&&GCID?driveBackup():exportBackup();
+$('bknow').onclick=()=>GCID?driveBackup():exportBackup();
+/* until Drive is connected, the backup banner explains it once there are a few books (Later snoozes it like before) */
+{const cb=checkBackup;checkBackup=function(){cb();if(!GCID||driveOn()){$('bknow').textContent=L('Back up now');return}let sn=0;try{sn=+localStorage.getItem(LSN)||0}catch(e){}
+ if(books.length>=3&&sn<=Date.now()){$('bkmsg').textContent='☁️ '+L('Keep your library safe: save a copy in your own Google Drive, and get it back on any phone.');$('bknow').textContent='☁️ '+L('Use Google Drive');$('bkbanner').hidden=false}}
+ try{checkBackup()}catch(e){}}
 /* ---------- import: a backup (.json) or a Goodreads / StoryGraph export (.csv) ---------- */
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
  if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
