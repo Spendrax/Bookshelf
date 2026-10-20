@@ -59,7 +59,7 @@ button{font:inherit;cursor:pointer}
 .catw.walking .cat{animation:walkbob .32s ease-in-out infinite}
 .drw{transform-box:view-box;transform-origin:0 0}.spirit .cat{filter:grayscale(1) brightness(1.45) sepia(.35) hue-rotate(165deg) saturate(1.8) drop-shadow(0 0 3px rgba(190,235,255,.95)) drop-shadow(0 0 9px rgba(120,200,255,.7));opacity:.88}.spirit .cat .acc{opacity:.9}.catw.spirit::after{content:"";position:absolute;left:-8px;right:-8px;top:-14px;bottom:0;pointer-events:none;background:radial-gradient(circle,#eaf8ff 0 1.1px,transparent 1.7px) 0 0/19px 23px,radial-gradient(circle,#bfe6ff 0 .9px,transparent 1.4px) 9px 11px/27px 31px;-webkit-mask-image:radial-gradient(closest-side,#000 35%,transparent);mask-image:radial-gradient(closest-side,#000 35%,transparent);animation:sparkle 3s linear infinite}@keyframes sparkle{to{background-position:0 -34px,6px -34px}}@media (prefers-reduced-motion:reduce){.catw.spirit::after{animation:none}}.catw.walking .drw,.catw.travel .drw{animation:drflap .3s ease-in-out infinite alternate}.catw.flying .drw{animation-duration:.18s}@keyframes drflap{to{transform:rotate(-26deg) scaleY(.75)}}
 .catw.walking .cat .tail{animation-duration:.8s}
-@keyframes walkbob{50%{transform:translateY(-2.5px)}}
+
 .catw.sleeping .cat{transform:scale(1.08,.74);transform-origin:50% 100%;transition:transform .8s ease}
 .catw .cat{transition:transform .5s ease}
 .catw.sleeping .cat .eye{animation:none;transform:scaleY(.12)}
@@ -68,7 +68,7 @@ button{font:inherit;cursor:pointer}
 .zz{position:absolute;right:-4px;bottom:70%;font:italic 700 13px Georgia,serif;color:var(--hd,var(--ink));pointer-events:none;opacity:0;transform:scaleX(var(--dir,1))}
 .catw.sleeping .zz{animation:zz 2.8s ease-out infinite}
 .catw.sleeping .zz+.zz{animation-delay:1.4s}
-@keyframes zz{0%{opacity:0;translate:0 0}25%{opacity:.9}100%{opacity:0;translate:10px -22px;font-size:15px}}
+
 @media(prefers-reduced-motion:reduce){.catw{transition:none}.zz{display:none}}
 .cat.hop{animation:hop .5s ease-out}
 .dz,.pz{position:relative}
@@ -80,11 +80,11 @@ button{font:inherit;cursor:pointer}
 .catw.ghost .cat .tail{animation:tail .45s ease-in-out infinite}
 .catw.ghost .cat .body{animation:kick .28s ease-in-out infinite alternate}
 .catw.ghost .cat .ear2,.catw.ghost .cat .bob{animation-duration:.6s}
-@keyframes kick{from{transform:scaleY(1.07) translateY(1px)}to{transform:scaleY(.98)}}
+
 .alert{position:absolute;left:50%;top:-20px;margin-left:-5px;font:900 17px Georgia,serif;color:var(--acc);pointer-events:none;animation:alertpop .5s cubic-bezier(.3,1.8,.5,1) both}
 @keyframes alertpop{0%{transform:scale(0) translateY(6px);opacity:0}60%{opacity:1}100%{transform:scale(1)}}
 .cat.landed{animation:landed .42s cubic-bezier(.3,.7,.3,1);transform-origin:50% 100%}
-@keyframes landed{0%{transform:scale(1.18,.78)}45%{transform:scale(.94,1.08) translateY(-3px)}75%{transform:scale(1.03,.97)}100%{transform:none}}
+
 .catw.ghost .zz,.catw.ghost .heart{display:none}
 @keyframes dangle{from{transform:rotate(-9deg)}to{transform:rotate(9deg)}}
 .land{position:fixed;z-index:59;width:46px;height:9px;margin-left:-23px;margin-top:-5px;border-radius:50%;background:rgba(0,0,0,.28);pointer-events:none;display:none}
@@ -93,8 +93,8 @@ button{font:inherit;cursor:pointer}
 @keyframes breathe{50%{--ps:1.04}}
 @keyframes blink{0%,94%,100%{--ps:1}97%{--ps:.1}}
 @keyframes twitch{0%,90%,100%{--pr:0deg}93%{--pr:14deg}96%{--pr:-4deg}}
-@keyframes hop{40%{transform:translateY(-16px)}}
-@keyframes up{to{transform:translateY(-34px);opacity:0}}
+
+
 @media(prefers-reduced-motion:reduce){.cat,.cat *{animation:none!important}}
 .lamp{display:var(--lampd,block)}.stack{display:var(--stackd,block)}.plant{display:var(--plantd,block)}.frame{display:var(--framed,block)}
 .plant .pot{fill:var(--pot,#c1663a)}.plant .pot2{fill:var(--pot2,#d47a4a)}
@@ -106,12 +106,12 @@ button{font:inherit;cursor:pointer}
 .catw[data-spot=floor]{left:max(10px,calc(50% - 400px));top:-24px}
 .catw.travel{position:absolute!important;bottom:auto!important;right:auto!important;margin:0!important;z-index:4!important;translate:none!important;transition:none!important;pointer-events:none}
 .catw.flying .cat{animation:flap .22s ease-in-out infinite alternate}
-@keyframes flap{to{transform:translateY(-3px) scaleY(.93)}}
+
 /* the animal stands in front of its bowls */
 .catw[data-spot=floor]{z-index:4}
 .catw[data-spot=rug]{left:44%;bottom:6px}
 .cat.arrive{animation:arrive .6s ease-out}
-@keyframes arrive{0%{transform:translateY(-44px);opacity:0}60%{transform:translateY(4px);opacity:1}100%{transform:none}}
+
 .pnl{background:var(--card);border-radius:14px;max-width:480px;width:100%;max-height:100%;overflow:auto;padding:18px;font-family:system-ui,sans-serif}
 .pnl h2{margin:0 0 6px;font:600 20px Georgia,serif}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -358,8 +358,8 @@ body.turningview .wallext{display:none}
 .prog .track{grid-column:1/-1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}.prog .track i{display:block;height:100%;background:#5aa06a;border-radius:3px}
 .edgetab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:3;border:0;background:none;box-shadow:none;color:var(--hd,var(--ink));padding:18px 8px;font:300 38px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;-webkit-tap-highlight-color:transparent;text-shadow:0 1px 3px rgba(0,0,0,.25);animation:edgeR 3.4s ease-in-out infinite}
 .edgetab span{font-size:38px;line-height:1;color:inherit}
-@keyframes edgeR{0%,100%{opacity:.15}50%{opacity:.55;translate:3px 0}}
-@keyframes edgeL{0%,100%{opacity:.15}50%{opacity:.55;translate:-3px 0}}
+
+
 @media(prefers-reduced-motion:reduce){.edgetab{animation:none;opacity:.35}}
 body.onstats .edgetab,body.turningview .edgetab{clip-path:inset(50%);pointer-events:none}
 .gsugg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
@@ -426,7 +426,7 @@ body.onstats .edgetab,body.turningview .edgetab{clip-path:inset(50%);pointer-eve
 .window .sky{position:absolute;inset:0;border-radius:inherit;overflow:hidden;background:linear-gradient(var(--sky1),var(--sky2))}
 .window:before,.window:after{z-index:1}
 .window .stars{position:absolute;inset:0;opacity:0;transition:opacity 2s;background:radial-gradient(1.3px 1.3px at 20% 22%,#fff 60%,transparent),radial-gradient(1px 1px at 72% 16%,#fff 60%,transparent),radial-gradient(1.5px 1.5px at 44% 48%,#fff 60%,transparent),radial-gradient(1px 1px at 82% 58%,#fff 60%,transparent),radial-gradient(1.1px 1.1px at 28% 70%,#fff 60%,transparent),radial-gradient(1.3px 1.3px at 62% 36%,#fff 60%,transparent),radial-gradient(1px 1px at 12% 44%,#fff 60%,transparent);animation:twinkle 4s ease-in-out infinite alternate}
-@keyframes twinkle{to{filter:brightness(.6)}}
+
 .window .orb{transition:left 3s,top 3s,background 3s,box-shadow 3s,opacity 2s}
 .window .cloud.c2{left:auto;right:12px;top:34%;width:40px;opacity:0;transition:opacity 2s}
 .window .wx{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 2s}
@@ -436,7 +436,7 @@ body.onstats .edgetab,body.turningview .edgetab{clip-path:inset(50%);pointer-eve
 @keyframes snow{to{background-position:8px 44px,-6px 44px,4px 44px}}
 .window[data-wx=fog] .wx{opacity:1;background:linear-gradient(rgba(236,239,243,.5),rgba(236,239,243,.88))}
 .window[data-wx=storm] .sky{animation:flash 7s infinite}
-@keyframes flash{0%,91%,95%,100%{filter:none}92%,94%{filter:brightness(2.3)}}
+
 .window:is([data-wx=clouds],[data-wx=overcast],[data-wx=rain],[data-wx=storm],[data-wx=snow]) .cloud.c2{opacity:1}
 .window:is([data-wx=overcast],[data-wx=rain],[data-wx=storm],[data-wx=snow],[data-wx=fog]) .orb{opacity:.2}
 body.night-live .lamp{filter:drop-shadow(0 0 30px rgba(255,208,96,1))}
@@ -531,7 +531,7 @@ body.night-live .lamp{filter:drop-shadow(0 0 30px rgba(255,208,96,1))}
 .leaves{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
 .leaf{position:absolute;top:-40px;width:16px;height:16px;animation:fall linear infinite}
 .leaf i{display:block;width:100%;height:100%;border-radius:0 80% 0 80%;animation:sway ease-in-out infinite alternate}
-@keyframes fall{to{top:calc(100% + 40px)}}
+
 /* the season falls on every wall: on stats and goals it stays in view while you scroll */
 .statsv>.leaves{position:sticky;top:0;left:auto;right:auto;bottom:auto;width:100%;height:100vh;margin-bottom:-100vh;flex:none;z-index:2}
 .leaf.snow{width:9px;height:9px}.leaf.snow i{border-radius:50%;background:#fff!important;box-shadow:0 0 2px rgba(80,90,110,.45),0 0 4px rgba(255,255,255,.9);animation-name:drift}
@@ -547,9 +547,9 @@ body.season-winter .window .sill:before{content:"";position:absolute;left:3px;ri
 .bowl .wat{opacity:var(--lv,1);transition:opacity .6s}
 .bowl.nom .fill{animation:jig .3s ease-in-out infinite alternate}
 .bowl.nom .wat{animation:rip .5s ease-in-out infinite alternate}
-@keyframes jig{to{translate:0 .6px}}
+
 @keyframes rip{to{fill:#a9d3f2}}
-@keyframes nom{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(-9deg) translateY(1px)}}
+
 .catw.eating .cat{animation:nom .45s ease-in-out infinite;transform-origin:78% 100%}
 @media(max-width:720px){.bowls{gap:18px}.bowl{width:38px;height:19px}}
 .credit{font:12px system-ui,sans-serif;color:var(--muted);margin:6px 0 0}
@@ -572,7 +572,7 @@ body.season-winter .window .sill:before{content:"";position:absolute;left:3px;ri
 .wclock .mh{width:2px;height:16px;margin-left:-1px}
 .wclock .sh{width:1px;height:17px;margin-left:-.5px;background:#c0392b;animation:clocksec 60s linear infinite}
 .wclock:after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#3b2c20}
-@keyframes clocksec{to{transform:rotate(360deg)}}
+
 .therm{position:absolute;right:-60px;top:34px;width:30px;height:108px;border-radius:15px;background:linear-gradient(#f7f1e3,#e9dfc8);border:3px solid var(--base);box-shadow:0 4px 8px rgba(0,0,0,.25);cursor:pointer;z-index:2}
 .therm .tube{position:absolute;left:50%;top:9px;bottom:30px;width:6px;margin-left:-3px;border-radius:3px;background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);overflow:hidden}
 .therm .tube:before{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--lvl,35%);background:#d23b2e;transition:height 1.5s}
@@ -1136,5 +1136,5 @@ html{background:var(--wall2)}
 <div class="ov" id="genov"><div class="pnl" role="dialog" aria-modal="true" aria-labelledby="gentitle"><h2 id="gentitle" data-i18n>Choose genres</h2><div class="taglist" id="genlist"></div><div class="btns"><button type="button" class="pri" id="gendone" data-i18n>Done</button></div></div></div>
 <div class="rpill" id="rpill" hidden role="status"><span id="rptitle"></span><b id="rptime">0:00</b><button type="button" id="rpamb"></button><button type="button" id="rpstop" data-i18n>Stop</button></div>
 <div id="toast"></div>
-<script src="app.js"></script>
+<script src="i18n.js"></script><script src="app.js"></script>
 </body></html>
