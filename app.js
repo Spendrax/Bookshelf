@@ -1302,8 +1302,9 @@ function ask(msg,ok,no){return new Promise(res=>{$('askmsg').textContent=msg;$('
 /* ---------- backups ---------- */
 const LB='bookshelf-lastbackup',LC='bookshelf-lastchange',LSN='bookshelf-backup-snooze';
 function markChange(){dataVer++;try{localStorage.setItem(LC,Date.now())}catch(e){}}
+const backupJson=()=>JSON.stringify({app:'my-bookshelf',version:2,exported:new Date().toISOString(),books,quotes,goals,look,lang,sessions,marks:window.marksGet?marksGet():{}});
 async function exportBackup(){
- const name='bookshelf-backup-'+today()+'.json',blob=new Blob([JSON.stringify({app:'my-bookshelf',version:2,exported:new Date().toISOString(),books,quotes,goals,look,lang,sessions,marks:window.marksGet?marksGet():{}})],{type:'application/json'});
+ const name='bookshelf-backup-'+today()+'.json',blob=new Blob([backupJson()],{type:'application/json'});
  let ok=false;
  try{const f=new File([blob],name,{type:'application/json'});if(matchMedia('(pointer:coarse)').matches&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});ok=true}}catch(e){if(e&&e.name==='AbortError')return}
  if(!ok){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
@@ -1316,6 +1317,42 @@ function checkBackup(){
  $('bkmsg').textContent='\u{1F4BE} '+msg;bn.hidden=!msg}
 $('bknow').onclick=exportBackup;$('bklater').onclick=()=>{let ev=30;try{const e=localStorage.getItem('bookshelf-backup-every');if(e!==null)ev=+e||30}catch(e){}try{localStorage.setItem(LSN,Date.now()+Math.min(7,ev)*864e5)}catch(e){}checkBackup()};
 if($('exp'))$('exp').onclick=exportBackup;
+/* ---------- Google Drive backup: one file in the person's own Drive, only this app can see it (drive.file) ---------- */
+// Paste the OAuth client ID from Google Cloud Console (Web application, origin https://spendrax.github.io).
+const GCID='754800695613-g022ane0liku6h3esokrqd238ngv9jro.apps.googleusercontent.com';
+const GDK='bookshelf-gdrive',GDF='My Bookshelf backup.json';
+const driveOn=()=>{try{return localStorage.getItem(GDK)==='1'}catch(e){return false}};
+let gTok=null,gTokEnd=0,gisP=null;
+const gisLoad=()=>gisP||(gisP=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.onload=res;sc.onerror=()=>{gisP=null;rej(new Error('load'))};document.head.append(sc)}));
+/* the sign-in window needs a tap to open, so this is only called from buttons */
+function gToken(){if(gTok&&Date.now()<gTokEnd)return Promise.resolve(gTok);
+ return gisLoad().then(()=>new Promise((res,rej)=>{const c=google.accounts.oauth2.initTokenClient({client_id:GCID,scope:'https://www.googleapis.com/auth/drive.file',
+  callback:r=>{if(r&&r.access_token){gTok=r.access_token;gTokEnd=Date.now()+(r.expires_in-60)*1000;res(gTok)}else rej(new Error('denied'))},error_callback:e=>rej(e)});
+  c.requestAccessToken({prompt:driveOn()?'':'consent'})}))}
+async function gApi(url,opt={}){const t=await gToken();const r=await fetch(url,Object.assign({},opt,{headers:Object.assign({Authorization:'Bearer '+t},opt.headers||{})}));
+ if(r.status===401){gTok=null;throw new Error('auth')}if(!r.ok)throw new Error('http '+r.status);return r}
+async function gFind(){const q=encodeURIComponent(`name='${GDF}' and trashed=false`);
+ const j=await (await gApi(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&fields=files(id,modifiedTime)&spaces=drive`)).json();return (j.files||[])[0]||null}
+async function driveBackup(){
+ try{toast('☁️ '+L('Saving to Google Drive…'));const f=await gFind(),body=backupJson();
+  if(f)await gApi(`https://www.googleapis.com/upload/drive/v3/files/${f.id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});
+  else{const b='bkshelf'+Date.now(),meta=JSON.stringify({name:GDF,mimeType:'application/json'});
+   await gApi('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},
+    body:`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`})}
+  try{localStorage.setItem(GDK,'1');localStorage.setItem(LB,Date.now())}catch(e){}checkBackup();toast('☁️ '+L('Backed up to your Google Drive.'))}
+ catch(e){toast(L('Google Drive backup didn’t work. Check your connection and try again.'))}}
+async function driveRestore(){
+ try{const f=await gFind();if(!f){toast(L('No backup found in your Google Drive yet.'));return}
+  const text=await (await gApi(`https://www.googleapis.com/drive/v3/files/${f.id}?alt=media`)).text();
+  try{localStorage.setItem(GDK,'1')}catch(e){}await importFile(new File([text],'backup.json',{type:'application/json'}))}
+ catch(e){toast(L('Couldn’t reach your Google Drive. Check your connection and try again.'))}}
+async function driveMenu(){
+ if(!GCID){toast(L('Google Drive backup isn’t set up in this version yet.'));return}
+ gisLoad().catch(()=>{});
+ if(!driveOn()){if(await ask(L('Save a copy of your library in your own Google Drive? Only this app can see the file. You can also restore it on a new phone.'),L('Connect'),L('Restore from Drive')))driveBackup();else driveRestore();return}
+ if(await ask(L('Google Drive backup is on. Back up now, or replace this shelf with the copy in your Drive?'),L('Back up now'),L('Restore from Drive')))driveBackup();else driveRestore()}
+/* the backup reminder's button saves to Drive once it's connected */
+$('bknow').onclick=()=>driveOn()&&GCID?driveBackup():exportBackup();
 /* ---------- import: a backup (.json) or a Goodreads / StoryGraph export (.csv) ---------- */
 function parseCSV(t){const rows=[];let row=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];
  if(q){if(c==='"'){if(t[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
@@ -2936,7 +2973,7 @@ buildPanel=function(){
    let ev='30';try{ev=localStorage.getItem('bookshelf-backup-every')||'30'}catch(e){}s.value=ev;s.onchange=()=>{try{localStorage.setItem('bookshelf-backup-every',s.value);localStorage.removeItem(LSN)}catch(e){}checkBackup()};l.append(s);out.append(l)}
   else if(k==='_remind'){const l=document.createElement('label');l.textContent='\u{1F514} '+L('Daily reading reminder');const s=document.createElement('select');[['1','On'],['0','Off']].forEach(([v,n])=>{const o2=document.createElement('option');o2.value=v;o2.textContent=L(n);s.append(o2)});let on='0';try{on=localStorage.getItem('bookshelf-remind')||'0'}catch(e){}s.value=on;s.onchange=async()=>{if(!await setRemind(s.value==='1'))s.value='0'};l.append(s);out.append(l)}
   else if(k==='_btns'){const bx=el('div','czbtns'),mk=(t,fn)=>{const b=el('button','',t);b.type='button';b.onclick=fn;bx.append(b)},shut=fn=>()=>{$('lov').classList.remove('on');fn()};
-   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
+   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
    mk($('shelfpic').textContent,()=>$('shelfpic').click());if(!$('mvcat').hidden)mk($('mvcat').textContent,()=>$('mvcat').click());mk(L('📥 Open a recommendation'),()=>recPaste());mk(L('💬 Feedback & support'),fbOpen);mk($('aboutbtn').textContent,()=>$('aboutbtn').click());mk(L('Reset'),()=>$('rst').click());
    out.append(bx);const sf=el('p');sf.id='safe2';sf.textContent=$('safe').textContent;out.append(sf)}});
  body.replaceChildren(out);body.scrollTop=top0};
