@@ -61,7 +61,7 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
 
   // offline copy holds the current files
   const sw = await page.evaluate(async () => { const r = await navigator.serviceWorker.ready; const ks = await caches.keys(); const c = await caches.open(ks[0]); return { state: r.active && r.active.state, files: (await c.keys()).map(q => q.url.split('/').pop()) }; });
-  check(sw.state === 'activated' && sw.files.includes('app.js') && sw.files.includes('i18n.js'), 'offline cache has app.js and i18n.js');
+  check(sw.state === 'activated' && sw.files.includes('14-install.js') && sw.files.includes('i18n.js') && sw.files.includes('style.css'), 'offline cache has every app file');
 
   // customize drawer opens on every tab
   await page.getByText('⚙ Customize').first().click(); await page.waitForTimeout(500);
