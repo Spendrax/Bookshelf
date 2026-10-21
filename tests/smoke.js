@@ -68,6 +68,16 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
   for (const t of ['Room', 'Furniture', 'More', 'Animal']) { await page.locator('.cztabs button', { hasText: t }).first().click(); await page.waitForTimeout(250); }
   check(await page.evaluate(() => !!document.querySelector('.czg[data-k="_dragon"]')), 'dragon color picker shows');
 
+  // paired hexagon: walk all the way round to the partner's shelves and back
+  await page.keyboard.press('Escape').catch(() => {});
+  await page.evaluate(() => { document.querySelectorAll('.ov.on').forEach(o => o.classList.remove('on')); $('lov').classList.remove('on');
+    partnerData = { app: 'my-bookshelf-shared', name: 'Sam', books: [{ title: 'Dune', author: 'Frank Herbert', status: 'reading' }], look: { pet: 'fox' } }; renderPartner(); });
+  for (const k of [1, 2, 3]) { await page.evaluate(k => go(k), k); await page.waitForTimeout(1300); }
+  check(await page.evaluate(() => view === 'proom' && PRV.innerText.includes('Dune')), 'paired: partner shelves behind you');
+  await page.evaluate(() => turnTo(0)); await page.waitForTimeout(3200);
+  check(await page.evaluate(() => view === 'room'), 'paired: back to your room');
+  await page.evaluate(() => { partnerData = null; renderPartner(); });
+
   // a translation still loads
   check(await page.evaluate(() => { const l0 = lang; lang = 'fr'; const t = L('Save'); lang = l0; return t !== 'Save'; }), 'French translation');
 

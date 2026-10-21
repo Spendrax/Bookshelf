@@ -355,7 +355,7 @@ function placePet(el,kind,ratio,zone,idx){
 function rowInfo(row){const z=row.dataset.zone;return [z,[...document.querySelectorAll('.scene [data-zone="'+z+'"]:is(.dz,.pz)')].indexOf(row)]}
 function moveCat(here){
  try{if(!SV.querySelector('.card'))renderStats();if(!GV.querySelector('.card'))renderGoals()}catch(e){}
- const cur=typeof view==='string'?view:'room';
+ const cur=['room','stats','goals'].includes(view)?view:'room';
  const wall=here?cur:(Math.random()<.62?'room':Math.random()<.5?'stats':'goals'),ratio=.1+Math.random()*.8;
  if(wall==='room'){
   const rows=[...document.querySelectorAll('.scene .dz,.scene .pz')];
@@ -486,6 +486,7 @@ function petAct(){
  cat.classList.remove('arrive','hop','landed');
  if(reduce||document.hidden||drag||petDrag||petBusy){petNext(8000);return}
  /* the animal is on another wall than the one you're looking at: now and then it comes over by itself */
+ if(!['room','stats','goals'].includes(view)){petNext(8000);return}
  if(catw.offsetParent===null||petWall()!==(typeof view==='string'?view:'room')){if(Math.random()<.1&&petCome())return;petNext(8000);return}
  if(catw.classList.contains('eating'))return;
  if(canEat()&&Date.now()-lastMeal>45e3&&Math.random()<(catw.dataset.spot==='floor'?.22:.07)){goEat();return}
@@ -587,7 +588,7 @@ function petLeave(){
 /* come over from another wall: in from the side of the screen it would come from */
 function petCome(toFloor,after){
  if(turning())return false;
- const vw=typeof view==='string'?view:'room',pw=petWall(),order={goals:-1,room:0,stats:1};if(vw===pw)return false;
+ if(!['room','stats','goals'].includes(view))return false;const vw=typeof view==='string'?view:'room',pw=petWall(),order={goals:-1,room:0,stats:1};if(vw===pw)return false;
  const way=petWay(),side=order[pw]>order[vw]?1:-1;
  try{if(vw!=='room'&&!(vw==='goals'?GV:SV).querySelector('.card'))vw==='goals'?renderGoals():renderStats()}catch(e){}
  const opts=petSpots(vw).filter(t=>(way==='fly'||GROUND.includes(t.kind))&&(!toFloor||t.kind==='floor')).map(t=>({...t,...petLanding(t,{left:side>0?innerWidth:0,width:0})})).filter(t=>toFloor||(t.y>60&&t.y<innerHeight-6));
@@ -1156,10 +1157,12 @@ function renderStats(){
 }
 $('styear').onchange=()=>{stYear=$('styear').value;renderStats()};
 /* ---------- the hexagonal room: goals & quotes (left) · bookshelf · stats (right), no loop ---------- */
-const GV=$('goalsv'),WALLS={goals:-1,room:0,stats:1},FACES=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]];
+const GV=$('goalsv'),PGV=$('pgoalsv'),PRV=$('proomv'),PSV=$('pstatsv'),WALLS={goals:-1,room:0,stats:1,pgoals:2,proom:3,pstats:-2},FACES=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]];
 const EXTS=FACES.map(([,k])=>{const x=document.createElement('div');x.className='wallext';x.setAttribute('aria-hidden','true');x.innerHTML='<i class="wt"></i><i class="wf"></i>';document.body.append(x);return[x,k]});
 let cam=0,camAnim=0,swipe=null,swipeBlock=false,frozenY=0;
-const wallEl=k=>k<0?GV:k>0?SV:RV,wallName=k=>k<0?'goals':k>0?'stats':'room';
+const wallEl=k=>({'-2':PSV,'-1':GV,'0':RV,'1':SV,'2':PGV,'3':PRV})[k]||RV,wallName=k=>({'-2':'pstats','-1':'goals','0':'room','1':'stats','2':'pgoals','3':'proom'})[k]||'room';
+/* paired: the walls go all the way round (k is -2..3); alone: only Goals, Room, Stats */
+const hexN=k=>((Math.round(k)+2)%6+6)%6-2,hexD=d=>((d+3)%6+6)%6-3,hexOk=k=>paired()?true:Math.abs(k)<=1,hexWalls=()=>paired()?[[PSV,-2],[GV,-1],[RV,0],[SV,1],[PGV,2],[PRV,3]]:[[GV,-1],[RV,0],[SV,1]];
 /* while turning (and while another wall is shown) the room is pinned to exactly one screen, scrolled to where you were */
 function hexT(phi,back){const R=innerWidth*.866,P=R*1.55;return `perspective(${P}px) translateZ(${R-(back||0)}px) rotateY(${phi}deg) translateZ(${-R}px)`}
 const turning=()=>!!turning.busy;
@@ -1168,7 +1171,7 @@ function turnStart(){
  if(turning())return;turning.busy=true;clearTimeout(turnStart.rest);document.body.classList.remove('restwalls');
  /* only rebuild the other walls when something changed: rebuilding them every time made the start of a turn stutter */
  if(dataVer!==wallVer||Date.now()-wallAt>60000||lang!==wallLang||!SV.querySelector('.card')||!GV.querySelector('.card')){if(view!=='stats')renderStats();if(view!=='goals')renderGoals();wallVer=dataVer;wallAt=Date.now();wallLang=lang}
- RV.classList.remove('away');[GV,RV,SV].forEach(e=>{e.hidden=false;e.inert=false});document.body.classList.add('turningview');
+ RV.classList.remove('away');hexWalls().forEach(([e])=>{e.hidden=false;e.inert=false});document.body.classList.add('turningview');document.body.classList.toggle('paired',paired());
  /* keep the floor at the same height on every wall */
  const ce=wallEl(WALLS[view]),fb=Math.max(0,ce.scrollHeight-ce.clientHeight-ce.scrollTop);
  /* the floor line of the wall you're on decides it: the other walls get a floor just as tall and are scrolled so their floor starts at the very same height */
@@ -1179,14 +1182,14 @@ function turnStart(){
   else{const fy=f?f.getBoundingClientRect().top-e.getBoundingClientRect().top+e.scrollTop:e.scrollHeight;e.scrollTop=Math.max(0,Math.min(ce.scrollTop,fy-e.clientHeight-2))}});
  document.body.style.setProperty('--flh',fvis?Math.ceil(innerHeight-ftop)+'px':'0px');
  /* the real walls turn, one screen each; the stripes keep going above and below */
- [GV,RV,SV].forEach(e=>{e.style.transformOrigin='50% 50%'});TFL=[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]]}
+ hexWalls().forEach(([e])=>{e.style.transformOrigin='50% 50%'});TFL=paired()?hexWalls():[[GV,-1],[RV,0],[SV,1],[$('hexw1'),2],[$('hexw2'),-2]]}
 /* turning is now like turning your head in the middle of the room: instead of stepping back (which left gaps above and below the walls), the view moves in just enough that the corner between two walls always reaches from the top of the screen to the bottom. The walls stay one screen big, so there is nothing extra for the phone to draw */
-function camSet(c){cam=c;const fr=c-Math.floor(c),back=innerWidth*.866*(1-1.1547*Math.cos((60*fr-30)*Math.PI/180))*1.03;TFL.forEach(([e,k,ov])=>{const a=60*(c-k);e.style.transform=hexT(a,back);})}
+function camSet(c){cam=c;const fr=c-Math.floor(c),back=innerWidth*.866*(1-1.1547*Math.cos((60*fr-30)*Math.PI/180))*1.03;TFL.forEach(([e,k,ov])=>{const a=60*hexD(c-k);e.style.transform=hexT(a,back);})}
 function turnEnd(){
- const k=Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
+ const k=paired()?hexN(cam):Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
  view=wallName(k);
  /* nothing is hidden, shown, created or removed when you land: on some phones that made the books blink for a frame. The other two walls simply wait just off screen, switched off (inert), ready for the next turn */
- [[GV,-1],[RV,0],[SV,1]].forEach(([e,j])=>{const on=j===k;e.inert=!on;e.style.transformOrigin='';e.style.transform=on?'':`translateX(${j<k?-100.5:100.5}vw)`});
+ hexWalls().forEach(([e,j])=>{const on=j===k;e.inert=!on;e.style.transformOrigin='';e.style.transform=on?'':`translateX(${hexD(j-k)<0?-100.5:100.5}vw)`});
  if(k===0){RV.classList.remove('away');document.body.classList.remove('onstats')}
  else{RV.classList.add('away');document.body.classList.add('onstats');wallEl(k).focus({preventScroll:true})}
  clearTimeout(turnStart.rest);turnStart.rest=setTimeout(()=>{if(!turning())document.body.classList.add('restwalls')},1500);
@@ -1200,7 +1203,7 @@ function turnTo(target,from){
  const c0=from!=null?from:cam,dur=Math.max(220,Math.abs(target-c0)*800),t0=performance.now(),ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
  const step=now=>{const t=Math.min(1,(now-t0)/dur);camSet(c0+(target-c0)*ease(t));if(t<1)camAnim=requestAnimationFrame(step);else turnEnd()};
  camAnim=requestAnimationFrame(step)}
-function go(k){const c=WALLS[view];if(turning()||k===c||Math.abs(k-c)>1||Math.abs(k)>1)return;turnTo(k,c)}
+function go(k){const c=WALLS[view];if(paired())k=c+hexD(k-c);if(turning()||k===c||Math.abs(k-c)>1||!hexOk(k))return;turnTo(k,c)}
 $('statsbtn').onclick=()=>go(1);$('goalsbtn').onclick=()=>go(-1);$('edgetab').onclick=()=>go(1);$('edgetabL').onclick=()=>go(-1);$('backroom').onclick=()=>go(0);$('backroom2').onclick=()=>go(0);
 document.addEventListener('keydown',e=>{
  if(document.querySelector('.ov.on')||/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||''))return;
@@ -1221,14 +1224,14 @@ document.addEventListener('pointermove',e=>{
   if(drag&&!drag.active){clearTimeout(drag.t);drag=null}
   turnStart()}
  const now=performance.now();s.v=(e.clientX-s.lx)/Math.max(1,now-s.lt);s.lx=e.clientX;s.lt=now;
- let c=s.c0-(e.clientX-s.x)/innerWidth;const lo=Math.max(-1,s.c0-1),hi=Math.min(1,s.c0+1);
+ let c=s.c0-(e.clientX-s.x)/innerWidth;const lo=paired()?s.c0-1:Math.max(-1,s.c0-1),hi=paired()?s.c0+1:Math.min(1,s.c0+1);
  if(c<lo)c=lo-Math.min(.06,(lo-c)*.2);else if(c>hi)c=hi+Math.min(.06,(c-hi)*.2);
  camSet(c)},{passive:true});
 function swipeEnd(){
  const s=swipe;swipe=null;if(!s||!s.on)return;
  swipeBlock=true;setTimeout(()=>{swipeBlock=false},80);
  const dc=cam-s.c0,dir=Math.sign(dc),fast=Math.abs(s.v)>.45&&Math.sign(-s.v)===dir;
- let target=s.c0;if(dir&&Math.abs(s.c0+dir)<=1&&(Math.abs(dc)>.22||(fast&&Math.abs(dc)>.03)))target=s.c0+dir;
+ let target=s.c0;if(dir&&hexOk(s.c0+dir)&&(Math.abs(dc)>.22||(fast&&Math.abs(dc)>.03)))target=s.c0+dir;
  turnTo(target)}
 document.addEventListener('pointerup',e=>{if(swipe&&e.pointerId===swipe.id)swipeEnd()});
 document.addEventListener('pointercancel',e=>{if(swipe&&e.pointerId===swipe.id){if(swipe.on)swipeEnd();else swipe=null}});
@@ -1356,7 +1359,8 @@ const SHK='bookshelf-shareid',FRK='bookshelf-friends',SHF='My Bookshelf – shar
 const shareId=()=>{try{return localStorage.getItem(SHK)||''}catch(e){return''}};
 const ownerName=()=>{try{return localStorage.getItem('bookshelf-name')||''}catch(e){return''}};
 const shareJson=()=>JSON.stringify({app:'my-bookshelf-shared',v:1,name:ownerName(),updated:new Date().toISOString(),
- books:books.map(b=>({title:b.title,author:b.author||'',status:st(b),stars:b.stars||null,series:b.series||'',seriesNo:b.seriesNo||0,finished:b.finished||''}))});
+ books:books.map(b=>({title:b.title,author:b.author||'',status:st(b),stars:b.stars||null,series:b.series||'',seriesNo:b.seriesNo||0,finished:b.finished||'',started:b.started||'',pages:b.pages||0,color:b.color||'',w:b.w||0,h:b.h||0,format:b.format||''})),
+ ...(pairShare()?{goals,sessions:sessions.slice(-600),look:{pet:look.pet,coat:look.coat,_dragon:look._dragon,_spirit:look._spirit,petName:look.petName}}:{})});
 async function shareUpload(){let id=shareId();const body=shareJson();
  if(id){try{await gApi(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});return id}catch(e){if(e.message==='auth')throw e;id=''}}
  const b='bkshare'+Date.now(),meta=JSON.stringify({name:SHF,mimeType:'application/json'});
@@ -1379,6 +1383,71 @@ async function shareMenu(){
  if(!(await ask(L('Share your shelf with a friend? You get a link: anyone who opens it sees your books, shelves and ratings (never your notes or quotes). It updates each time you back up to Google Drive.'),L('Share'),L('Cancel'))))return;
  try{toast('☁️ '+L('Saving to Google Drive…'));const id=await shareUpload();try{localStorage.setItem(GDK,'1')}catch(e){}checkBackup();sendShelfLink(id)}
  catch(e){toast(L('Couldn’t reach your Google Drive. Check your connection and try again.'))}}
+/* ---------- pairing: two shelves, one hexagon. Each person shares a read-only copy; your partner's side fills the three walls behind you ---------- */
+const PK='bookshelf-partner',PDK='bookshelf-partner-data',PSK='bookshelf-pairshare';
+const pairShare=()=>{try{return localStorage.getItem(PSK)==='1'}catch(e){return false}};
+let partnerData=null;try{partnerData=JSON.parse(localStorage.getItem(PDK)||'null')}catch(e){}
+const paired=()=>!!(partnerData&&Array.isArray(partnerData.books));
+const pName=()=>String((partnerData&&partnerData.name)||'').slice(0,40);
+async function fetchShelf(id){if(!/^[\w-]{10,100}$/.test(id))return null;
+ try{const r=await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&key=${GBKEY}`);if(!r.ok)return null;const d=await r.json();return d&&d.app==='my-bookshelf-shared'&&Array.isArray(d.books)?d:null}catch(e){return null}}
+async function partnerRefresh(){let id='';try{id=localStorage.getItem(PK)||''}catch(e){}if(!id)return;
+ const d=await fetchShelf(id);if(!d)return;partnerData=d;try{localStorage.setItem(PDK,JSON.stringify(d));localStorage.setItem(PK+'-at',Date.now())}catch(e){}renderPartner()}
+function partnerPet(lk){lk=lk||{};const pet=String(lk.pet||''),an=ANIMALS[pet];if(!an||pet==='none')return null;
+ let style;if(pet==='dragon'){const c=/^#[0-9a-f]{6}$/i.test(lk._dragon||'')?lk._dragon:'#3f8f4e',d=drShade(c);style=`--a:${c};--a2:${d};--a3:${drLight(c)};--cat:${c};--cat-st:${d}`}
+ else{const co=(OPTS.find(o=>o.k==='coat')||{i:[]}).i.find(x=>x[0]===lk.coat);style=an[0]+';'+Object.entries((co&&co[2])||{}).map(([k,v])=>k+':'+v).join(';')}
+ const w=el('div','ppet'+(lk._spirit==='1'?' spirit':''));w.innerHTML=`<svg class="cat" viewBox="0 0 60 56" aria-hidden="true">${an[1]}</svg>`;w.firstChild.setAttribute('style',style);
+ if(lk.petName)w.append(el('div','nm',String(lk.petName).slice(0,20)));return w}
+/* their Goals and Stats walls: drawn by the same code as yours, from their data, then copied over as a picture you can scroll */
+function partnerCopy(fn,src,dest){const keep={books,goals,sessions,quotes,stYear:typeof stYear!=='undefined'?stYear:null};
+ try{books=fixBooks(JSON.parse(JSON.stringify(partnerData.books))).map((b,i)=>Object.assign(b,{id:'p'+i}));goals=partnerData.goals&&typeof partnerData.goals==='object'?partnerData.goals:{};sessions=Array.isArray(partnerData.sessions)?partnerData.sessions:[];quotes=[];
+  fn();const c=src.cloneNode(true);c.querySelectorAll('#backroom,#backroom2,#yrbtn').forEach(e=>e.remove());c.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));c.querySelectorAll('button,input,select,textarea,a').forEach(e=>{e.tabIndex=-1;e.disabled=true});
+  dest.replaceChildren(el('h2','ptitle','\u{1F49E} '+(pName()?L('{n}’s side',{n:pName()}):L('Your partner’s side'))),...c.childNodes)}
+ catch(e){dest.replaceChildren(el('p','stempty',L('Couldn’t draw this wall.')))}
+ finally{books=keep.books;goals=keep.goals;sessions=keep.sessions;quotes=keep.quotes;try{if(keep.stYear!==null)stYear=keep.stYear}catch(e){}try{fn()}catch(e){}}}
+function renderPartner(){
+ const on=paired();document.body.classList.toggle('paired',on);[PGV,PRV,PSV].forEach(w=>{if(!on){w.hidden=true;w.replaceChildren()}});if(!on)return;
+ const d=partnerData,bks=fixBooks(JSON.parse(JSON.stringify(d.books))).map((b,i)=>Object.assign(b,{id:'p'+i,color:/^#[0-9a-f]{6}$/i.test(b.color||'')?b.color:['#8b2e2e','#2f4b6e','#3f6b4f','#a67c1f','#5b3a6b','#2e2e33','#a4552b','#2e6b6b'][hue(b.title)%8],w:+b.w||30+hue(b.title)%24,h:+b.h||150+hue(b.title)%62}));
+ const box=el('div','pinner'),n=z=>bks.filter(b=>st(b)===z).length;
+ box.append(el('h2','ptitle','\u{1F49E} '+(pName()?L('{n}’s shelves',{n:pName()}):L('Your partner’s shelves'))),el('p','psub',L('{r} read · {c} reading · {w} to read',{r:n('read'),c:n('reading'),w:n('want')})));
+ [['reading','Currently reading'],['read','Read'],['want','Want to read'],['dnf',"Didn't finish"]].forEach(([z,lab])=>{const list=bks.filter(b=>st(b)===z);if(!list.length)return;
+  if(z==='read')list.sort((a,b)=>String(b.finished||'').localeCompare(String(a.finished||'')));
+  box.append(el('h3','pshh',L(lab)+' · '+list.length));const sh=el('div','pshelf');list.forEach(b=>{let sp;try{sp=makeSpine(b)}catch(e){sp=el('button','spine',b.title)}sp.classList.add('pbk');sp.dataset.id=b.id;sh.append(sp)});box.append(sh)});
+ const floor=el('div','pfloor'),pp=partnerPet(d.look);if(pp)floor.append(pp);box.append(floor);
+ const back=el('button','fbtn','↩ '+L('Back to my room'));back.type='button';back.onclick=()=>turnTo(0);box.append(back);
+ PRV.replaceChildren(box);PRV._books=bks;
+ try{partnerCopy(renderGoals,GV,PGV)}catch(e){}try{partnerCopy(renderStats,SV,PSV)}catch(e){}
+ if(!['pgoals','proom','pstats'].includes(view))[PGV,PRV,PSV].forEach(w=>{w.hidden=true})}
+/* tapping one of their books: who wrote it, their rating, and a way to put it on your own list */
+PRV.addEventListener('click',async e=>{const s=e.target.closest('.pbk');if(!s||!PRV._books)return;e.preventDefault();e.stopPropagation();
+ const b=PRV._books.find(x=>x.id===s.dataset.id);if(!b)return;const key=(b.title+'|'+(b.author||'')).toLowerCase(),have=books.some(x=>(x.title+'|'+(x.author||'')).toLowerCase()===key);
+ const msg=b.title+(b.author?' — '+b.author:'')+(b.stars?'  ★ '+fmtStars(b.stars):'');
+ if(have){await ask(msg,L('Close'),L('Close'));return}
+ if(await ask(msg,'+ '+L('Want to read'),L('Close'))){books.push({id:'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),title:b.title,author:b.author||'',status:'want',color:b.color,w:b.w,h:b.h,createdAt:Date.now(),recBy:pName()});store();render();toast(L('Added to Want to read.'))}},true);
+async function pairMenu(){
+ if(!GCID){toast(L('Google Drive backup isn’t set up in this version yet.'));return}
+ gisLoad().catch(()=>{});
+ if(paired()){
+  if(await ask(L('Paired with {n}. Their side of the room is behind you: swipe past your Stats or your Goals. Send your pairing link again, or unpair?',{n:pName()||L('your partner')}),L('Send link'),L('Unpair'))){pairSend();return}
+  if(!(await ask(L('Unpair? Their side of the room goes away. Your own books don’t change.'),L('Unpair'),L('Cancel'))))return;
+  if(view!=='room')turnTo(0);try{[PK,PDK,PSK].forEach(k=>localStorage.removeItem(k))}catch(e){}partnerData=null;renderPartner();toast(L('Unpaired.'));return}
+ if(!(await ask(L('Pair your bookshelf with someone? You’ll each see the other’s shelves, goals and stats on the far side of the room (never notes or quotes). Each of you only changes your own books.'),L('Pair'),L('Cancel'))))return;
+ pairSend()}
+async function pairSend(){try{localStorage.setItem(PSK,'1')}catch(e){}
+ try{toast('☁️ '+L('Saving to Google Drive…'));const id=await shareUpload();try{localStorage.setItem(GDK,'1')}catch(e){}checkBackup();
+  const u='https://spendrax.github.io/Bookshelf/#pair='+id;
+  try{if(navigator.share){await navigator.share({title:L('Pair our bookshelves'),url:u});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(u);toast(L('Link copied. Send it to the person you’re pairing with.'))}catch(e){toast(u)}}
+ catch(e){toast(L('Couldn’t reach your Google Drive. Check your connection and try again.'))}}
+async function pairAccept(id){const d=await fetchShelf(id);if(!d){toast(L('Couldn’t open this pairing link. Ask them to send it again.'));return}
+ const nm=String(d.name||'').slice(0,40);
+ if(!(await ask(L('Pair with {n}? Their shelves, goals and stats will appear on the far side of your room.',{n:nm||L('this person')}),L('Pair'),L('Cancel'))))return;
+ try{localStorage.setItem(PK,id);localStorage.setItem(PDK,JSON.stringify(d))}catch(e){}partnerData=d;renderPartner();
+ toast('\u{1F49E} '+L('Paired! Swipe past your Stats to visit their side.'));
+ if(!pairShare()&&GCID&&await ask(L('Send them your own pairing link, so your shelves show up on their side too?'),L('Send my link'),L('Later')))pairSend()}
+/* refresh their side when the app opens and when you come back to it */
+setTimeout(()=>{try{renderPartner()}catch(e){}partnerRefresh()},3000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let at=0;try{at=+localStorage.getItem(PK+'-at')||0}catch(e){}if(Date.now()-at>10*60e3)partnerRefresh()});
 /* ---------- a friend's shelf: opened from their link, read-only, remembered in Customize › More ---------- */
 const friends=()=>{try{return JSON.parse(localStorage.getItem(FRK)||'[]')||[]}catch(e){return[]}};
 const saveFriends=a=>{try{localStorage.setItem(FRK,JSON.stringify(a.slice(0,30)))}catch(e){}};
@@ -1397,7 +1466,7 @@ async function friendOpen(id){
   if(z==='read')list.sort((a,b)=>String(b.finished||'').localeCompare(String(a.finished||'')));
   box.append(el('h3','',L(lab)+' · '+list.length));const ul=el('ul','nextlist');
   list.forEach(b=>{const t=String(b.title).slice(0,200),a=String(b.author||'').slice(0,120),li=el('li','',t);if(a)li.append(el('small','','— '+a));
-   if(+b.stars>0)li.append(el('small','','★ '+Math.min(10,+b.stars)+'/10'));
+   if(+b.stars>0)li.append(el('small','','★ '+fmtStars(Math.min(5,+b.stars))));
    if(!mine.has((t+'|'+a).toLowerCase())){const add=el('button','fbtn','+ '+L('Want to read'));add.type='button';
     add.onclick=()=>{books.push({id:'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),title:t,author:a,status:'want',color:['#8b2e2e','#2f4b6e','#3f6b4f','#a67c1f','#5b3a6b','#2e2e33','#a4552b','#2e6b6b'][hue(t)%8],w:30+Math.floor(Math.random()*24),h:150+Math.floor(Math.random()*62),createdAt:Date.now(),recBy:name});
      mine.add((t+'|'+a).toLowerCase());store();render();add.remove();toast(L('Added to Want to read.'))};li.append(add)}
@@ -1408,7 +1477,7 @@ function friendsOpen(){const box=$('frlist'),fs=friends();$('frh').textContent=L
   o.onclick=()=>friendOpen(f.id);x.onclick=()=>{saveFriends(friends().filter(g=>g.id!==f.id));friendsOpen()};li.append(o,x);ul.append(li)});box.append(ul)}
 $('frx').onclick=()=>$('frov').classList.remove('on');
 /* a shelf link opens the friend's shelf (also when the app is already open) */
-{const go=()=>{const m=/#shelf=([\w-]+)/.exec(location.hash||'');if(!m)return;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}friendOpen(m[1])};
+{const go=()=>{const m=/#(shelf|pair)=([\w-]+)/.exec(location.hash||'');if(!m)return;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}if(m[1]==='pair')pairAccept(m[2]);else friendOpen(m[2])};
  addEventListener('hashchange',go);setTimeout(go,800)}
 /* the backup reminder's button saves to Drive once it's connected */
 $('bknow').onclick=()=>GCID?driveBackup():exportBackup();
@@ -3036,7 +3105,7 @@ buildPanel=function(){
    let ev='30';try{ev=localStorage.getItem('bookshelf-backup-every')||'30'}catch(e){}s.value=ev;s.onchange=()=>{try{localStorage.setItem('bookshelf-backup-every',s.value);localStorage.removeItem(LSN)}catch(e){}checkBackup()};l.append(s);out.append(l)}
   else if(k==='_remind'){const l=document.createElement('label');l.textContent='\u{1F514} '+L('Daily reading reminder');const s=document.createElement('select');[['1','On'],['0','Off']].forEach(([v,n])=>{const o2=document.createElement('option');o2.value=v;o2.textContent=L(n);s.append(o2)});let on='0';try{on=localStorage.getItem('bookshelf-remind')||'0'}catch(e){}s.value=on;s.onchange=async()=>{if(!await setRemind(s.value==='1'))s.value='0'};l.append(s);out.append(l)}
   else if(k==='_btns'){const bx=el('div','czbtns'),mk=(t,fn)=>{const b=el('button','',t);b.type='button';b.onclick=fn;bx.append(b)},shut=fn=>()=>{$('lov').classList.remove('on');fn()};
-   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk('\u{1F517} '+L('Share my shelf'),shareMenu);mk('\u{1F465} '+L('Friends\u2019 shelves'),friendsOpen);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
+   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk('\u{1F517} '+L('Share my shelf'),shareMenu);mk('\u{1F465} '+L('Friends\u2019 shelves'),friendsOpen);mk('\u{1F49E} '+L('Pair with someone'),pairMenu);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
    mk($('shelfpic').textContent,()=>$('shelfpic').click());if(!$('mvcat').hidden)mk($('mvcat').textContent,()=>$('mvcat').click());mk(L('📥 Open a recommendation'),()=>recPaste());mk(L('💬 Feedback & support'),fbOpen);mk($('aboutbtn').textContent,()=>$('aboutbtn').click());mk(L('Reset'),()=>$('rst').click());
    out.append(bx);const sf=el('p');sf.id='safe2';sf.textContent=$('safe').textContent;out.append(sf)}});
  body.replaceChildren(out);body.scrollTop=top0};
