@@ -1361,7 +1361,7 @@ const shareId=()=>{try{return localStorage.getItem(SHK)||''}catch(e){return''}};
 const ownerName=()=>{try{return localStorage.getItem('bookshelf-name')||''}catch(e){return''}};
 const shareJson=()=>JSON.stringify({app:'my-bookshelf-shared',v:1,name:ownerName(),updated:new Date().toISOString(),
  books:books.map(b=>({title:b.title,author:b.author||'',status:st(b),stars:b.stars||null,series:b.series||'',seriesNo:b.seriesNo||0,finished:b.finished||'',started:b.started||'',pages:b.pages||0,color:b.color||'',w:b.w||0,h:b.h||0,format:b.format||''})),
- ...(pairShare()?{goals,sessions:sessions.slice(-600),look:{pet:look.pet,coat:look.coat,_dragon:look._dragon,_spirit:look._spirit,petName:look.petName}}:{})});
+ ...(pairShare()?{goals,sessions:sessions.slice(-600),look:{pet:look.pet,coat:look.coat,_dragon:look._dragon,_spirit:look._spirit,petName:look.petName,window:look.window,rug:look.rug,plant:look.plant,pot:look.pot,bowls:look.bowls}}:{})});
 async function shareUpload(){let id=shareId();const body=shareJson();
  if(id){try{await gApi(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});return id}catch(e){if(e.message==='auth')throw e;id=''}}
  const b='bkshare'+Date.now(),meta=JSON.stringify({name:SHF,mimeType:'application/json'});
@@ -1416,7 +1416,15 @@ function renderPartner(){
  [['reading','Currently reading'],['read','Read'],['want','Want to read'],['dnf',"Didn't finish"]].forEach(([z,lab])=>{const list=bks.filter(b=>st(b)===z);if(!list.length)return;
   if(z==='read')list.sort((a,b)=>String(b.finished||'').localeCompare(String(a.finished||'')));
   box.append(el('h3','pshh',L(lab)+' · '+list.length));const sh=el('div','pshelf');list.forEach(b=>{let sp;try{sp=makeSpine(b)}catch(e){sp=el('button','spine',b.title)}sp.classList.add('pbk');sp.dataset.id=b.id;sh.append(sp)});box.append(sh)});
- const floor=el('div','pfloor');box.append(floor);
+ const lk=d.look||{},pick=(k,v)=>{const o=OPTS.find(x=>x.k===k);return o&&(o.i.find(x=>x[0]===v)||o.i[0])};
+ const area=el('div','pwallarea'),win=pick('window',lk.window),plant=pick('plant',lk.plant);
+ if(win&&win[0]!=='none'){const wn=el('div','pwin');wn.style.setProperty('--pwr',(win[2]&&win[2]['--wr'])||'60px 60px 6px 6px');area.append(wn,el('div','psill'))}
+ if(plant&&plant[0]!=='none'&&PLANTS[plant[0]]){const pl=el('div','pplant'),pot=pick('pot',lk.pot);pl.style.setProperty('--pot',(pot&&pot[2]&&pot[2]['--pot'])||'#c1663a');pl.innerHTML=`<svg viewBox="0 0 80 110" aria-hidden="true">${PLANTS[plant[0]]}</svg>`;area.append(pl)}
+ box.append(area);
+ const floor=el('div','pfloor'),rug=pick('rug',lk.rug),bw=pick('bowls',lk.bowls);
+ if(rug&&rug[0]!=='none'){const rg=el('div','prug');if(rug[2]&&rug[2]['--rugbg'])rg.style.background=rug[2]['--rugbg'];floor.append(rg)}
+ if(bw&&bw[0]!=='none'){const bx=el('div','pbowls');['foodbowl','waterbowl'].forEach(id=>{const sv=$(id)&&$(id).querySelector('svg');if(sv){const b=el('div','pbowl');b.append(sv.cloneNode(true));bx.append(b)}});floor.append(bx)}
+ box.append(floor);
  const back=el('button','fbtn','↩ '+L('Back to my room'));back.type='button';back.onclick=()=>turnTo(0);box.append(back);
  PRV.replaceChildren(box);PRV._books=bks;pPetStart(d.look);
  try{partnerCopy(renderGoals,GV,PGV)}catch(e){}try{partnerCopy(renderStats,SV,PSV)}catch(e){}
@@ -1431,11 +1439,12 @@ function pPetStart(lk){pPetStop();lk=lk||{};const pet=String(lk.pet||''),an=ANIM
  const w=el('div','catw ppetw'+(lk._spirit==='1'?' spirit':''));const svg=pp.querySelector('svg');w.append(svg);
  if(lk.petName){const nm=el('div','pname',String(lk.petName).slice(0,20));w.append(nm)}
  box.append(w);pPet={w,svg,pet,way:PETWAY[pet]||'walk',spot:null,x:0,y:0,t:0,an:null,asleep:false};
- w.addEventListener('click',e=>{e.stopPropagation();if(!pPet)return;if(pPet.asleep){pPet.asleep=false;w.classList.remove('sleeping')}svg.classList.remove('hop');void svg.getBoundingClientRect();svg.classList.add('hop');try{sfx('pop')}catch(e){}});
+ w.addEventListener('click',e=>{e.stopPropagation();if(!pPet)return;w.classList.remove('eating');if(pPet.asleep){pPet.asleep=false;w.classList.remove('sleeping')}svg.classList.remove('hop');void svg.getBoundingClientRect();svg.classList.add('hop');try{sfx('pop')}catch(e){}});
  pPetPlace();pPet.t=setTimeout(pPetTick,3000)}
 /* where it can stand, in the wall's own coordinates: the floor, and the empty end of each shelf */
 function pSpots(){const box=PRV.querySelector('.pinner');if(!box)return[];const br=box.getBoundingClientRect();if(!br.width)return[];const W=52,out=[];
  const fl=box.querySelector('.pfloor');if(fl){const r=fl.getBoundingClientRect();out.push({k:'floor',y:r.top-br.top+30,x0:10,x1:br.width-W-10})}
+ const sl=box.querySelector('.psill');if(sl){const r=sl.getBoundingClientRect();out.push({k:'sill',y:r.top-br.top,x0:r.left-br.left-4,x1:r.right-br.left-W+4})}
  box.querySelectorAll('.pshelf').forEach(sh=>{const r=sh.getBoundingClientRect(),sp=sh.querySelectorAll('.spine'),last=sp.length?sp[sp.length-1].getBoundingClientRect().right:r.left;
   const z=r.height/(sh.offsetHeight||r.height),x0=last-br.left+6,x1=r.right-br.left-W-8,y=r.bottom-br.top-12*z;if(x1-x0>12)out.push({k:'shelf',y,x0,x1})});return out}
 const pAtRest=()=>view==='proom'&&!turning()&&document.visibilityState==='visible'&&!PRV.hidden;
@@ -1463,6 +1472,12 @@ function pPetTick(){const p=pPet;if(!p)return;const again=ms=>{if(pPet===p)p.t=s
  /* keep its place up to date if the shelves moved (screen turned, fonts loaded) */
  const same=sps.find(s=>s.k===p.spot.k&&Math.abs(s.y-p.spot.y)<40);if(same&&Math.abs(same.y-p.y)>1)pSet(Math.min(same.x1,Math.max(same.x0,p.x)),same.y);
  const R=REACH[p.way],reach=s=>{if(p.way==='fly')return true;const up=p.y-s.y,dn=s.y-p.y;if(!R)return s.k==='floor';return up<=R[0]&&dn<=R[1]&&Math.abs(up)<=R[2]};
+ const bowls=[...PRV.querySelectorAll('.pbowl')],fl=sps.find(s=>s.k==='floor');
+ if(bowls.length&&fl&&Date.now()-(p.lastEat||0)>50e3&&r>.8){const br=PRV.querySelector('.pinner').getBoundingClientRect(),bb=bowls[Math.floor(Math.random()*bowls.length)].getBoundingClientRect(),
+  x=Math.min(fl.x1,Math.max(fl.x0,bb.left-br.left+bb.width/2-14)),eat=()=>{if(pPet!==p)return;p.w.style.setProperty('--dir',1);p.w.classList.add('eating');p.lastEat=Date.now();
+   p.t=setTimeout(()=>{if(pPet!==p)return;p.w.classList.remove('eating');again(3000+Math.random()*3000)},4500+Math.random()*3500)};
+  if(p.spot.k==='floor'){if(Math.abs(x-p.x)<4)eat();else pGo(fl,x,'walk',()=>setTimeout(eat,260))}
+  else if(reach(fl))pGo(fl,x,p.way==='fly'?'fly':p.way==='walk'?'hop':p.way,()=>setTimeout(eat,300));else again(2000);return}
  const others=sps.filter(s=>Math.abs(s.y-p.y)>20&&reach(s));
  if(r<.5||!others.length){const cur=same||p.spot,x=cur.x0+Math.random()*Math.max(1,cur.x1-cur.x0);if(Math.abs(x-p.x)<25){again(2000+Math.random()*3000);return}
   pGo(cur,x,'walk',()=>again(2500+Math.random()*4000));return}
