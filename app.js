@@ -1339,7 +1339,7 @@ async function driveBackup(){
   else{const b='bkshelf'+Date.now(),meta=JSON.stringify({name:GDF,mimeType:'application/json'});
    await gApi('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},
     body:`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`})}
-  try{localStorage.setItem(GDK,'1');localStorage.setItem(LB,Date.now())}catch(e){}checkBackup();toast('☁️ '+L('Backed up to your Google Drive.'))}
+  try{localStorage.setItem(GDK,'1');localStorage.setItem(LB,Date.now())}catch(e){}checkBackup();toast('☁️ '+L('Backed up to your Google Drive.'));if(shareId())shareUpload().catch(()=>{})}
  catch(e){toast(L('Google Drive backup didn’t work. Check your connection and try again.'))}}
 async function driveRestore(){
  try{const f=await gFind();if(!f){toast(L('No backup found in your Google Drive yet.'));return}
@@ -1351,6 +1351,65 @@ async function driveMenu(){
  gisLoad().catch(()=>{});
  if(!driveOn()){if(await ask(L('Save a copy of your library in your own Google Drive? Only this app can see the file. You can also restore it on a new phone.'),L('Connect'),L('Restore from Drive')))driveBackup();else driveRestore();return}
  if(await ask(L('Google Drive backup is on. Back up now, or replace this shelf with the copy in your Drive?'),L('Back up now'),L('Restore from Drive')))driveBackup();else driveRestore()}
+/* ---------- share my shelf: a read-only copy in the owner's Drive that anyone with the link can open (books, shelves, ratings; never notes or quotes) ---------- */
+const SHK='bookshelf-shareid',FRK='bookshelf-friends',SHF='My Bookshelf – shared shelf.json';
+const shareId=()=>{try{return localStorage.getItem(SHK)||''}catch(e){return''}};
+const ownerName=()=>{try{return localStorage.getItem('bookshelf-name')||''}catch(e){return''}};
+const shareJson=()=>JSON.stringify({app:'my-bookshelf-shared',v:1,name:ownerName(),updated:new Date().toISOString(),
+ books:books.map(b=>({title:b.title,author:b.author||'',status:st(b),stars:b.stars||null,series:b.series||'',seriesNo:b.seriesNo||0,finished:b.finished||''}))});
+async function shareUpload(){let id=shareId();const body=shareJson();
+ if(id){try{await gApi(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});return id}catch(e){if(e.message==='auth')throw e;id=''}}
+ const b='bkshare'+Date.now(),meta=JSON.stringify({name:SHF,mimeType:'application/json'});
+ const r=await (await gApi('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},
+  body:`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`})).json();
+ await gApi(`https://www.googleapis.com/drive/v3/files/${r.id}/permissions`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+ try{localStorage.setItem(SHK,r.id)}catch(e){}return r.id}
+const shareUrl=id=>'https://spendrax.github.io/Bookshelf/#shelf='+id;
+async function sendShelfLink(id){const u=shareUrl(id);
+ try{if(navigator.share){await navigator.share({title:L('My bookshelf'),url:u});return}}catch(e){if(e&&e.name==='AbortError')return}
+ try{await navigator.clipboard.writeText(u);toast(L('Link copied. Paste it in a message to your friend.'))}catch(e){toast(u)}}
+async function shareMenu(){
+ if(!GCID){toast(L('Google Drive backup isn’t set up in this version yet.'));return}
+ gisLoad().catch(()=>{});
+ if(shareId()){
+  if(await ask(L('Your shelf is shared. Anyone with the link sees your books and ratings, never your notes. Send the link again, or stop sharing?'),L('Send link'),L('Stop sharing'))){
+   try{await shareUpload();sendShelfLink(shareId())}catch(e){toast(L('Couldn’t reach your Google Drive. Check your connection and try again.'))}}
+  else{try{await gApi(`https://www.googleapis.com/drive/v3/files/${shareId()}`,{method:'DELETE'})}catch(e){}try{localStorage.removeItem(SHK)}catch(e){}toast(L('Your shelf is no longer shared. The old link stops working.'))}
+  return}
+ if(!(await ask(L('Share your shelf with a friend? You get a link: anyone who opens it sees your books, shelves and ratings (never your notes or quotes). It updates each time you back up to Google Drive.'),L('Share'),L('Cancel'))))return;
+ try{toast('☁️ '+L('Saving to Google Drive…'));const id=await shareUpload();try{localStorage.setItem(GDK,'1')}catch(e){}checkBackup();sendShelfLink(id)}
+ catch(e){toast(L('Couldn’t reach your Google Drive. Check your connection and try again.'))}}
+/* ---------- a friend's shelf: opened from their link, read-only, remembered in Customize › More ---------- */
+const friends=()=>{try{return JSON.parse(localStorage.getItem(FRK)||'[]')||[]}catch(e){return[]}};
+const saveFriends=a=>{try{localStorage.setItem(FRK,JSON.stringify(a.slice(0,30)))}catch(e){}};
+function frTitle(name){return name?L('{n}’s shelf',{n:name}):L('A friend’s shelf')}
+async function friendOpen(id){
+ if(!/^[\w-]{10,100}$/.test(id))return;
+ const box=$('frlist');box.replaceChildren(el('p','stempty',L('Opening…')));$('frh').textContent=L('A friend’s shelf');$('frov').classList.add('on');
+ let d=null;try{const r=await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media&key=${GBKEY}`);if(r.ok)d=await r.json()}catch(e){}
+ if(!d||d.app!=='my-bookshelf-shared'||!Array.isArray(d.books)){box.replaceChildren(el('p','stempty',L('Couldn’t open this shelf. It may no longer be shared, or you’re offline.')));return}
+ const name=String(d.name||'').slice(0,40);$('frh').textContent=frTitle(name);
+ saveFriends([{id,name}].concat(friends().filter(f=>f.id!==id)));
+ box.replaceChildren();
+ const mine=new Set(books.map(b=>(b.title+'|'+(b.author||'')).toLowerCase()));
+ [['reading','Currently reading'],['read','Read'],['want','Want to read'],['dnf',"Didn't finish"]].forEach(([z,lab])=>{
+  const list=d.books.filter(b=>b&&b.status===z&&b.title);if(!list.length)return;
+  if(z==='read')list.sort((a,b)=>String(b.finished||'').localeCompare(String(a.finished||'')));
+  box.append(el('h3','',L(lab)+' · '+list.length));const ul=el('ul','nextlist');
+  list.forEach(b=>{const t=String(b.title).slice(0,200),a=String(b.author||'').slice(0,120),li=el('li','',t);if(a)li.append(el('small','','— '+a));
+   if(+b.stars>0)li.append(el('small','','★ '+Math.min(10,+b.stars)+'/10'));
+   if(!mine.has((t+'|'+a).toLowerCase())){const add=el('button','fbtn','+ '+L('Want to read'));add.type='button';
+    add.onclick=()=>{books.push({id:'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),title:t,author:a,status:'want',color:['#8b2e2e','#2f4b6e','#3f6b4f','#a67c1f','#5b3a6b','#2e2e33','#a4552b','#2e6b6b'][hue(t)%8],w:30+Math.floor(Math.random()*24),h:150+Math.floor(Math.random()*62),createdAt:Date.now(),recBy:name});
+     mine.add((t+'|'+a).toLowerCase());store();render();add.remove();toast(L('Added to Want to read.'))};li.append(add)}
+   ul.append(li)});box.append(ul)})}
+function friendsOpen(){const box=$('frlist'),fs=friends();$('frh').textContent=L('Friends’ shelves');box.replaceChildren();$('lov').classList.remove('on');$('frov').classList.add('on');
+ if(!fs.length){box.append(el('p','stempty',L('When a friend sends you their shelf link, it shows up here.')));return}
+ const ul=el('ul','nextlist');fs.forEach(f=>{const li=el('li','',frTitle(f.name)),o=el('button','fbtn',L('Open')),x=el('button','fbtn','✕');o.type=x.type='button';x.setAttribute('aria-label',L('Remove'));
+  o.onclick=()=>friendOpen(f.id);x.onclick=()=>{saveFriends(friends().filter(g=>g.id!==f.id));friendsOpen()};li.append(o,x);ul.append(li)});box.append(ul)}
+$('frx').onclick=()=>$('frov').classList.remove('on');
+/* a shelf link opens the friend's shelf (also when the app is already open) */
+{const go=()=>{const m=/#shelf=([\w-]+)/.exec(location.hash||'');if(!m)return;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}friendOpen(m[1])};
+ addEventListener('hashchange',go);setTimeout(go,800)}
 /* the backup reminder's button saves to Drive once it's connected */
 $('bknow').onclick=()=>GCID?driveBackup():exportBackup();
 /* until Drive is connected, the backup banner explains it once there are a few books (Later snoozes it like before) */
@@ -2977,7 +3036,7 @@ buildPanel=function(){
    let ev='30';try{ev=localStorage.getItem('bookshelf-backup-every')||'30'}catch(e){}s.value=ev;s.onchange=()=>{try{localStorage.setItem('bookshelf-backup-every',s.value);localStorage.removeItem(LSN)}catch(e){}checkBackup()};l.append(s);out.append(l)}
   else if(k==='_remind'){const l=document.createElement('label');l.textContent='\u{1F514} '+L('Daily reading reminder');const s=document.createElement('select');[['1','On'],['0','Off']].forEach(([v,n])=>{const o2=document.createElement('option');o2.value=v;o2.textContent=L(n);s.append(o2)});let on='0';try{on=localStorage.getItem('bookshelf-remind')||'0'}catch(e){}s.value=on;s.onchange=async()=>{if(!await setRemind(s.value==='1'))s.value='0'};l.append(s);out.append(l)}
   else if(k==='_btns'){const bx=el('div','czbtns'),mk=(t,fn)=>{const b=el('button','',t);b.type='button';b.onclick=fn;bx.append(b)},shut=fn=>()=>{$('lov').classList.remove('on');fn()};
-   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
+   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk('\u{1F517} '+L('Share my shelf'),shareMenu);mk('\u{1F465} '+L('Friends\u2019 shelves'),friendsOpen);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
    mk($('shelfpic').textContent,()=>$('shelfpic').click());if(!$('mvcat').hidden)mk($('mvcat').textContent,()=>$('mvcat').click());mk(L('📥 Open a recommendation'),()=>recPaste());mk(L('💬 Feedback & support'),fbOpen);mk($('aboutbtn').textContent,()=>$('aboutbtn').click());mk(L('Reset'),()=>$('rst').click());
    out.append(bx);const sf=el('p');sf.id='safe2';sf.textContent=$('safe').textContent;out.append(sf)}});
  body.replaceChildren(out);body.scrollTop=top0};
