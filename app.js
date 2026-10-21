@@ -1188,6 +1188,7 @@ function camSet(c){cam=c;const fr=c-Math.floor(c),back=innerWidth*.866*(1-1.1547
 function turnEnd(){
  const k=paired()?hexN(cam):Math.max(-1,Math.min(1,Math.round(cam)));cam=k;turning.busy=false;
  view=wallName(k);
+ if(renderPartner.pending&&!['pgoals','proom','pstats'].includes(view))setTimeout(()=>{try{renderPartner()}catch(e){}},50);
  /* nothing is hidden, shown, created or removed when you land: on some phones that made the books blink for a frame. The other two walls simply wait just off screen, switched off (inert), ready for the next turn */
  hexWalls().forEach(([e,j])=>{const on=j===k;e.inert=!on;e.style.transformOrigin='';e.style.transform=on?'':`translateX(${hexD(j-k)<0?-100.5:100.5}vw)`});
  if(k===0){RV.classList.remove('away');document.body.classList.remove('onstats')}
@@ -1406,18 +1407,67 @@ function partnerCopy(fn,src,dest){const keep={books,goals,sessions,quotes,stYear
  catch(e){dest.replaceChildren(el('p','stempty',L('Couldn’t draw this wall.')))}
  finally{books=keep.books;goals=keep.goals;sessions=keep.sessions;quotes=keep.quotes;try{if(keep.stYear!==null)stYear=keep.stYear}catch(e){}try{fn()}catch(e){}}}
 function renderPartner(){
- const on=paired();document.body.classList.toggle('paired',on);[PGV,PRV,PSV].forEach(w=>{if(!on){w.hidden=true;w.replaceChildren()}});if(!on)return;
+ const on=paired();document.body.classList.toggle('paired',on);[PGV,PRV,PSV].forEach(w=>{if(!on){w.hidden=true;w.replaceChildren()}});if(!on){pPetStop();PRV._sig='';return}
+ const sig=JSON.stringify(partnerData)+lang;if(PRV._sig===sig&&PRV.firstChild)return;
+ if(['pgoals','proom','pstats'].includes(view)||turning()){renderPartner.pending=true;return}renderPartner.pending=false;PRV._sig=sig;
  const d=partnerData,bks=fixBooks(JSON.parse(JSON.stringify(d.books))).map((b,i)=>Object.assign(b,{id:'p'+i,color:/^#[0-9a-f]{6}$/i.test(b.color||'')?b.color:['#8b2e2e','#2f4b6e','#3f6b4f','#a67c1f','#5b3a6b','#2e2e33','#a4552b','#2e6b6b'][hue(b.title)%8],w:+b.w||30+hue(b.title)%24,h:+b.h||150+hue(b.title)%62}));
  const box=el('div','pinner'),n=z=>bks.filter(b=>st(b)===z).length;
  box.append(el('h2','ptitle','\u{1F49E} '+(pName()?L('{n}’s shelves',{n:pName()}):L('Your partner’s shelves'))),el('p','psub',L('{r} read · {c} reading · {w} to read',{r:n('read'),c:n('reading'),w:n('want')})));
  [['reading','Currently reading'],['read','Read'],['want','Want to read'],['dnf',"Didn't finish"]].forEach(([z,lab])=>{const list=bks.filter(b=>st(b)===z);if(!list.length)return;
   if(z==='read')list.sort((a,b)=>String(b.finished||'').localeCompare(String(a.finished||'')));
   box.append(el('h3','pshh',L(lab)+' · '+list.length));const sh=el('div','pshelf');list.forEach(b=>{let sp;try{sp=makeSpine(b)}catch(e){sp=el('button','spine',b.title)}sp.classList.add('pbk');sp.dataset.id=b.id;sh.append(sp)});box.append(sh)});
- const floor=el('div','pfloor'),pp=partnerPet(d.look);if(pp)floor.append(pp);box.append(floor);
+ const floor=el('div','pfloor');box.append(floor);
  const back=el('button','fbtn','↩ '+L('Back to my room'));back.type='button';back.onclick=()=>turnTo(0);box.append(back);
- PRV.replaceChildren(box);PRV._books=bks;
+ PRV.replaceChildren(box);PRV._books=bks;pPetStart(d.look);
  try{partnerCopy(renderGoals,GV,PGV)}catch(e){}try{partnerCopy(renderStats,SV,PSV)}catch(e){}
- if(!['pgoals','proom','pstats'].includes(view))[PGV,PRV,PSV].forEach(w=>{w.hidden=true})}
+ if(!turning()&&!['pgoals','proom','pstats'].includes(view))[PGV,PRV,PSV].forEach(w=>{w.hidden=false;w.inert=true;w.style.transform='translateX(100.5vw)'})}
+/* ---------- their animal, alive on their side: walks their floor, jumps or flies up to free space on their shelves, naps, hops when tapped.
+   Moves use the same trick as your animal (the end position is set first and the path is drawn back from where it was, in one go),
+   it is never hidden or re-added while you watch, and it only thinks while you're looking at their shelves. ---------- */
+let pPet=null;
+function pPetStop(){if(pPet){clearTimeout(pPet.t);if(pPet.an)try{pPet.an.cancel()}catch(e){}pPet=null}}
+function pPetStart(lk){pPetStop();lk=lk||{};const pet=String(lk.pet||''),an=ANIMALS[pet];if(!an||pet==='none')return;
+ const box=PRV.querySelector('.pinner');if(!box)return;const pp=partnerPet(lk);if(!pp)return;
+ const w=el('div','catw ppetw'+(lk._spirit==='1'?' spirit':''));const svg=pp.querySelector('svg');w.append(svg);
+ if(lk.petName){const nm=el('div','pname',String(lk.petName).slice(0,20));w.append(nm)}
+ box.append(w);pPet={w,svg,pet,way:PETWAY[pet]||'walk',spot:null,x:0,y:0,t:0,an:null,asleep:false};
+ w.addEventListener('click',e=>{e.stopPropagation();if(!pPet)return;if(pPet.asleep){pPet.asleep=false;w.classList.remove('sleeping')}svg.classList.remove('hop');void svg.getBoundingClientRect();svg.classList.add('hop');try{sfx('pop')}catch(e){}});
+ pPetPlace();pPet.t=setTimeout(pPetTick,3000)}
+/* where it can stand, in the wall's own coordinates: the floor, and the empty end of each shelf */
+function pSpots(){const box=PRV.querySelector('.pinner');if(!box)return[];const br=box.getBoundingClientRect();if(!br.width)return[];const W=52,out=[];
+ const fl=box.querySelector('.pfloor');if(fl){const r=fl.getBoundingClientRect();out.push({k:'floor',y:r.top-br.top+30,x0:10,x1:br.width-W-10})}
+ box.querySelectorAll('.pshelf').forEach(sh=>{const r=sh.getBoundingClientRect(),sp=sh.querySelectorAll('.spine'),last=sp.length?sp[sp.length-1].getBoundingClientRect().right:r.left;
+  const z=r.height/(sh.offsetHeight||r.height),x0=last-br.left+6,x1=r.right-br.left-W-8,y=r.bottom-br.top-12*z;if(x1-x0>12)out.push({k:'shelf',y,x0,x1})});return out}
+const pAtRest=()=>view==='proom'&&!turning()&&document.visibilityState==='visible'&&!PRV.hidden;
+function pSet(x,y){const w=pPet.w;w.style.left=x+'px';w.style.top=(y-w.offsetHeight)+'px';pPet.x=x;pPet.y=y}
+function pPetPlace(){if(!pPet)return;const sp=pSpots().find(s=>s.k==='floor');if(!sp){pPet.t=setTimeout(pPetPlace,1500);return}
+ pPet.spot=sp;pSet(sp.x0+Math.random()*Math.max(1,sp.x1-sp.x0),sp.y)}
+function pGo(sp,x,mode,done){const p=pPet,w=p.w,a={x:p.x,y:p.y},dir=x>a.x+1?-1:x<a.x-1?1:(+getComputedStyle(w).getPropertyValue('--dir')||1);
+ w.style.setProperty('--dir',dir);pSet(x,sp.y);p.spot=sp;
+ const dx=a.x-x,dy=a.y-sp.y,[kf0,dur]=petPath(mode,dx*dir,dy,1);
+ const kf=kf0.map(k=>{const m=/translate\(([-\d.]+)px,([-\d.]+)px\)(?: scale\(([-\d.]+)\))?/.exec(k.transform)||[0,0,0,1];return{'--tx':m[1]+'px','--ty':m[2]+'px','--tsc':m[3]||1}});
+ const setK=k=>Object.entries(k).forEach(([q,v])=>w.style.setProperty(q,v));
+ w.classList.add('travel');w.classList.toggle('walking',mode==='walk');w.classList.toggle('flying',mode==='fly');w.style.transformOrigin='50% 100%';
+ setK(kf[0]);w.style.transform='translate(var(--tx),var(--ty)) scale(var(--tsc))';
+ const an=w.animate(kf,{duration:mode==='walk'?Math.max(700,Math.abs(dx)/((PETSPEED[p.pet]||70)/1000)):dur,easing:mode==='walk'?'linear':'ease-in-out'});p.an=an;
+ let ended=false;const fin=()=>{if(ended)return;ended=true;p.an=null;w.style.transform='';['--tx','--ty','--tsc'].forEach(q=>w.style.removeProperty(q));w.classList.remove('travel','walking','flying');w.style.transformOrigin='';
+  if(mode==='jump'||mode==='hop'){p.svg.classList.remove('landed');void p.svg.getBoundingClientRect();p.svg.classList.add('landed')}done&&done()};
+ an.onfinish=fin;an.oncancel=fin}
+function pPetTick(){const p=pPet;if(!p)return;const again=ms=>{if(pPet===p)p.t=setTimeout(pPetTick,ms)};
+ if(!pAtRest()||p.an){again(2500);return}
+ if(!p.spot||!p.w.offsetHeight){pPetPlace();again(2000);return}
+ const h=new Date().getHours(),night=h>=22||h<7,r=Math.random();
+ if(p.asleep){if(Math.random()<(night?.8:.55)){again(7000+Math.random()*8000);return}p.asleep=false;p.w.classList.remove('sleeping');again(2500);return}
+ if(r<(night?.3:.1)){p.asleep=true;p.w.classList.add('sleeping');again(9000+Math.random()*12000);return}
+ const sps=pSpots();
+ /* keep its place up to date if the shelves moved (screen turned, fonts loaded) */
+ const same=sps.find(s=>s.k===p.spot.k&&Math.abs(s.y-p.spot.y)<40);if(same&&Math.abs(same.y-p.y)>1)pSet(Math.min(same.x1,Math.max(same.x0,p.x)),same.y);
+ const R=REACH[p.way],reach=s=>{if(p.way==='fly')return true;const up=p.y-s.y,dn=s.y-p.y;if(!R)return s.k==='floor';return up<=R[0]&&dn<=R[1]&&Math.abs(up)<=R[2]};
+ const others=sps.filter(s=>Math.abs(s.y-p.y)>20&&reach(s));
+ if(r<.5||!others.length){const cur=same||p.spot,x=cur.x0+Math.random()*Math.max(1,cur.x1-cur.x0);if(Math.abs(x-p.x)<25){again(2000+Math.random()*3000);return}
+  pGo(cur,x,'walk',()=>again(2500+Math.random()*4000));return}
+ const t=others[Math.floor(Math.random()*others.length)],x=t.x0+Math.random()*Math.max(1,t.x1-t.x0);
+ const mode=p.way==='fly'?'fly':p.way==='walk'?'hop':p.way;pGo(t,x,mode,()=>again(3000+Math.random()*4000))}
 /* tapping one of their books: who wrote it, their rating, and a way to put it on your own list */
 PRV.addEventListener('click',async e=>{const s=e.target.closest('.pbk');if(!s||!PRV._books)return;e.preventDefault();e.stopPropagation();
  const b=PRV._books.find(x=>x.id===s.dataset.id);if(!b)return;const key=(b.title+'|'+(b.author||'')).toLowerCase(),have=books.some(x=>(x.title+'|'+(x.author||'')).toLowerCase()===key);
