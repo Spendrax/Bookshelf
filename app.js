@@ -3049,7 +3049,7 @@ const NEWS={id:'2026-10-21',items:[
  '\u{1F49E} Pair your bookshelf with someone: their shelves, goals, stats and animal appear on the far side of your room. Customize › More.',
  '\u{1F517} Share your shelf with a friend through a link, and visit your friends’ shelves.',
  '☁️ Back up to your own Google Drive and get your library back on any phone.',
- '\u{1F381} Secret decorations for popular books, a dragon egg for dragon books, and a silver spirit after Harry Potter 3.',
+ '\u{1F381} Some popular books now hide secret surprises. Keep reading to find them!',
  '\u{1F4D6} Books move to Read by themselves on the last page, and you can fix the minutes after a reading session.']};
 const NEWSK='bookshelf-news';
 function newsOpen(){const ul=$('newslist');ul.replaceChildren(...NEWS.items.map(t=>el('li','',L(t))));$('newsh').textContent='✨ '+L('What’s new');$('lov').classList.remove('on');$('newsov').classList.add('on');try{localStorage.setItem(NEWSK,NEWS.id)}catch(e){}}
