@@ -655,7 +655,15 @@ drawBowls();
 applyLook();
 async function keepSafe(){try{if(navigator.storage&&navigator.storage.persist){return (await navigator.storage.persisted())||(await navigator.storage.persist())}}catch(e){}return false}
 keepSafe();
-if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){
+ /* the app opens from its offline copy, so a new version arrives in the background: when it's ready, offer to switch now */
+ const hadSW=!!navigator.serviceWorker.controller;
+ navigator.serviceWorker.register('sw.js').then(reg=>{
+  /* look for a new version when you come back to the app, not only when it starts */
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')reg.update().catch(()=>{})})}).catch(()=>{});
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hadSW||$('updbar'))return;
+  const bar=el('div','updbar');bar.id='updbar';bar.setAttribute('role','status');const go=el('button','',L('Update now')),x=el('button','updx','✕');go.type=x.type='button';x.setAttribute('aria-label',L('Later'));
+  go.onclick=()=>location.reload();x.onclick=()=>bar.remove();bar.append(el('span','','✨ '+L('A new version of the app is ready.')),go,x);document.body.append(bar)})}
 let busy=false,justDragged=false;
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 function bookRect(){const r=$('stage').getBoundingClientRect(),w=$('book').offsetWidth||150;return{left:r.left+r.width/2-w/2,top:r.top+r.height/2-110,width:w,height:220}}
