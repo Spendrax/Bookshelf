@@ -78,6 +78,12 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
   check(await page.evaluate(() => view === 'room'), 'paired: back to your room');
   await page.evaluate(() => { partnerData = null; renderPartner(); });
 
+  // no flashes: turning around is instant (no squash through zero), and napping squashes without a transform layer
+  check(await page.evaluate(async () => { catw.style.setProperty('--dir', 1); await new Promise(r => setTimeout(r, 300)); catw.style.setProperty('--dir', -1);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); const d = getComputedStyle(catw).getPropertyValue('--dir').trim();
+    catw.classList.add('sleeping'); await new Promise(r => setTimeout(r, 100)); const t = getComputedStyle(document.querySelector('#catw .cat')).transform; catw.classList.remove('sleeping');
+    return d === '-1' && t === 'none'; }), 'animal turns and naps without flashing');
+
   // a translation still loads
   check(await page.evaluate(() => { const l0 = lang; lang = 'fr'; const t = L('Save'); lang = l0; return t !== 'Save'; }), 'French translation');
 
