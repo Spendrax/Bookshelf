@@ -1361,7 +1361,7 @@ const shareId=()=>{try{return localStorage.getItem(SHK)||''}catch(e){return''}};
 const ownerName=()=>{try{return localStorage.getItem('bookshelf-name')||''}catch(e){return''}};
 const shareJson=()=>JSON.stringify({app:'my-bookshelf-shared',v:1,name:ownerName(),updated:new Date().toISOString(),
  books:books.map(b=>({title:b.title,author:b.author||'',status:st(b),stars:b.stars||null,series:b.series||'',seriesNo:b.seriesNo||0,finished:b.finished||'',started:b.started||'',pages:b.pages||0,color:b.color||'',w:b.w||0,h:b.h||0,format:b.format||''})),
- ...(pairShare()?{goals,sessions:sessions.slice(-600),look:{pet:look.pet,coat:look.coat,_dragon:look._dragon,_spirit:look._spirit,petName:look.petName,window:look.window,rug:look.rug,plant:look.plant,pot:look.pot,bowls:look.bowls}}:{})});
+ ...(pairShare()?{goals,sessions:sessions.slice(-600),look:{pet:look.pet,coat:look.coat,_dragon:look._dragon,_spirit:look._spirit,petName:look.petName,window:look.window,rug:look.rug,plant:look.plant,pot:look.pot,bowls:look.bowls,wx:wxLoc&&isFinite(+wxLoc.lat)?{lat:Math.round(wxLoc.lat*10)/10,lon:Math.round(wxLoc.lon*10)/10,name:String(wxLoc.name||'').slice(0,40)}:null}}:{})});
 async function shareUpload(){let id=shareId();const body=shareJson();
  if(id){try{await gApi(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});return id}catch(e){if(e.message==='auth')throw e;id=''}}
  const b='bkshare'+Date.now(),meta=JSON.stringify({name:SHF,mimeType:'application/json'});
@@ -1420,6 +1420,7 @@ function renderPartner(){
  const area=el('div','pwallarea'),win=pick('window',lk.window),plant=pick('plant',lk.plant);
  if(win&&win[0]!=='none'){const wn=el('div','pwin');wn.style.setProperty('--pwr',(win[2]&&win[2]['--wr'])||'60px 60px 6px 6px');area.append(wn,el('div','psill'))}
  if(plant&&plant[0]!=='none'&&PLANTS[plant[0]]){const pl=el('div','pplant'),pot=pick('pot',lk.pot);pl.style.setProperty('--pot',(pot&&pot[2]&&pot[2]['--pot'])||'#c1663a');pl.innerHTML=`<svg viewBox="0 0 80 110" aria-hidden="true">${PLANTS[plant[0]]}</svg>`;area.append(pl)}
+ const th=el('div','ptherm');th.hidden=true;area.append(th);pWeather(lk.wx,th);
  box.append(area);
  const floor=el('div','pfloor'),rug=pick('rug',lk.rug),bw=pick('bowls',lk.bowls);
  if(rug&&rug[0]!=='none'){const rg=el('div','prug');if(rug[2]&&rug[2]['--rugbg'])rg.style.background=rug[2]['--rugbg'];floor.append(rg)}
@@ -1462,6 +1463,13 @@ function pGo(sp,x,mode,done){const p=pPet,w=p.w,a={x:p.x,y:p.y},dir=x>a.x+1?-1:x
  let ended=false;const fin=()=>{if(ended)return;ended=true;p.an=null;w.style.transform='';['--tx','--ty','--tsc'].forEach(q=>w.style.removeProperty(q));w.classList.remove('travel','walking','flying');w.style.transformOrigin='';
   if(mode==='jump'||mode==='hop'){p.svg.classList.remove('landed');void p.svg.getBoundingClientRect();p.svg.classList.add('landed')}done&&done()};
  an.onfinish=fin;an.oncancel=fin}
+function pEat(p,bowl,called){const sps=pSpots(),fl=sps.find(s=>s.k==='floor'),again=ms=>{if(pPet===p)p.t=setTimeout(pPetTick,ms)};if(!fl||!p.spot){again(2000);return}
+ const br=PRV.querySelector('.pinner').getBoundingClientRect(),bb=bowl.getBoundingClientRect(),x=Math.min(fl.x1,Math.max(fl.x0,bb.left-br.left+bb.width/2-14));
+ const eat=()=>{if(pPet!==p)return;p.w.style.setProperty('--dir',1);p.w.classList.add('eating');p.lastEat=Date.now();
+  p.t=setTimeout(()=>{if(pPet!==p)return;p.w.classList.remove('eating');again(3000+Math.random()*3000)},4500+Math.random()*3500)};
+ const R=REACH[p.way],up=p.y-fl.y,dn=fl.y-p.y,canReach=p.way==='fly'||(R?up<=R[0]&&dn<=R[1]:false)||called;
+ if(p.spot.k==='floor'){if(Math.abs(x-p.x)<4)eat();else pGo(fl,x,'walk',()=>setTimeout(eat,260))}
+ else if(canReach)pGo(fl,x,p.way==='fly'?'fly':p.way==='walk'?'hop':p.way,()=>setTimeout(eat,300));else again(2000)}
 function pPetTick(){const p=pPet;if(!p)return;const again=ms=>{if(pPet===p)p.t=setTimeout(pPetTick,ms)};
  if(!pAtRest()||p.an){again(2500);return}
  if(!p.spot||!p.w.offsetHeight){pPetPlace();again(2000);return}
@@ -1473,16 +1481,25 @@ function pPetTick(){const p=pPet;if(!p)return;const again=ms=>{if(pPet===p)p.t=s
  const same=sps.find(s=>s.k===p.spot.k&&Math.abs(s.y-p.spot.y)<40);if(same&&Math.abs(same.y-p.y)>1)pSet(Math.min(same.x1,Math.max(same.x0,p.x)),same.y);
  const R=REACH[p.way],reach=s=>{if(p.way==='fly')return true;const up=p.y-s.y,dn=s.y-p.y;if(!R)return s.k==='floor';return up<=R[0]&&dn<=R[1]&&Math.abs(up)<=R[2]};
  const bowls=[...PRV.querySelectorAll('.pbowl')],fl=sps.find(s=>s.k==='floor');
- if(bowls.length&&fl&&Date.now()-(p.lastEat||0)>50e3&&r>.8){const br=PRV.querySelector('.pinner').getBoundingClientRect(),bb=bowls[Math.floor(Math.random()*bowls.length)].getBoundingClientRect(),
-  x=Math.min(fl.x1,Math.max(fl.x0,bb.left-br.left+bb.width/2-14)),eat=()=>{if(pPet!==p)return;p.w.style.setProperty('--dir',1);p.w.classList.add('eating');p.lastEat=Date.now();
-   p.t=setTimeout(()=>{if(pPet!==p)return;p.w.classList.remove('eating');again(3000+Math.random()*3000)},4500+Math.random()*3500)};
-  if(p.spot.k==='floor'){if(Math.abs(x-p.x)<4)eat();else pGo(fl,x,'walk',()=>setTimeout(eat,260))}
-  else if(reach(fl))pGo(fl,x,p.way==='fly'?'fly':p.way==='walk'?'hop':p.way,()=>setTimeout(eat,300));else again(2000);return}
+ if(bowls.length&&fl&&Date.now()-(p.lastEat||0)>50e3&&r>.8){pEat(p,bowls[Math.floor(Math.random()*bowls.length)]);return}
  const others=sps.filter(s=>Math.abs(s.y-p.y)>20&&reach(s));
  if(r<.5||!others.length){const cur=same||p.spot,x=cur.x0+Math.random()*Math.max(1,cur.x1-cur.x0);if(Math.abs(x-p.x)<25){again(2000+Math.random()*3000);return}
   pGo(cur,x,'walk',()=>again(2500+Math.random()*4000));return}
  const t=others[Math.floor(Math.random()*others.length)],x=t.x0+Math.random()*Math.max(1,t.x1-t.x0);
  const mode=p.way==='fly'?'fly':p.way==='walk'?'hop':p.way;pGo(t,x,mode,()=>again(3000+Math.random()*4000))}
+/* their weather: the same free service as yours, for the city they chose (no city chosen = no thermometer) */
+const WXEMO=c=>c===0?'☀️':c<=3?'⛅':c<=48?'\u{1F32B}️':c<=67?'\u{1F327}️':c<=77?'❄️':c<=82?'\u{1F326}️':'⛈️';
+async function pWeather(wx,th){if(!wx||!isFinite(+wx.lat)||!isFinite(+wx.lon))return;
+ const show=j=>{const c=j&&j.current;if(!c||!isFinite(c.temperature_2m))return;const night=c.is_day===0&&c.weather_code===0;
+  th.replaceChildren(el('b','',(night?'\u{1F319}':WXEMO(+c.weather_code))+' '+Math.round(c.temperature_2m)+'°'),el('small','',String(wx.name||'').split(',')[0]||L('Their weather')));th.hidden=false};
+ const key='wx:'+wx.lat+','+wx.lon+(FAHR?'F':'C');if(pWeather.c&&pWeather.c.k===key&&Date.now()-pWeather.c.t<15*60e3){show(pWeather.c.j);return}
+ try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${+wx.lat}&longitude=${+wx.lon}&current=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=1${FAHR?'&temperature_unit=fahrenheit':''}`);
+  if(!r.ok)return;const j=await r.json();pWeather.c={k:key,t:Date.now(),j};show(j)}catch(e){}}
+/* tap one of their bowls: it fills up and their animal comes over to eat (on your screen) */
+PRV.addEventListener('click',e=>{const b=e.target.closest('.pbowl');if(!b)return;e.stopPropagation();
+ b.animate([{transform:'translateY(0) rotate(0)'},{transform:'translateY(-4px) rotate(-4deg)'},{transform:'translateY(0) rotate(0)'}],{duration:300});try{sfx('pop')}catch(e){}
+ const p=pPet;if(!p)return;clearTimeout(p.t);if(p.asleep){p.asleep=false;p.w.classList.remove('sleeping')}p.w.classList.remove('eating');p.lastEat=0;
+ const go=()=>{if(pPet!==p)return;if(p.an){p.t=setTimeout(go,300);return}pEat(p,b,true)};go()},true);
 /* tapping one of their books: who wrote it, their rating, and a way to put it on your own list */
 PRV.addEventListener('click',async e=>{const s=e.target.closest('.pbk');if(!s||!PRV._books)return;e.preventDefault();e.stopPropagation();
  const b=PRV._books.find(x=>x.id===s.dataset.id);if(!b)return;const key=(b.title+'|'+(b.author||'')).toLowerCase(),have=books.some(x=>(x.title+'|'+(x.author||'')).toLowerCase()===key);
