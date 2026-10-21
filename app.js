@@ -9,7 +9,7 @@ function applyLang(){
  document.querySelectorAll('[data-i18n]').forEach(el=>{const tn=[...el.childNodes].find(n=>n.nodeType===3&&n.textContent.trim());if(!tn)return;if(!el.dataset.k)el.dataset.k=el.getAttribute('data-i18n')||tn.textContent.trim();const t=tn.textContent;tn.textContent=t.match(/^\s*/)[0]+L(el.dataset.k)+t.match(/\s*$/)[0]});
  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{if(!el.dataset.kph)el.dataset.kph=el.getAttribute('data-i18n-ph')||el.placeholder;el.placeholder=L(el.dataset.kph)});
  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{if(!el.dataset.ka)el.dataset.ka=el.getAttribute('data-i18n-aria')||el.getAttribute('aria-label');el.setAttribute('aria-label',L(el.dataset.ka))})}
-let books=[],cur=null,draft={},timer;
+let books=[],cur=null,draft={},timer,booksReady=false;
 /* a backup made by hand or by another app can have odd fields: one bad book must never blank the whole shelf */
 function fixBooks(a){return (Array.isArray(a)?a:[]).filter(b=>b&&typeof b==='object'&&!Array.isArray(b)).map((b,i)=>{
  b.title=String(b.title==null?'':b.title);if(b.author!=null)b.author=String(b.author);b.id=String(b.id||'b'+Date.now().toString(36)+i);
@@ -2190,7 +2190,7 @@ const IDB={db:null,open(){return new Promise((res,rej)=>{if(this.db)return res(t
   else if(Array.isArray(saved))books=saved;
   else await IDB.set('books',JSON.parse(JSON.stringify(books)));
   useIDB=true;try{localStorage.removeItem(LS)}catch(e){}}catch(e){useIDB=false}
- books=fixBooks(books);applyLang();render();moveCat();try{drawPill();applySeason()}catch(e){}
+ books=fixBooks(books);booksReady=true;applyLang();render();moveCat();try{drawPill();applySeason()}catch(e){}
  try{if(/[?&]add\b/.test(location.search)){history.replaceState(null,'',location.pathname);setTimeout(()=>openModal(null),400)}}catch(e){}
 })();
 
@@ -3035,8 +3035,23 @@ async function spiritHatch(){
  const a=SPIRITS[i],nm=OPTS.find(o=>o.k==='pet').i.find(x=>x[0]===a)[1];
  look.pet=a;look._spirit='1';czSaveLook();try{applyLook()}catch(e){}try{moveCat()}catch(e){}try{buildPanel()}catch(e){}
  toast('\u2728 '+L('Your spirit animal is: {a}!',{a:L(nm)})+' '+L('Turn the glow on or off in Customize \u203A Animal.'))}
+/* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
+   For the next important update: give NEWS a new id and new lines (and add their translations to i18n.js). ---------- */
+const NEWS={id:'2026-10-21',items:[
+ '\u{1F49E} Pair your bookshelf with someone: their shelves, goals, stats and animal appear on the far side of your room. Customize › More.',
+ '\u{1F517} Share your shelf with a friend through a link, and visit your friends’ shelves.',
+ '☁️ Back up to your own Google Drive and get your library back on any phone.',
+ '\u{1F381} Secret decorations for popular books, a dragon egg for dragon books, and a silver spirit after Harry Potter 3.',
+ '\u{1F4D6} Books move to Read by themselves on the last page, and you can fix the minutes after a reading session.']};
+const NEWSK='bookshelf-news';
+function newsOpen(){const ul=$('newslist');ul.replaceChildren(...NEWS.items.map(t=>el('li','',L(t))));$('newsh').textContent='✨ '+L('What’s new');$('lov').classList.remove('on');$('newsov').classList.add('on');try{localStorage.setItem(NEWSK,NEWS.id)}catch(e){}}
+$('newsx').onclick=()=>$('newsov').classList.remove('on');
+setTimeout(function newsCheck(){if(!booksReady){setTimeout(newsCheck,800);return}let seen=null;try{seen=localStorage.getItem(NEWSK)}catch(e){}if(seen===NEWS.id)return;
+ /* brand-new people: nothing is "new" to them yet */
+ if(!books.length){try{localStorage.setItem(NEWSK,NEWS.id)}catch(e){}return}
+ if(document.querySelector('.ov.on'))return;newsOpen()},1800);
 let unlockBusy=false;
-async function checkUnlocks(){if(unlockBusy)return;unlockBusy=true;try{
+async function checkUnlocks(){if(unlockBusy)return;if($('newsov').classList.contains('on')){setTimeout(()=>{try{checkUnlocks()}catch(e){}},3000);return}unlockBusy=true;try{
  let seen=[];try{seen=JSON.parse(localStorage.getItem('bookshelf-bdecos')||'[]')}catch(e){}
  const fresh=BOOKDECOS.filter(d=>!seen.includes(d[0])&&readMatch(d[2]));
  if(fresh.length){try{localStorage.setItem('bookshelf-bdecos',JSON.stringify(seen.concat(fresh.map(d=>d[0]))))}catch(e){}
@@ -3187,7 +3202,7 @@ buildPanel=function(){
    let ev='30';try{ev=localStorage.getItem('bookshelf-backup-every')||'30'}catch(e){}s.value=ev;s.onchange=()=>{try{localStorage.setItem('bookshelf-backup-every',s.value);localStorage.removeItem(LSN)}catch(e){}checkBackup()};l.append(s);out.append(l)}
   else if(k==='_remind'){const l=document.createElement('label');l.textContent='\u{1F514} '+L('Daily reading reminder');const s=document.createElement('select');[['1','On'],['0','Off']].forEach(([v,n])=>{const o2=document.createElement('option');o2.value=v;o2.textContent=L(n);s.append(o2)});let on='0';try{on=localStorage.getItem('bookshelf-remind')||'0'}catch(e){}s.value=on;s.onchange=async()=>{if(!await setRemind(s.value==='1'))s.value='0'};l.append(s);out.append(l)}
   else if(k==='_btns'){const bx=el('div','czbtns'),mk=(t,fn)=>{const b=el('button','',t);b.type='button';b.onclick=fn;bx.append(b)},shut=fn=>()=>{$('lov').classList.remove('on');fn()};
-   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk('\u{1F517} '+L('Share my shelf'),shareMenu);mk('\u{1F465} '+L('Friends\u2019 shelves'),friendsOpen);mk('\u{1F49E} '+L('Pair with someone'),pairMenu);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
+   mk(L('📚 My shelves'),shOpen);mk(L('📚 E-book files'),ebListOpen);mk(L('🛟 Daily safety copies'),safeOpen);mk('\u2601\uFE0F '+L('Google Drive backup'),driveMenu);mk('\u{1F517} '+L('Share my shelf'),shareMenu);mk('\u{1F465} '+L('Friends\u2019 shelves'),friendsOpen);mk('\u{1F49E} '+L('Pair with someone'),pairMenu);mk('\u2728 '+L('What\u2019s new'),newsOpen);mk(L('📥 Import Kindle highlights'),()=>$('kcin').click());
    mk($('shelfpic').textContent,()=>$('shelfpic').click());if(!$('mvcat').hidden)mk($('mvcat').textContent,()=>$('mvcat').click());mk(L('📥 Open a recommendation'),()=>recPaste());mk(L('💬 Feedback & support'),fbOpen);mk($('aboutbtn').textContent,()=>$('aboutbtn').click());mk(L('Reset'),()=>$('rst').click());
    out.append(bx);const sf=el('p');sf.id='safe2';sf.textContent=$('safe').textContent;out.append(sf)}});
  body.replaceChildren(out);body.scrollTop=top0};
