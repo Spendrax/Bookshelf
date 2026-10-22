@@ -22,10 +22,12 @@ function getTess() {
 function coverLines(data) {
   const out = [];
   (data.lines || []).forEach((l) => {
-    const ws = (l.words || [])
-      .filter((w) => w.confidence >= 55)
-      .map((w) => ({ t: w.text.replace(/[^\p{L}\p{N}'’-]/gu, ''), h: w.bbox.y1 - w.bbox.y0 }))
-      .filter((w) => w.t.replace(/[^\p{L}]/gu, '').length >= 2);
+    const ws = (l.words || []).reduce((out, w) => {
+      if (w.confidence < 55) return out;
+      const t = w.text.replace(/[^\p{L}\p{N}'’-]/gu, '');
+      if (t.replace(/[^\p{L}]/gu, '').length >= 2) out.push({ t, h: w.bbox.y1 - w.bbox.y0 });
+      return out;
+    }, []);
     if (!ws.length) return;
     const hs = ws.map((w) => w.h).sort((a, b) => a - b);
     out.push({ t: ws.map((w) => w.t).join(' '), h: hs[hs.length >> 1], y: l.bbox.y0 });

@@ -28,6 +28,7 @@ Live at https://spendrax.github.io/Bookshelf/
 ## Things to know
 - The `js/` files run in number order and share one global scope. Later files often extend
   earlier functions (`const old = fn; fn = function () { old(); … }`), so keep the order.
+- Use `reduce` instead of chaining `filter` and `map`.
 - A new file must be added to both `index.html` and the `FILES` list in `sw.js`.
 - Animal movement uses CSS custom properties (`--tx`, `--ty`, `--px`…) rather than
   `transform`, and the animal is never hidden while on screen — this avoids flashes.

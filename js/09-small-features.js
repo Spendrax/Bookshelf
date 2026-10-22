@@ -892,8 +892,10 @@ async function safeCopy() {
     if (all.some((x) => x.day === day)) return;
     await SAFE.put({ day, t: Date.now(), n: books.length, data: safeSnap() });
     for (const k of all
-      .map((x) => x.day)
-      .filter((k) => k !== '0-undo')
+      .reduce((out, x) => {
+        if (x.day !== '0-undo') out.push(x.day);
+        return out;
+      }, [])
       .sort()
       .reverse()
       .slice(6))
@@ -1147,10 +1149,12 @@ async function epubOpen(buf) {
       props: it.getAttribute('properties') || '',
     }),
   );
-  const spine = all(opf, 'itemref')
-    .map((r) => items.get(r.getAttribute('idref')))
-    .filter((it) => it && z.find(it.path) && /html|xml/i.test(it.type))
-    .map((it) => ({ path: z.find(it.path), size: Math.max(1, z.files.get(z.find(it.path)).us) }));
+  const spine = all(opf, 'itemref').reduce((out, r) => {
+    const it = items.get(r.getAttribute('idref')),
+      path = it && z.find(it.path);
+    if (path && /html|xml/i.test(it.type)) out.push({ path, size: Math.max(1, z.files.get(path).us) });
+    return out;
+  }, []);
   if (!spine.length) throw 'bad';
   const idx = (p) => spine.findIndex((s) => s.path.toLowerCase() === String(p).toLowerCase());
   let toc = [];

@@ -553,17 +553,19 @@ function petTrip() {
     fx = a.left + a.width / 2,
     fy = a.bottom,
     R = REACH[way];
-  const opts = petSpots(petWall())
-    .filter((t) => t.el !== catw.parentElement)
-    .map((t) => ({ ...t, ...petLanding(t, a) }))
-    .filter((t) => {
-      if (t.y < 40 || t.y > innerHeight - 10) return false;
-      if (!R) return true;
+  const opts = petSpots(petWall()).reduce((out, s) => {
+    if (s.el === catw.parentElement) return out;
+    const t = { ...s, ...petLanding(s, a) };
+    if (t.y < 40 || t.y > innerHeight - 10) return out;
+    if (R) {
       const up = fy - t.y,
         dn = t.y - fy,
         d = Math.hypot(t.x - fx, t.y - fy);
-      return up <= R[0] && dn <= R[1] && d <= R[2] && d > 30;
-    });
+      if (!(up <= R[0] && dn <= R[1] && d <= R[2] && d > 30)) return out;
+    }
+    out.push(t);
+    return out;
+  }, []);
   if (!opts.length) return false;
   const t = opts[Math.floor(Math.random() * opts.length)];
   placePet(t.el, t.kind, t.ratio, t.zone, t.idx);
@@ -619,10 +621,12 @@ function petCome(toFloor, after) {
     if (vw !== 'room' && !(vw === 'goals' ? GV : SV).querySelector('.card'))
       vw === 'goals' ? renderGoals() : renderStats();
   } catch (e) {}
-  const opts = petSpots(vw)
-    .filter((t) => (way === 'fly' || GROUND.includes(t.kind)) && (!toFloor || t.kind === 'floor'))
-    .map((t) => ({ ...t, ...petLanding(t, { left: side > 0 ? innerWidth : 0, width: 0 }) }))
-    .filter((t) => toFloor || (t.y > 60 && t.y < innerHeight - 6));
+  const opts = petSpots(vw).reduce((out, s) => {
+    if (!((way === 'fly' || GROUND.includes(s.kind)) && (!toFloor || s.kind === 'floor'))) return out;
+    const t = { ...s, ...petLanding(s, { left: side > 0 ? innerWidth : 0, width: 0 }) };
+    if (toFloor || (t.y > 60 && t.y < innerHeight - 6)) out.push(t);
+    return out;
+  }, []);
   if (!opts.length) return false;
   const t = opts[Math.floor(Math.random() * opts.length)];
   placePet(t.el, t.kind, t.ratio, t.zone, t.idx);
@@ -691,10 +695,12 @@ function petToFloor(ratio, done, n = 0) {
     return;
   }
   /* come down one level at a time: the next surface below, the nearest one sideways, and the floor only when nothing is left in between */
-  const opts = petSpots('room', true)
-    .filter((t) => t.el !== catw.parentElement && !GROUND.includes(t.kind) && t.el.offsetParent !== null)
-    .map((t) => ({ ...t, ...petLanding(t, a) }))
-    .filter((t) => t.y > fy + 24 && t.y < ty - 24);
+  const opts = petSpots('room', true).reduce((out, s) => {
+    if (s.el === catw.parentElement || GROUND.includes(s.kind) || s.el.offsetParent === null) return out;
+    const t = { ...s, ...petLanding(s, a) };
+    if (t.y > fy + 24 && t.y < ty - 24) out.push(t);
+    return out;
+  }, []);
   if (!opts.length) {
     hop(floor, 'floor', ratio, undefined, undefined, done);
     return;
@@ -1238,7 +1244,11 @@ function endDrag(cancel) {
     const id = d.s.dataset.id,
       ids = d.ids.slice();
     ids.splice(d.idx, 0, id);
-    const nb = ids.map((x) => books.find((b) => b.id === x)).filter(Boolean);
+    const nb = ids.reduce((out, x) => {
+      const b = books.find((b) => b.id === x);
+      if (b) out.push(b);
+      return out;
+    }, []);
     if (nb.length === books.length) {
       books = nb;
       const msg = moveTo(

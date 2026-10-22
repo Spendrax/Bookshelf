@@ -48,32 +48,34 @@ let books = [],
   booksReady = false;
 /* a backup made by hand or by another app can have odd fields: one bad book must never blank the whole shelf */
 function fixBooks(a) {
-  return (Array.isArray(a) ? a : [])
-    .filter((b) => b && typeof b === 'object' && !Array.isArray(b))
-    .map((b, i) => {
-      b.title = String(b.title == null ? '' : b.title);
-      if (b.author != null) b.author = String(b.author);
-      b.id = String(b.id || 'b' + Date.now().toString(36) + i);
-      ['tags', 'genres'].forEach((k) => {
-        if (b[k] != null && !Array.isArray(b[k]))
-          b[k] =
-            typeof b[k] === 'string'
-              ? b[k]
-                  .split(',')
-                  .map((x) => x.trim())
-                  .filter(Boolean)
-              : [];
-      });
-      if (b.reads != null)
-        b.reads = Array.isArray(b.reads) ? b.reads.filter((r) => r && typeof r === 'object') : [];
-      ['pages', 'page', 'seriesNo', 'seriesOf', 'stars'].forEach((k) => {
-        if (b[k] != null && b[k] !== '') {
-          if (isFinite(+b[k])) b[k] = +b[k];
-          else delete b[k];
-        }
-      });
-      return b;
+  return (Array.isArray(a) ? a : []).reduce((out, b) => {
+    if (!b || typeof b !== 'object' || Array.isArray(b)) return out;
+    const i = out.length;
+    b.title = String(b.title == null ? '' : b.title);
+    if (b.author != null) b.author = String(b.author);
+    b.id = String(b.id || 'b' + Date.now().toString(36) + i);
+    ['tags', 'genres'].forEach((k) => {
+      if (b[k] != null && !Array.isArray(b[k]))
+        b[k] =
+          typeof b[k] === 'string'
+            ? b[k].split(',').reduce((out, x) => {
+                x = x.trim();
+                if (x) out.push(x);
+                return out;
+              }, [])
+            : [];
     });
+    if (b.reads != null)
+      b.reads = Array.isArray(b.reads) ? b.reads.filter((r) => r && typeof r === 'object') : [];
+    ['pages', 'page', 'seriesNo', 'seriesOf', 'stars'].forEach((k) => {
+      if (b[k] != null && b[k] !== '') {
+        if (isFinite(+b[k])) b[k] = +b[k];
+        else delete b[k];
+      }
+    });
+    out.push(b);
+    return out;
+  }, []);
 }
 try {
   books = fixBooks(JSON.parse(localStorage.getItem(LS) || '[]'));

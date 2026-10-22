@@ -449,9 +449,10 @@ buildPanel = function () {
         czGroup(
           k,
           L(o.l),
-          o.i
-            .filter((it) => k !== 'pet' || it[0] !== 'dragon' || dragonOn())
-            .map((it) => [it[0], L(it[1]), it[2]]),
+          o.i.reduce((out, it) => {
+            if (k !== 'pet' || it[0] !== 'dragon' || dragonOn()) out.push([it[0], L(it[1]), it[2]]);
+            return out;
+          }, []),
           sid(k),
           (v) => setOpt(k, v),
         ),
@@ -503,9 +504,11 @@ buildPanel = function () {
           L('Second animal'),
           [
             ['', L('None')],
-            ...OPTS.find((x) => x.k === 'pet')
-              .i.filter((x) => ANIMALS[x[0]] && x[0] !== sid('pet') && (x[0] !== 'dragon' || dragonOn()))
-              .map((x) => [x[0], L(x[1]), null, FRIEND_AT]),
+            ...OPTS.find((x) => x.k === 'pet').i.reduce((out, x) => {
+              if (ANIMALS[x[0]] && x[0] !== sid('pet') && (x[0] !== 'dragon' || dragonOn()))
+                out.push([x[0], L(x[1]), null, FRIEND_AT]);
+              return out;
+            }, []),
           ],
           ok,
           (v) => setOwn('_friend', v, roomRewards),

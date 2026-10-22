@@ -114,8 +114,11 @@ function csvBooks(rows) {
       added = dt(g(r, 'date added'));
       g(r, 'bookshelves')
         .split(',')
-        .map((x) => x.trim())
-        .filter((x) => x && !['read', 'currently-reading', 'to-read', sh].includes(x))
+        .reduce((out, x) => {
+          x = x.trim();
+          if (x && !['read', 'currently-reading', 'to-read', sh].includes(x)) out.push(x);
+          return out;
+        }, [])
         .forEach((x) => b.tags.push(x.replace(/-/g, ' ')));
       b.note = clean(g(r, 'my review') || g(r, 'private notes'));
     } else {
@@ -134,8 +137,11 @@ function csvBooks(rows) {
               : 'want';
       const ranges = g(r, 'dates read')
           .split(',')
-          .map((x) => x.trim())
-          .filter(Boolean),
+          .reduce((out, x) => {
+            x = x.trim();
+            if (x) out.push(x);
+            return out;
+          }, []),
         last = ranges[ranges.length - 1] || '',
         parts = last.split(/\s*-\s*(?=\d{4})/).map(dt);
       b.finished = b.status === 'read' ? parts[1] || dt(g(r, 'last date read')) || parts[0] || '' : '';
@@ -143,8 +149,11 @@ function csvBooks(rows) {
       added = dt(g(r, 'date added'));
       g(r, 'tags')
         .split(',')
-        .map((x) => x.trim())
-        .filter(Boolean)
+        .reduce((out, x) => {
+          x = x.trim();
+          if (x) out.push(x);
+          return out;
+        }, [])
         .forEach((x) => b.tags.push(x));
       b.note = clean(g(r, 'review'));
     }
@@ -450,8 +459,10 @@ async function makeReview(y) {
   const top = rated.slice().sort((a, b) => b.stars - a.stars)[0],
     longest = paged.slice().sort((a, b) => b.pages - a.pages)[0];
   const timed = set
-    .filter(timedOK)
-    .map((b) => ({ b, d: Math.max(1, days(b.started, b.finished)) }))
+    .reduce((out, b) => {
+      if (timedOK(b)) out.push({ b, d: Math.max(1, days(b.started, b.finished)) });
+      return out;
+    }, [])
     .sort((a, b) => a.d - b.d)[0];
   const W = 1080,
     H = 1350,

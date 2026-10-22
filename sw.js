@@ -1,4 +1,4 @@
-const V = 'bookshelf-v112';
+const V = 'bookshelf-v113';
 const FILES = ['./', 'index.html', 'i18n.js', 'css/style.css', 'js/01-core.js', 'js/02-cover-scan-and-pet-placement.js', 'js/03-animal.js', 'js/04-book-lookup-and-details.js', 'js/05-walls-stats-goals-hexagon.js', 'js/06-backup-sharing-pairing.js', 'js/07-import-and-room.js', 'js/08-reading-timer-and-series.js', 'js/09-small-features.js', 'js/10-ebook-reader.js', 'js/11-shelves-journal-rewards.js', 'js/12-secrets-and-news.js', 'js/13-customize.js', 'js/14-install.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'privacy.html', 'terms.html'];
 // GitHub Pages lets browsers reuse files for 10 minutes: 'reload' makes a new version cache the new files, not the old ones
 self.addEventListener('install', e => {

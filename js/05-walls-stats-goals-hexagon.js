@@ -62,7 +62,15 @@ const timedOK = (b) =>
 function renderStats() {
   const read = allReads(),
     cy = String(new Date().getFullYear());
-  const years = [...new Set(read.map((b) => (b.finished || '').slice(0, 4)).filter(Boolean))]
+  const years = [
+    ...new Set(
+      read.reduce((out, b) => {
+        const y = (b.finished || '').slice(0, 4);
+        if (y) out.push(y);
+        return out;
+      }, []),
+    ),
+  ]
     .sort()
     .reverse();
   if (!years.includes(cy)) years.unshift(cy);
@@ -180,7 +188,10 @@ function renderStats() {
   const longest = paged.slice().sort((a, b) => b.pages - a.pages)[0];
   if (longest && paged.length >= 2)
     say('\u{1F4DA}', L('Longest book: {t} ({n} pages).', { t: longest.title, n: nf(longest.pages) }));
-  const timed = set.filter(timedOK).map((b) => ({ b, d: Math.max(1, days(b.started, b.finished)) }));
+  const timed = set.reduce((out, b) => {
+    if (timedOK(b)) out.push({ b, d: Math.max(1, days(b.started, b.finished)) });
+    return out;
+  }, []);
   if (timed.length >= 2) {
     const avg = Math.round(timed.reduce((a, x) => a + x.d, 0) / timed.length);
     say(
@@ -216,7 +227,15 @@ function renderStats() {
     bars = byM;
     labels = byM.map((_, i) => monthName(i));
   } else {
-    labels = [...new Set(read.map((b) => (b.finished || '').slice(0, 4)).filter(Boolean))].sort();
+    labels = [
+      ...new Set(
+        read.reduce((out, b) => {
+          const y = (b.finished || '').slice(0, 4);
+          if (y) out.push(y);
+          return out;
+        }, []),
+      ),
+    ].sort();
     bars = labels.map((y) => read.filter((b) => (b.finished || '').startsWith(y)).length);
   }
   if (bars.length && Math.max(...bars) > 0) {
@@ -399,7 +418,7 @@ function turnStart() {
       e.scrollTop = e.scrollHeight;
       e.scrollTop += f.getBoundingClientRect().top - ftop;
     } else {
-    /* no floor in view: the walls stay level with each other from the top (top of one wall = top of the next), stopping before the other wall's floor would show */
+      /* no floor in view: the walls stay level with each other from the top (top of one wall = top of the next), stopping before the other wall's floor would show */
       const fy = f
         ? f.getBoundingClientRect().top - e.getBoundingClientRect().top + e.scrollTop
         : e.scrollHeight;

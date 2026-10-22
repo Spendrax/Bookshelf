@@ -114,16 +114,15 @@ function isbnSources(isbn) {
     ).then((j) => {
       const d = j.response && j.response.docs && j.response.docs[0];
       if (!d || !d.title) throw 0;
-      const cr = []
-        .concat(d.creator || [])
-        .map((s) => {
-          const p = String(s)
-            .replace(/,?\s*\d{4}-(\d{4})?\.?$/, '')
-            .split(',')
-            .map((z) => z.trim());
-          return p.length === 2 ? p[1] + ' ' + p[0] : p.join(', ');
-        })
-        .filter(Boolean);
+      const cr = [].concat(d.creator || []).reduce((out, s) => {
+        const p = String(s)
+          .replace(/,?\s*\d{4}-(\d{4})?\.?$/, '')
+          .split(',')
+          .map((z) => z.trim());
+        const name = p.length === 2 ? p[1] + ' ' + p[0] : p.join(', ');
+        if (name) out.push(name);
+        return out;
+      }, []);
       return {
         title: String(d.title).slice(0, 100),
         author_name: cr.length ? cr : undefined,
@@ -194,9 +193,11 @@ function siteShow(b) {
     'SELECT ?k ?w WHERE{VALUES(?k ?n){' + vals + '} ?e rdfs:label ?n; wdt:P856 ?w} ORDER BY ?k LIMIT 5';
   tfetch('https://query.wikidata.org/sparql?format=json&query=' + encodeURIComponent(q))
     .then((j) => {
-      const r = ((j.results && j.results.bindings) || [])
-        .map((o) => cleanUrl(o.w && o.w.value))
-        .filter(Boolean);
+      const r = ((j.results && j.results.bindings) || []).reduce((out, o) => {
+        const u = cleanUrl(o.w && o.w.value);
+        if (u) out.push(u);
+        return out;
+      }, []);
       siteCache[key] = r[0] || '';
       try {
         localStorage.setItem('bookshelf-sites', JSON.stringify(siteCache));
@@ -223,7 +224,14 @@ function wdIsbn(isbn) {
       x = (k) => (r.find((o) => o[k]) || {})[k],
       t = x('t') || x('l');
     if (!t || !t.value) throw 0;
-    const au = [...new Set(r.filter((o) => o.al).map((o) => o.al.value))],
+    const au = [
+        ...new Set(
+          r.reduce((out, o) => {
+            if (o.al) out.push(o.al.value);
+            return out;
+          }, []),
+        ),
+      ],
       pg = x('pg');
     return {
       title: t.value.slice(0, 100),
@@ -244,23 +252,27 @@ function sruIsbn(url, isbn) {
     .then((x) => {
       const doc = new DOMParser().parseFromString(x, 'text/xml'),
         g = (n) =>
-          [...doc.getElementsByTagNameNS('*', n)].map((e) => (e.textContent || '').trim()).filter(Boolean);
+          [...doc.getElementsByTagNameNS('*', n)].reduce((out, e) => {
+            const t = (e.textContent || '').trim();
+            if (t) out.push(t);
+            return out;
+          }, []);
       let title = (g('title')[0] || '')
         .split(' / ')[0]
         .replace(/\s+:\s+/, ': ')
         .replace(/: (roman|récit|nouvelles|r\u00e9cit)$/i, '')
         .trim();
       if (!title) throw 0;
-      const au = g('creator')
-        .map((s) => {
-          s = s
-            .replace(/\s*[(\[].*$/, '')
-            .replace(/\.\s*[A-Z\u00c0-\u00dc][^.]*$/, '')
-            .trim();
-          const p = s.split(',').map((z) => z.trim());
-          return p.length === 2 ? p[1] + ' ' + p[0] : s;
-        })
-        .filter(Boolean);
+      const au = g('creator').reduce((out, s) => {
+        s = s
+          .replace(/\s*[(\[].*$/, '')
+          .replace(/\.\s*[A-Z\u00c0-\u00dc][^.]*$/, '')
+          .trim();
+        const p = s.split(',').map((z) => z.trim());
+        const name = p.length === 2 ? p[1] + ' ' + p[0] : s;
+        if (name) out.push(name);
+        return out;
+      }, []);
       const pm = g('format')
           .join(' ')
           .match(/(\d{2,4})\s*(?:p|S)\b/),
@@ -283,23 +295,23 @@ function gbSearch(q) {
     6000,
   )
     .then((g) =>
-      (g.items || [])
-        .map((x) => x.volumeInfo)
-        .filter((v) => v && v.title)
-        .map((vi) => {
-          const id = (vi.industryIdentifiers || []).map((i) => toIsbn13(i.identifier || '')).find(Boolean),
-            th = vi.imageLinks && (vi.imageLinks.smallThumbnail || vi.imageLinks.thumbnail);
-          return {
-            title: vi.title + (vi.subtitle && vi.title.length < 40 ? ': ' + vi.subtitle : ''),
-            author_name: vi.authors,
-            isbn: id || undefined,
-            pages: vi.pageCount,
-            desc: vi.description || '',
-            gb: vi,
-            first_publish_year: (vi.publishedDate || '').slice(0, 4) || undefined,
-            thumb: th ? th.replace('http:', 'https:') : '',
-          };
-        }),
+      (g.items || []).reduce((out, x) => {
+        const vi = x.volumeInfo;
+        if (!vi || !vi.title) return out;
+        const id = (vi.industryIdentifiers || []).map((i) => toIsbn13(i.identifier || '')).find(Boolean),
+          th = vi.imageLinks && (vi.imageLinks.smallThumbnail || vi.imageLinks.thumbnail);
+        out.push({
+          title: vi.title + (vi.subtitle && vi.title.length < 40 ? ': ' + vi.subtitle : ''),
+          author_name: vi.authors,
+          isbn: id || undefined,
+          pages: vi.pageCount,
+          desc: vi.description || '',
+          gb: vi,
+          first_publish_year: (vi.publishedDate || '').slice(0, 4) || undefined,
+          thumb: th ? th.replace('http:', 'https:') : '',
+        });
+        return out;
+      }, []),
     )
     .catch(() => []);
 }
@@ -308,8 +320,11 @@ function rbFind(site) {
     q =
       i ||
       [$('title').value, $('author').value]
-        .map((s) => s.trim())
-        .filter(Boolean)
+        .reduce((out, s) => {
+          s = s.trim();
+          if (s) out.push(s);
+          return out;
+        }, [])
         .join(' ');
   if (!q) {
     $('st').textContent = L('Type a title or an ISBN first.');
@@ -1117,7 +1132,11 @@ GENRES.forEach(([g]) => {
   ['manga', 'Comics'],
 ].forEach(([a, g]) => GNAME.set(a, g));
 function bookGenres(b) {
-  const gs = (b.tags || []).map((t) => GNAME.get(t.toLowerCase())).filter(Boolean);
+  const gs = (b.tags || []).reduce((out, t) => {
+    const g = GNAME.get(t.toLowerCase());
+    if (g) out.push(g);
+    return out;
+  }, []);
   return [...new Set([...gs, ...(b.genres || [])])];
 }
 function pendingGenres() {

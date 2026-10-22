@@ -132,18 +132,15 @@ async function pdfToEpub(buf, name, onProg) {
       }
       if (it.hasEOL) ln = null;
     }
-    const ok = lines
-      .map(
-        (l) => (
-          (l.t = pdfTidy(l.t)
-            .replace(/[ \t\r\n\u00A0]+/g, ' ')
-            .replace(/ ?\u2003[\u2003 ]*/g, '\u2003\u2003')
-            .replace(/^\u2003+|\u2003+$/g, '')
-            .trim()),
-          l
-        ),
-      )
-      .filter((l) => l.t);
+    const ok = lines.reduce((out, l) => {
+      l.t = pdfTidy(l.t)
+        .replace(/[ \t\r\n\u00A0]+/g, ' ')
+        .replace(/ ?\u2003[\u2003 ]*/g, '\u2003\u2003')
+        .replace(/^\u2003+|\u2003+$/g, '')
+        .trim();
+      if (l.t) out.push(l);
+      return out;
+    }, []);
     ok.forEach((l) => (chars += l.t.length));
     pages.push(ok);
     try {
@@ -240,8 +237,10 @@ async function pdfToEpub(buf, name, onProg) {
       return a.length ? a[Math.floor((a.length - 1) * 0.9)] : 0;
     },
     rs = pages
-      .filter((p) => p.length > 5)
-      .map(p90)
+      .reduce((out, p) => {
+        if (p.length > 5) out.push(p90(p));
+        return out;
+      }, [])
       .sort((x, y) => x - y),
     docRight = rs.length ? rs[rs.length >> 1] : 0;
   const BUL = /^([•‣◦▪●■▶►–—*-]\s|\(?\d{1,3}[.)]\s)/,
@@ -1714,10 +1713,11 @@ function rdPaint() {
   if (!RD || !window.Highlight || !window.CSS || !CSS.highlights) return;
   const hl = marksOf(RD.id).hl.filter((h) => h.ch === RD.ch);
   [1, 2, 3].forEach((c) => {
-    const rs = hl
-      .filter((h) => (h.c || 1) === c)
-      .map((h) => rdRange(h.a, h.b))
-      .filter(Boolean);
+    const rs = hl.reduce((out, h) => {
+      const r = (h.c || 1) === c && rdRange(h.a, h.b);
+      if (r) out.push(r);
+      return out;
+    }, []);
     if (rs.length) CSS.highlights.set('rdhl' + c, new Highlight(...rs));
     else CSS.highlights.delete('rdhl' + c);
   });

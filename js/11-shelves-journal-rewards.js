@@ -20,8 +20,10 @@ function renderCustom() {
       scene.clientWidth,
       JSON.stringify(defs),
       books
-        .filter((b) => b.shelves && b.shelves.length)
-        .map((b) => sw(b) + ',' + sh(b) + JSON.stringify(b, zRep))
+        .reduce((out, b) => {
+          if (b.shelves && b.shelves.length) out.push(sw(b) + ',' + sh(b) + JSON.stringify(b, zRep));
+          return out;
+        }, [])
         .join('|'),
     ].join('~');
   } catch (e) {}
@@ -35,8 +37,10 @@ function renderCustom() {
         return i < 0 ? 1e6 : i;
       },
       list = books
-        .filter((b) => (b.shelves || []).includes(d.id))
-        .map((b, i) => [b, i])
+        .reduce((out, b) => {
+          if ((b.shelves || []).includes(d.id)) out.push([b, out.length]);
+          return out;
+        }, [])
         .sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1])
         .map((x) => x[0]),
       cs = el('div', 'case small cs'),
@@ -1085,15 +1089,17 @@ const BOOKDECOS = [
 ];
 DECOS.push(...BOOKDECOS);
 const readTxt = () =>
-  books
-    .filter((b) => st(b) === 'read' || (b.reads || []).some((r) => r.finished))
-    .map((b) => [b.title, b.series, b.author].join(' ').toLowerCase());
+  books.reduce((out, b) => {
+    if (st(b) === 'read' || (b.reads || []).some((r) => r.finished))
+      out.push([b.title, b.series, b.author].join(' ').toLowerCase());
+    return out;
+  }, []);
 const readMatch = (rx) => readTxt().some((t) => rx.test(t));
 const decoOk = (d) => (typeof d[2] === 'number' ? badgeCount() >= d[2] : readMatch(d[2]));
 /* what the pickers list: badge decorations (locked ones show how many badges), and only the book ones you've earned */
 const decoList = () =>
-  DECOS.filter((d) => typeof d[2] === 'number' || decoOk(d)).map((d) => [
-    d[0],
-    d[1],
-    typeof d[2] === 'number' ? d[2] : 0,
-  ]);
+  DECOS.reduce((out, d) => {
+    if (typeof d[2] === 'number') out.push([d[0], d[1], d[2]]);
+    else if (decoOk(d)) out.push([d[0], d[1], 0]);
+    return out;
+  }, []);

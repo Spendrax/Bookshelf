@@ -479,8 +479,11 @@ document.querySelectorAll('#serseg button').forEach(
 function serPicked() {
   const typed = $('sertitles')
     .value.split('\n')
-    .map((t) => t.trim())
-    .filter(Boolean);
+    .reduce((out, t) => {
+      t = t.trim();
+      if (t) out.push(t);
+      return out;
+    }, []);
   if (typed.length) return typed.map((t) => ({ title: t }));
   return serFound.filter((d) => d.on);
 }
