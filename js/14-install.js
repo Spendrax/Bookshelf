@@ -292,3 +292,36 @@ toast = function (m) {
 /* the bookstore buttons (no inline onclick: the page's security rules block those) */
 $('rbgo').onclick = () => rbFind();
 $('llgo').onclick = () => rbFind('ll');
+
+/* ---------- testers: Google only lets the app into the Play Store after testers use it for 14 days,
+   so the Play version explains that once and offers the daily reminder. Set TESTING to false once it's live. ---------- */
+const TESTING = true;
+{
+  let tries = 0;
+  const tester = () => {
+    try {
+      if (
+        !TESTING ||
+        !sessionStorage.getItem('bookshelf-inapp') ||
+        localStorage.getItem('bookshelf-tester-asked') ||
+        localStorage.getItem('bookshelf-remind') === '1'
+      )
+        return;
+      /* wait for the first-run tour and any other window to close */
+      if (!localStorage.getItem('bookshelf-tour') || document.querySelector('.ov.on')) {
+        if (++tries < 40) setTimeout(tester, 5000);
+        return;
+      }
+      localStorage.setItem('bookshelf-tester-asked', '1');
+      localStorage.setItem('bookshelf-remind-asked', '1');
+    } catch (e) {
+      return;
+    }
+    ask(
+      L('🧪 Thanks for testing My Bookshelf! Google only lets the app into the Play Store if testers open it regularly for 14 days. Could you open it for a minute each day? A daily reminder makes it easy.'),
+      L('Remind me daily'),
+      L('Not now'),
+    ).then((y) => y && setRemind(true));
+  };
+  setTimeout(tester, 3000);
+}
