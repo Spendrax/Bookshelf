@@ -6670,3 +6670,124 @@ html {
 .edgetab {
   will-change: transform;
 }
+
+/* ---------- the book card (js/15-book-view.js) ---------- */
+.sheet.viewing #form > :not(.btns),
+.sheet.viewing #savebtn,
+.sheet.viewing #del {
+  display: none;
+}
+.sheet:not(.viewing) #editbtn {
+  display: none;
+}
+.bview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 2px 16px;
+  text-align: center;
+}
+.bview[hidden] {
+  display: none;
+}
+.bvtitle {
+  margin: 0;
+  font: 700 24px/1.2 Georgia, serif;
+  color: var(--ink);
+}
+.bvauthor {
+  margin: -4px 0 0;
+  font: italic 17px Georgia, serif;
+  color: var(--muted);
+}
+.bvseries,
+.bvsmall {
+  margin: 0;
+  font: 13px system-ui, sans-serif;
+  color: var(--muted);
+}
+.bvmeta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.bvpill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font: 600 13px system-ui, sans-serif;
+  color: var(--ink);
+}
+.bvpill.bv-reading {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #fff;
+}
+.bvstars {
+  color: #d9a300;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+.bvbar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin: 4px 10% 0;
+}
+.bvbar i {
+  display: block;
+  height: 100%;
+  background: var(--acc);
+  border-radius: inherit;
+}
+.bvtags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.bvtags span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  font: 12px system-ui, sans-serif;
+  color: var(--muted);
+}
+.bvnote {
+  margin: 4px 0 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--acc);
+  border-radius: 0 10px 10px 0;
+  background: var(--bg);
+  text-align: left;
+  font: italic 15px/1.5 Georgia, serif;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+.bvblurb {
+  margin: 0;
+  text-align: left;
+  font: 14px/1.5 system-ui, sans-serif;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bvblurb.open {
+  -webkit-line-clamp: unset;
+}
+.bvacts {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bvacts .qbtn {
+  align-self: auto;
+}

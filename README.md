@@ -22,6 +22,7 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/12-secrets-and-news.js` | Secret dragon and silver spirit, the "What's new" card |
 | `js/13-customize.js` | The second animal, the Customize drawer, feedback |
 | `js/14-install.js` | Installing the app and the update notice |
+| `js/15-book-view.js` | The calm card shown when you tap a book (Edit opens the full form) |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 
