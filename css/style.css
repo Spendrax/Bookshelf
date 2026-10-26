@@ -6993,3 +6993,52 @@ html {
 .catw.ghost .bub {
   display: none;
 }
+
+/* falling leaves, snow and petals move through plain numbers too: an animated translate/transform puts each one on
+   its own drawing layer, and then the animal flying above them had to get a layer of its own at take-off — on some
+   phones that new layer was blank for one frame, so the animal blinked just before a trip */
+@property --lf {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --lsx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --lsr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes fall {
+  to {
+    --lf: calc(100cqh + 80px);
+  }
+}
+@keyframes sway {
+  from {
+    --lsx: -26px;
+    --lsr: -40deg;
+  }
+  to {
+    --lsx: 26px;
+    --lsr: 60deg;
+  }
+}
+@keyframes drift {
+  from {
+    --lsx: -14px;
+  }
+  to {
+    --lsx: 14px;
+  }
+}
+.leaf {
+  translate: 0 var(--lf);
+}
+.leaf i {
+  translate: var(--lsx) 0;
+  rotate: var(--lsr);
+}
