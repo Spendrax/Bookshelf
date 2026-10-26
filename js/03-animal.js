@@ -717,10 +717,12 @@ try {
   bowlLv = Object.assign(bowlLv, JSON.parse(localStorage.getItem('bookshelf-bowls') || '{}'));
 } catch (e) {}
 function drawBowls() {
+  /* a new day: the bowls are empty until you fill them (full on the very first day) */
   if (bowlLv.day !== today()) {
+    const first = !bowlLv.day;
     bowlLv.day = today();
-    bowlLv.food = 3;
-    bowlLv.water = 3;
+    bowlLv.food = first ? 3 : 0;
+    bowlLv.water = first ? 3 : 0;
   }
   $('foodbowl').style.setProperty('--lv', Math.max(0.08, bowlLv.food / 3));
   $('waterbowl').style.setProperty('--lv', Math.max(0.1, bowlLv.water / 3));

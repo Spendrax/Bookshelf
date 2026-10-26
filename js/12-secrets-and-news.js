@@ -118,13 +118,9 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to i18n.js). ---------- */
 const NEWS = {
-  id: '2026-10-21',
+  id: '2026-10-26',
   items: [
-    '\u{1F49E} Pair your bookshelf with someone: their shelves, goals, stats and animal appear on the far side of your room. Customize › More.',
-    '\u{1F517} Share your shelf with a friend through a link, and visit your friends’ shelves.',
-    '☁️ Back up to your own Google Drive and get your library back on any phone.',
-    '\u{1F381} Some popular books now hide secret surprises. Keep reading to find them!',
-    '\u{1F4D6} Books move to Read by themselves on the last page, and you can fix the minutes after a reading session.',
+    '🐾 Your animal is more alive: hold your finger on it to pet it, it reads with you during a session, cheers when you finish a book, plays, naps in the sun, and grows as you read. Its bowls empty each night, so fill them when you visit!',
   ],
 };
 const NEWSK = 'bookshelf-news';

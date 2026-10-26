@@ -6791,3 +6791,205 @@ html {
 .bvacts .qbtn {
   align-self: auto;
 }
+
+/* ---------- the animal's life (js/16-animal-life.js) ---------- */
+.catw.young {
+  width: 40px;
+}
+@property --yx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --yr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --by {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes cheer {
+  0%,
+  100% {
+    --cy: 0px;
+    --csx: 1;
+    --csy: 1;
+  }
+  15% {
+    --cy: 0px;
+    --csx: 1.12;
+    --csy: 0.86;
+  }
+  40% {
+    --cy: -26px;
+    --csx: 0.92;
+    --csy: 1.1;
+  }
+  62% {
+    --cy: 0px;
+    --csx: 1.1;
+    --csy: 0.9;
+  }
+  80% {
+    --cy: -12px;
+    --csx: 1;
+    --csy: 1;
+  }
+}
+@keyframes cheer2 {
+  0% {
+    --cy: 0px;
+    --cr: 0deg;
+    --csx: 1;
+    --csy: 1;
+  }
+  15% {
+    --cy: 0px;
+    --cr: 0deg;
+    --csx: 1.14;
+    --csy: 0.84;
+  }
+  45% {
+    --cy: -38px;
+    --cr: 180deg;
+    --csx: 1;
+    --csy: 1;
+  }
+  70% {
+    --cy: 0px;
+    --cr: 360deg;
+    --csx: 1.12;
+    --csy: 0.88;
+  }
+  85% {
+    --cy: -10px;
+    --cr: 360deg;
+    --csx: 1;
+    --csy: 1;
+  }
+  100% {
+    --cy: 0px;
+    --cr: 360deg;
+  }
+}
+@keyframes twirl {
+  0% {
+    --cr: 0deg;
+    --cy: 0px;
+  }
+  50% {
+    --cy: -18px;
+  }
+  100% {
+    --cr: 360deg;
+    --cy: 0px;
+  }
+}
+@keyframes bat {
+  0%,
+  100% {
+    --cr: 0deg;
+    --cy: 0px;
+  }
+  35% {
+    --cr: -10deg;
+    --cy: -3px;
+  }
+  65% {
+    --cr: 7deg;
+    --cy: 0px;
+  }
+}
+@keyframes purr {
+  50% {
+    --csx: 1.03;
+    --csy: 0.95;
+  }
+}
+@keyframes bubbob {
+  50% {
+    --by: -4px;
+  }
+}
+.catw .cat.cheer {
+  animation: cheer 0.9s ease-in-out;
+}
+.catw .cat.cheer2 {
+  animation: cheer2 1.1s ease-in-out;
+}
+.catw .cat.twirl {
+  animation: twirl 0.8s ease-in-out;
+}
+.catw .cat.bat {
+  animation: bat 0.45s ease-in-out;
+}
+.catw.purr .cat {
+  animation: purr 0.6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.catw.purr .cat .eye {
+  animation: none;
+  transform: scaleY(0.12);
+}
+.catw.purr .cat .tail {
+  animation-duration: 2.4s;
+}
+.rbook {
+  position: absolute;
+  left: -22px;
+  bottom: 0;
+  width: 28px;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+.rbook svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.catw.reading .rbook {
+  opacity: 1;
+}
+.bub {
+  position: absolute;
+  right: -10px;
+  bottom: 80%;
+  font-size: 15px;
+  font-style: normal;
+  scale: var(--dir, 1) 1;
+  translate: 0 var(--by);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.catw.waiting .bub {
+  opacity: 1;
+  animation: bubbob 2s ease-in-out infinite;
+}
+.yarn {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(40deg, rgba(255, 255, 255, 0.35) 0 2px, transparent 2px 5px),
+    radial-gradient(circle at 35% 35%, #f3a6b6, #c9466a);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+  translate: var(--yx) 0;
+  rotate: var(--yr);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+  z-index: 3;
+}
+.yarn.on {
+  opacity: 1;
+}
+.catw.ghost .rbook,
+.catw.ghost .bub {
+  display: none;
+}

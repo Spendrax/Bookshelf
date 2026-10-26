@@ -23,6 +23,7 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/13-customize.js` | The second animal, the Customize drawer, feedback |
 | `js/14-install.js` | Installing the app and the update notice |
 | `js/15-book-view.js` | The calm card shown when you tap a book (Edit opens the full form) |
+| `js/16-animal-life.js` | The animal's life: petting, reading with you, cheering, hungry bowls, growing up, weather naps, yarn |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 
