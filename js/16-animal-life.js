@@ -48,7 +48,16 @@
   catw.append(rbook, bub);
 
   /* ---- growing up: small until 10 books read, a trick at 25, a flip at 50 ---- */
-  const grow = () => catw.classList.toggle('young', readCount() < 10);
+  /* the library loads after this file runs, so the size is checked again whenever the shelf is drawn */
+  const grow = () => booksReady && catw.classList.toggle('young', readCount() < 10);
+  {
+    const rn = render;
+    render = function () {
+      const r = rn.apply(this, arguments);
+      grow();
+      return r;
+    };
+  }
   grow();
   const trick = () => {
     if (!petOn() || petBusy || petDrag) return;
