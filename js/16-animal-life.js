@@ -170,7 +170,6 @@
   const readStop = () => {
     if (!catw.classList.contains('reading')) return;
     catw.classList.remove('reading', 'sleeping');
-    if (petOn()) setTimeout(() => !petBusy && restart('landed'), 500); /* a little stretch */
     petNext(3500);
   };
   {

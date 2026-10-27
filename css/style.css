@@ -7056,3 +7056,282 @@ body.calm2 .edgetab,
 body.calm2 .window .stars {
   animation-play-state: paused;
 }
+
+/* ---------- how the animal moves (js/18-animal-moves.js): a head of its own, eating, sleeping, waking, habits ---------- */
+@property --hr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --hx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --hy {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --kx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --ky {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --ko {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@property --rs {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+.cat .head {
+  transform: translate(var(--hx), var(--hy)) rotate(var(--hr));
+  transition:
+    --hr 0.45s ease,
+    --hx 0.45s ease,
+    --hy 0.45s ease;
+}
+/* eating: the body leans a little, the head dips into the bowl and chews */
+@keyframes lean {
+  0%,
+  100% {
+    --cr: -4deg;
+  }
+  50% {
+    --cr: -6deg;
+  }
+}
+@keyframes chew {
+  0%,
+  100% {
+    --hr: -26deg;
+    --hy: 2px;
+  }
+  50% {
+    --hr: -18deg;
+    --hy: 3px;
+  }
+}
+@keyframes lick {
+  30%,
+  70% {
+    --hr: 9deg;
+  }
+  50% {
+    --hr: 3deg;
+  }
+}
+.catw.eating .cat {
+  animation: lean 1.8s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.catw.eating .cat .head {
+  animation: chew 0.45s ease-in-out infinite;
+}
+.catw.eating .cat .tail {
+  animation-duration: 0.9s;
+}
+.catw.licking .cat .head {
+  animation: lick 0.9s ease-in-out;
+}
+.bowl {
+  position: relative;
+}
+.bowl .crumb {
+  position: absolute;
+  top: 2px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #8a5a2b;
+  translate: var(--kx) var(--ky);
+  opacity: var(--ko);
+  pointer-events: none;
+}
+.bowl .ripple {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 5px;
+  margin-left: -8px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  scale: var(--rs);
+  opacity: var(--ko);
+  pointer-events: none;
+}
+/* going to sleep: it turns around once before curling up, and its head droops */
+.catw.sleeping.settling .cat {
+  --csx: 1;
+  --csy: 1;
+}
+.catw.sleeping.settling .cat .eye {
+  transform: scaleY(var(--ps, 1));
+  animation: blink 5s infinite;
+}
+.catw.settling .zz {
+  animation: none;
+}
+.catw.sleeping .cat .head {
+  --hr: -8deg;
+  --hy: 2px;
+}
+/* dreaming: an ear, the head or the tail twitches now and then */
+@keyframes twitch2 {
+  50% {
+    --pr: 14deg;
+  }
+}
+@keyframes dhead {
+  30% {
+    --hr: -3deg;
+  }
+  60% {
+    --hr: -11deg;
+  }
+}
+.catw.sleeping.dream .cat .ear2 {
+  animation: twitch2 0.4s 2;
+}
+.catw.sleeping.dream .cat .head {
+  animation: dhead 0.8s ease-in-out;
+}
+.catw.sleeping.dream .cat .tail {
+  animation: tail 0.8s ease-in-out 1;
+}
+/* waking: a big stretch (front down, back up) and a yawn */
+@keyframes stretch {
+  25% {
+    --csx: 1.16;
+    --csy: 0.84;
+    --cr: -3deg;
+  }
+  55% {
+    --csx: 0.98;
+    --csy: 1.05;
+    --cr: 2deg;
+  }
+}
+@keyframes yawn {
+  35%,
+  65% {
+    --hr: 16deg;
+    --hy: -1px;
+  }
+}
+@keyframes shut {
+  0%,
+  80%,
+  100% {
+    --ps: 1;
+  }
+  20%,
+  65% {
+    --ps: 0.12;
+  }
+}
+.catw.waking .cat:not(.cheer):not(.cheer2):not(.twirl):not(.hop):not(.landed):not(.bat) {
+  animation: stretch 1.4s ease-in-out;
+  transform-origin: 50% 100%;
+}
+.catw.waking .cat .head,
+.catw.yawning .cat .head {
+  animation: yawn 1.4s ease-in-out;
+}
+.catw.waking .cat .eye,
+.catw.yawning .cat .eye {
+  animation: shut 1.4s ease-in-out;
+}
+.catw.slowblink .cat .eye {
+  animation: shut 0.7s ease-in-out 2;
+}
+/* looking around */
+@keyframes look {
+  20%,
+  45% {
+    --hr: 9deg;
+  }
+  60%,
+  85% {
+    --hr: -5deg;
+    --hx: -1px;
+  }
+}
+.catw.looking .cat .head {
+  animation: look 2.6s ease-in-out;
+}
+/* sitting down for a while */
+.catw.sitting .cat,
+.catw.unsit .cat {
+  transform-origin: 50% 100%;
+}
+.catw.sitting .cat {
+  --csx: 1.04;
+  --csy: 0.92;
+}
+.catw.sitting .cat .head {
+  --hr: 5deg;
+  --hy: 1px;
+}
+/* washing (cats and most others) or scratching an ear (dogs and foxes) */
+@keyframes groom {
+  50% {
+    --hr: -28deg;
+    --hx: 4px;
+    --hy: 3px;
+  }
+}
+@keyframes scr {
+  50% {
+    --hr: 7deg;
+    --hy: -1px;
+  }
+}
+@keyframes scrb {
+  50% {
+    --cy: -1px;
+  }
+}
+.catw.grooming .cat .head {
+  animation: groom 0.65s ease-in-out 4;
+}
+.catw.grooming .cat .eye {
+  animation: none;
+  transform: scaleY(0.3);
+}
+.catw.scratching .cat .head {
+  animation: scr 0.14s linear 10;
+}
+.catw.scratching .cat:not(.hop) {
+  animation: scrb 0.14s linear 10;
+}
+/* a crouch before jumping, stretched out in the air (the landing squash was already there) */
+@keyframes crouch {
+  to {
+    --csx: 1.12;
+    --csy: 0.84;
+  }
+}
+.catw.crouch .cat {
+  animation: crouch 0.24s ease-out forwards;
+  transform-origin: 50% 100%;
+}
+.catw.travel:not(.walking):not(.flying) .cat {
+  --csx: 1.07;
+  --csy: 0.95;
+}
+/* walking speeds up and slows down instead of gliding at one speed */
+@media (prefers-reduced-motion: no-preference) {
+  .catw {
+    transition: --px var(--walk, 0s) cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  }
+}

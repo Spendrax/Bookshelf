@@ -414,6 +414,40 @@ Object.defineProperty(ANIMALS.dragon, 0, {
     return `--a:${c};--a2:${d};--a3:${drLight(c)};--cat:${c};--cat-st:${d}`;
   },
 });
+/* each animal's head is its own group, so it can dip into the bowl, look around or yawn while the body stays put.
+   The numbers are the drawing's top-level shapes that make up the head; the origin is the neck it turns around. */
+{
+  const HEADS = {
+    alpaca: [[12, 24], '70% 95%'],
+    cat: [[5, 17], '70% 90%'],
+    dog: [[8, 17], '75% 90%'],
+    bird: [[5], '70% 95%'],
+    turtle: [[7], '90% 60%'],
+    fox: [[6, 15], '75% 90%'],
+    hedgehog: [[2, 5, 6, 7, 8, 9], '85% 60%'],
+    axolotl: [[5, 11], '85% 70%'],
+    frog: [[7, 17], '50% 100%'],
+    owl: [[6, 7, 8], '50% 100%'],
+    bunny: [[5, 14], '70% 90%'],
+    dragon: [[7], '80% 90%'],
+  };
+  const NS = 'http://www.w3.org/2000/svg';
+  Object.entries(HEADS).forEach(([k, [ix, origin]]) => {
+    const an = ANIMALS[k];
+    if (!an || an[1].includes('class="head"')) return;
+    const svg = document.createElementNS(NS, 'svg');
+    svg.innerHTML = an[1];
+    const kids = [...svg.children],
+      pick = ix.length === 2 && ix[1] - ix[0] > 1 ? kids.slice(ix[0], ix[1] + 1) : ix.map((i) => kids[i]);
+    if (pick.some((e) => !e)) return;
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'head');
+    g.setAttribute('style', 'transform-origin:' + origin);
+    pick[0].before(g);
+    g.append(...pick);
+    an[1] = svg.innerHTML;
+  });
+}
 const tog = (v) => [
   ['show', 'Show', {}],
   ['hide', 'Hide', { [v]: 'none' }],
