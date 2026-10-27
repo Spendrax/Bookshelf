@@ -7356,3 +7356,8 @@ body.calm2 .window .stars {
   --hx: 5px;
   --hy: 5px;
 }
+.catw.sleeping .cat .head.face,
+.catw.sleeping:not(.settling) .cat .head.face {
+  --hr: 0deg;
+  --hy: 2px;
+}
