@@ -439,7 +439,7 @@ Object.defineProperty(ANIMALS.dragon, 0, {
     axolotl:
       '<path class="ct" d="M47 47C55 53 45 57.2 36 56.6" fill="none" stroke-width="5" stroke-linecap="round"/>',
     dragon:
-      '<path class="ct" d="M44 48C57 56 38 59.4 23 56.8" fill="none" stroke-width="4" stroke-linecap="round"/><path class="st" d="M23 56.8L18.5 55.4" fill="none" stroke-width="3" stroke-linecap="round"/>',
+      '<path class="ct" d="M44 48C57 56 38 59.4 23 56.8" fill="none" stroke-width="5" stroke-linecap="round"/><path class="d" d="M24 54.6L16.5 55.6L23.6 59.2Z"/>',
   };
   Object.entries(HEADS).forEach(([k, [ix, origin]]) => {
     const an = ANIMALS[k];

@@ -7336,19 +7336,16 @@ body.calm2 .window .stars {
   }
 }
 
-/* sleeping: long tails swap to a curled-up shape round the front paws, birds tuck their heads in */
+/* sleeping: long tails swap to a curled-up shape round the front paws, birds tuck their heads in.
+   The swap is instant on purpose: fading parts of the animal in and out made the whole drawing blink on some phones. */
 .cat .stail {
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-.cat .tail {
-  transition: opacity 0.6s ease;
+  visibility: hidden;
 }
 .catw.sleeping:not(.settling) .cat .stail {
-  opacity: 1;
+  visibility: visible;
 }
 .catw.sleeping:not(.settling) .cat:has(.stail) .tail {
-  opacity: 0;
+  visibility: hidden;
 }
 .catw.sleeping:not(.settling) .cat .head {
   --hr: -12deg;
