@@ -5,7 +5,7 @@
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
 const ROOT = path.join(__dirname, '..');
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
+const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 
 const server = http.createServer((req, res) => {
   const p = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]).replace(/\/$/, '/index.html'));
@@ -84,8 +84,35 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
     catw.classList.add('sleeping'); await new Promise(r => setTimeout(r, 100)); const t = getComputedStyle(document.querySelector('#catw .cat')).transform; catw.classList.remove('sleeping');
     return d === '-1' && t === 'none'; }), 'animal turns and naps without flashing');
 
+  // the styles really load (the test server once served them with the wrong type, so they were ignored)
+  check(await page.evaluate(() => getComputedStyle(catw).position === 'absolute'), 'styles load');
+
+  // tapping a book shows the calm card; Edit opens the full form
+  check(await page.evaluate(async () => { const b = books.find(x => x.title === 'Smoke Test Book'); openModal(b); await new Promise(r => setTimeout(r, 300));
+    const sh = $('ov').querySelector('.sheet'), card = sh.classList.contains('viewing') && $('bview').textContent.includes('Smoke Test Book') && $('title').offsetParent === null;
+    $('editbtn').click(); const form = !sh.classList.contains('viewing') && $('title').offsetParent !== null; closeModal(); return card && form; }), 'book card, then Edit opens the form');
+  await page.waitForTimeout(600);
+
+  // a new day empties the bowls (the very first day they start full)
+  check(await page.evaluate(() => { bowlLv.day = '2000-01-01'; bowlLv.food = bowlLv.water = 3; drawBowls(); return bowlLv.food === 0 && bowlLv.water === 0; }), 'bowls empty on a new day');
+
+  // holding a finger on the animal pets it; lifting stops
+  check(await page.evaluate(async () => { petReset(); const o = { bubbles: true, pointerId: 7, button: 0, pointerType: 'touch' };
+    catw.dispatchEvent(new PointerEvent('pointerdown', o)); await new Promise(r => setTimeout(r, 600)); const on = catw.classList.contains('purr');
+    document.dispatchEvent(new PointerEvent('pointerup', o)); await new Promise(r => setTimeout(r, 50)); return on && !catw.classList.contains('purr'); }), 'petting the animal');
+
+  // finishing a book makes the animal cheer
+  check(await page.evaluate(async () => { petReset(); const b = books.find(x => x.title === 'Smoke Test Book'); b.status = 'reading'; moveTo(b, 'read');
+    await new Promise(r => setTimeout(r, 1100)); return /cheer/.test(document.querySelector('#catw .cat').getAttribute('class')); }), 'animal cheers a finished book');
+
+  // the idle calm mode wakes up on a touch
+  check(await page.evaluate(async () => { document.body.classList.add('calm', 'calm2'); document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); return !document.body.classList.contains('calm') && !document.body.classList.contains('calm2'); }), 'calm room wakes on touch');
+
   // a translation still loads
-  check(await page.evaluate(() => { const l0 = lang; lang = 'fr'; const t = L('Save'); lang = l0; return t !== 'Save'; }), 'French translation');
+  await page.evaluate(() => setLang('fr')); await page.waitForTimeout(800);
+  check(await page.evaluate(() => lang === 'fr' && L('Save') !== 'Save'), 'French loads when picked');
+  await page.evaluate(() => setLang('en')); await page.waitForTimeout(300);
 
   check(!(await page.evaluate(() => window.CSPV || [])).length, 'nothing blocked by the security policy');
   check(!errors.length, 'no JavaScript errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''));

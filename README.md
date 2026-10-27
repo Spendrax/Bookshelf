@@ -7,7 +7,8 @@ Live at https://spendrax.github.io/Bookshelf/
 |---|---|
 | `index.html` | The page: the room, the walls and every pop-up window |
 | `css/style.css` | All the styling |
-| `i18n.js` | Translations (`L('text')` returns the text in the chosen language) |
+| `i18n.js` | Picks the language and loads only its file; keeps every language's genre names |
+| `i18n/<lang>.js` | Each language's translations (`L('text')` returns the text in the chosen language) |
 | `js/01-core.js` | Languages, saving books, helpers, the shelf and the add/edit form |
 | `js/02-cover-scan-and-pet-placement.js` | Finding a book from a cover photo, where the animal can stand |
 | `js/03-animal.js` | The animal: picking it up, wandering, napping, eating |
@@ -24,6 +25,7 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/14-install.js` | Installing the app and the update notice |
 | `js/15-book-view.js` | The calm card shown when you tap a book (Edit opens the full form) |
 | `js/16-animal-life.js` | The animal's life: petting, reading with you, cheering, hungry bowls, growing up, weather naps, yarn |
+| `js/17-calm.js` | Rests the decoration after 45 s without a touch, to save battery |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 

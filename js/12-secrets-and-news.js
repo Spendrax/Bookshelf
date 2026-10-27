@@ -116,7 +116,7 @@ async function spiritHatch() {
   );
 }
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
-   For the next important update: give NEWS a new id and new lines (and add their translations to i18n.js). ---------- */
+   For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
   id: '2026-10-26',
   items: [

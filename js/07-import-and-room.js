@@ -926,7 +926,12 @@ function drawClock() {
     c.querySelector('.sh').style.animationDelay = `-${s.toFixed(2)}s`;
   }
   /* digital and flip follow the phone's 12/24-hour habit */
-  const parts = new Intl.DateTimeFormat(lang, { hour: 'numeric', minute: '2-digit' }).formatToParts(d),
+  /* making the formatter is the slow part, so it's kept until the language changes */
+  if (!drawClock.f || drawClock.l !== lang) {
+    drawClock.f = new Intl.DateTimeFormat(lang, { hour: 'numeric', minute: '2-digit' });
+    drawClock.l = lang;
+  }
+  const parts = drawClock.f.formatToParts(d),
     H = (parts.find((p) => p.type === 'hour') || {}).value || '',
     M = (parts.find((p) => p.type === 'minute') || {}).value || '';
   const dg = c.querySelector('.dg');
@@ -936,7 +941,7 @@ function drawClock() {
     fc[0].textContent = H.padStart(2, '0');
     fc[1].textContent = M;
   }
-  c.setAttribute('aria-label', d.toLocaleTimeString(lang, { hour: 'numeric', minute: '2-digit' }));
+  c.setAttribute('aria-label', drawClock.f.format(d));
 }
 function drawTherm() {
   const v = $('thermv'),

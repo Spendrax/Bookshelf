@@ -1004,6 +1004,14 @@ $('q').addEventListener('input', () => {
 /* ---------- switching language ---------- */
 function setLang(c) {
   if (!LANGS[c]) return;
+  /* only the language in use is downloaded at start: fetch this one first (it's in the offline copy too) */
+  if (!TR_FULL[c]) {
+    const sc = document.createElement('script');
+    sc.src = 'i18n/' + c + '.js';
+    sc.onload = () => TR_FULL[c] && setLang(c);
+    document.head.append(sc);
+    return;
+  }
   lang = c;
   try {
     localStorage.setItem('bookshelf-lang', c);

@@ -244,7 +244,7 @@ function applySeason() {
           : kind === 'petal'
             ? ['#f4b6c8', '#f7c9d6', '#eaa0b8', '#fff0f4', '#f2a7c0']
             : ['#fff'],
-      n = kind === 'snow' ? 16 : 9;
+      n = kind === 'snow' ? 11 : 6;
     for (let i = 0; i < n; i++) {
       const f = el('span', 'leaf' + (kind === 'leaf' ? '' : ' ' + kind)),
         x = el('i');

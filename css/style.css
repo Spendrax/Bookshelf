@@ -7042,3 +7042,17 @@ html {
   translate: var(--lsx) 0;
   rotate: var(--lsr);
 }
+
+/* ---------- calm room when idle (js/17-calm.js) ---------- */
+.leaves {
+  transition: opacity 0.8s;
+}
+body.calm .leaves {
+  opacity: 0;
+}
+body.calm2 .leaf,
+body.calm2 .leaf i,
+body.calm2 .edgetab,
+body.calm2 .window .stars {
+  animation-play-state: paused;
+}
