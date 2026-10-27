@@ -7362,15 +7362,8 @@ body.calm2 .window .stars {
   --hy: 2px;
 }
 
-/* the animals get a drawing layer of their own that stays for good. Until now they were drawn into the wall's big
-   layer, and on some phones the first redraw after a change of pose (starting to eat, turning, lying down) came out
-   without the animal for one frame. A layer that never comes and goes avoids that, and the books next to it are no
-   longer redrawn with it. */
-.catw,
-.friend,
-.ppet {
-  will-change: transform;
-}
+/* no drawing layer of their own for the animals: moving the animal from one spot to another (landing on the rug,
+   a shelf) then had to build that layer again, and that is when it was missing for a frame */
 
 /* ---------- the body moves inside the drawing ("pose" group), never the drawing's box on the page ----------
    Every whole-body movement (hop, lean, squash, stretch, cheer…) still sets the same values on the drawing, but
