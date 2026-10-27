@@ -432,6 +432,15 @@ Object.defineProperty(ANIMALS.dragon, 0, {
     dragon: [[7], '80% 90%'],
   };
   const NS = 'http://www.w3.org/2000/svg';
+  const STAILS = {
+    cat: '<path class="ct" d="M43 49C50 55 38 58 26 57.2C20 56.8 16.5 55.6 15 53.6" fill="none" stroke-width="6" stroke-linecap="round"/><path class="st" d="M17.2 55C16.2 54.6 15.5 54.1 15 53.6" fill="none" stroke-width="6" stroke-linecap="round"/>',
+    dog: '<path class="ct" d="M42 48C49 54 41 57.4 31 57" fill="none" stroke-width="5" stroke-linecap="round"/>',
+    fox: '<path class="ct" d="M39 47C53 55 36 59.5 21 57" fill="none" stroke-width="9" stroke-linecap="round"/><path d="M25 57.6C22.5 57.5 21.4 57.2 21 57" fill="none" stroke="var(--a3)" stroke-width="9" stroke-linecap="round"/>',
+    axolotl:
+      '<path class="ct" d="M47 47C55 53 45 57.2 36 56.6" fill="none" stroke-width="5" stroke-linecap="round"/>',
+    dragon:
+      '<path class="ct" d="M44 48C57 56 38 59.4 23 56.8" fill="none" stroke-width="4" stroke-linecap="round"/><path class="st" d="M23 56.8L18.5 55.4" fill="none" stroke-width="3" stroke-linecap="round"/>',
+  };
   Object.entries(HEADS).forEach(([k, [ix, origin]]) => {
     const an = ANIMALS[k];
     if (!an || an[1].includes('class="head"')) return;
@@ -445,6 +454,14 @@ Object.defineProperty(ANIMALS.dragon, 0, {
     g.setAttribute('style', 'transform-origin:' + origin);
     pick[0].before(g);
     g.append(...pick);
+    /* long tails get a second, curled-up shape that is shown while sleeping: it wraps round the front paws */
+    const st = STAILS[k];
+    if (st) {
+      const t = document.createElementNS(NS, 'g');
+      t.setAttribute('class', 'stail');
+      t.innerHTML = st;
+      g.before(t);
+    }
     an[1] = svg.innerHTML;
   });
 }

@@ -7335,3 +7335,27 @@ body.calm2 .window .stars {
     transition: --px var(--walk, 0s) cubic-bezier(0.45, 0.05, 0.55, 0.95);
   }
 }
+
+/* sleeping: long tails swap to a curled-up shape round the front paws, birds tuck their heads in */
+.cat .stail {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.cat .tail {
+  transition: opacity 0.6s ease;
+}
+.catw.sleeping:not(.settling) .cat .stail {
+  opacity: 1;
+}
+.catw.sleeping:not(.settling) .cat:has(.stail) .tail {
+  opacity: 0;
+}
+.catw.sleeping:not(.settling) .cat .head {
+  --hr: -12deg;
+  --hy: 3px;
+}
+.catw.sleeping:not(.settling) .cat:has(.btail) .head {
+  --hr: -28deg;
+  --hx: 5px;
+  --hy: 5px;
+}
