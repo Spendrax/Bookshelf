@@ -84,6 +84,13 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
     catw.classList.add('sleeping'); await new Promise(r => setTimeout(r, 100)); const t = getComputedStyle(document.querySelector('#catw .cat')).transform; catw.classList.remove('sleeping');
     return d === '-1' && t === 'none'; }), 'animal turns and naps without flashing');
 
+  // whole-body moves happen inside the drawing: the drawing's own box never moves while the animal eats, cheers or sleeps
+  check(await page.evaluate(async () => { const c = document.querySelector('#catw .cat'), still = () => { const s = getComputedStyle(c); return s.transform === 'none' && s.translate === 'none' && s.rotate === 'none' && s.scale === 'none'; };
+    const ok = [];
+    for (const k of ['eating', 'sleeping', 'waking', 'crouch']) { catw.classList.add(k); await new Promise(r => setTimeout(r, 150)); ok.push(still()); catw.classList.remove(k); }
+    c.classList.add('cheer'); await new Promise(r => setTimeout(r, 150)); ok.push(still() && getComputedStyle(c.querySelector('.pose')).transform !== 'none'); c.classList.remove('cheer');
+    return ok.every(Boolean); }), 'animal moves inside its drawing, never its box');
+
   // the styles really load (the test server once served them with the wrong type, so they were ignored)
   check(await page.evaluate(() => getComputedStyle(catw).position === 'absolute'), 'styles load');
 

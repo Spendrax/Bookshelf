@@ -507,7 +507,7 @@ function petAcc() {
   const a = ACCS.find((x) => x[0] === look._acc);
   if (!a || badgeCount() < a[2]) return;
   /* worn on the head, so it moves with it */
-  (c.querySelector('.head') || c).insertAdjacentHTML('beforeend', petAccSvg(sid('pet'), a[0]));
+  (c.querySelector('.head') || c.querySelector('.pose') || c).insertAdjacentHTML('beforeend', petAccSvg(sid('pet'), a[0]));
 }
 {
   const al = applyLook;

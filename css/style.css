@@ -7371,3 +7371,52 @@ body.calm2 .window .stars {
 .ppet {
   will-change: transform;
 }
+
+/* ---------- the body moves inside the drawing ("pose" group), never the drawing's box on the page ----------
+   Every whole-body movement (hop, lean, squash, stretch, cheer…) still sets the same values on the drawing, but
+   they now reach the inner group by inheritance. The drawing's own box stays still, so the phone has no reason to
+   redraw the animal in a new way, which is what showed as a one-frame flash when it changed what it was doing. */
+@property --cy {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --cr {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --csx {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --csy {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --co {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+.cat {
+  translate: none;
+  rotate: none;
+  scale: none;
+  opacity: 1;
+}
+.cat .pose {
+  transform-box: fill-box;
+  transform-origin: inherit;
+  transform: translate(0px, var(--cy)) rotate(var(--cr)) scale(var(--csx), var(--csy));
+  opacity: var(--co);
+}
+.spirit .cat {
+  opacity: 0.88;
+}
+.heart {
+  translate: 0 var(--cy);
+  opacity: var(--co);
+}

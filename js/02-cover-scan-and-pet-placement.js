@@ -465,6 +465,12 @@ Object.defineProperty(ANIMALS.dragon, 0, {
     }
     an[1] = svg.innerHTML;
   });
+  /* the whole body moves inside the drawing (one group, "pose"), never the drawing's own box on the page:
+     moving that box is what made the phone drop the animal for a frame when it changed what it was doing */
+  Object.keys(ANIMALS).forEach((k) => {
+    const an = ANIMALS[k];
+    if (an && !an[1].startsWith('<g class="pose"')) an[1] = '<g class="pose">' + an[1] + '</g>';
+  });
 }
 const tog = (v) => [
   ['show', 'Show', {}],
