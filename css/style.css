@@ -7361,3 +7361,13 @@ body.calm2 .window .stars {
   --hr: 0deg;
   --hy: 2px;
 }
+
+/* the animals get a drawing layer of their own that stays for good. Until now they were drawn into the wall's big
+   layer, and on some phones the first redraw after a change of pose (starting to eat, turning, lying down) came out
+   without the animal for one frame. A layer that never comes and goes avoids that, and the books next to it are no
+   longer redrawn with it. */
+.catw,
+.friend,
+.ppet {
+  will-change: transform;
+}
