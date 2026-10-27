@@ -37,6 +37,8 @@ Live at https://spendrax.github.io/Bookshelf/
 - A new file must be added to both `index.html` and the `FILES` list in `sw.js`.
 - Animal movement uses CSS custom properties (`--tx`, `--ty`, `--px`…) rather than
   `transform`, and the animal is never hidden while on screen — this avoids flashes.
+- Whole-body poses (hop, lean, squash…) move the inner `<g class="pose">` of the drawing, never the
+  `<svg class="cat">` box itself — moving that box made phones drop the animal for a frame.
 
 ## Testing
 ```
