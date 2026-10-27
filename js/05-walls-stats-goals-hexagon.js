@@ -48,10 +48,6 @@ function hbars(rows, fmt) {
   return box;
 }
 const days = (a, b) => Math.round((new Date(b + 'T12:00') - new Date(a + 'T12:00')) / 864e5);
-const dayOf = (ms) => {
-  const d = new Date(ms);
-  return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
-};
 /* real reading time only: not books read in the past, and not ones that just got today's date when they were added */
 const timedOK = (b) =>
   b.started &&

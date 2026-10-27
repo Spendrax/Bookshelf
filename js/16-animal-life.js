@@ -75,7 +75,11 @@
     sound();
     petNext(4000);
   }
+  /* one save can report the same finished book twice (the last page moves it, then the save itself): celebrate once */
+  let lastFin = 0;
   function finished(before) {
+    if (Date.now() - lastFin < 2000) return;
+    lastFin = Date.now();
     setTimeout(() => {
       const n = readCount(),
         y = String(new Date().getFullYear()),

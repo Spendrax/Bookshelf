@@ -109,6 +109,21 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
   check(await page.evaluate(async () => { document.body.classList.add('calm', 'calm2'); document.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); return !document.body.classList.contains('calm') && !document.body.classList.contains('calm2'); }), 'calm room wakes on touch');
 
+  // a backup restores the same library (restore replaces everything, so it must keep working)
+  check(await page.evaluate(async () => { const want = books.map(b => b.title).sort().join('|'), ns = sessions.length, json = backupJson();
+    books = []; sessions = []; const p = importFile(new File([json], 'backup.json', { type: 'application/json' }));
+    await new Promise(r => setTimeout(r, 300)); $('askok').click(); await p;
+    return books.map(b => b.title).sort().join('|') === want && sessions.length === ns && want.length > 0; }), 'backup restores the same books');
+
+  // the app open twice: a save in one copy updates the other
+  {
+    const p2 = await ctx.newPage(); await p2.goto(url); await p2.waitForTimeout(2000);
+    await p2.evaluate(() => { books.push({ id: 'tab2', title: 'Second Tab Book', color: '#335577', w: 40, h: 180, status: 'want' }); store(); });
+    await page.waitForTimeout(800);
+    check(await page.evaluate(() => books.some(b => b.title === 'Second Tab Book')), 'two open copies stay in sync');
+    await p2.close();
+  }
+
   // a translation still loads
   await page.evaluate(() => setLang('fr')); await page.waitForTimeout(800);
   check(await page.evaluate(() => lang === 'fr' && L('Save') !== 'Save'), 'French loads when picked');

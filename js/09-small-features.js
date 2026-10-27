@@ -256,6 +256,17 @@ const IDB = {
   } catch (e) {}
 })();
 
+/* the same app open in another tab or window saved its books: take that newer list */
+if (bookSync)
+  bookSync.onmessage = async () => {
+    try {
+      const saved = useIDB ? await IDB.get('books') : JSON.parse(localStorage.getItem(LS) || 'null');
+      if (!Array.isArray(saved)) return;
+      books = fixBooks(saved);
+      render();
+    } catch (e) {}
+  };
+
 /* ================= ten additions ================= */
 /* ---------- 1. scan several books in a row ---------- */
 let multiN = 0,
@@ -442,7 +453,7 @@ setTimeout(() => {
 }, 4500);
 /* ---------- 5. badges ---------- */
 function bestStreak() {
-  const s = new Set(sessions.map((x) => dayKey(x.start)));
+  const s = new Set(sessions.map((x) => dayOf(x.start)));
   allReads().forEach((b) => {
     if (b.finished && !b.past) s.add(b.finished);
   });

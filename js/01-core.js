@@ -85,13 +85,26 @@ function store() {
   keepSafe();
   markChange();
   if (useIDB) {
-    IDB.set('books', JSON.parse(JSON.stringify(books))).catch(() => {
-      useIDB = false;
-      saveLS();
-    });
+    /* the storage makes its own copy; the slower text copy is only a fallback */
+    IDB.set('books', books)
+      .catch(() => IDB.set('books', JSON.parse(JSON.stringify(books))))
+      .then(booksSaved, () => {
+        useIDB = false;
+        saveLS();
+        booksSaved();
+      });
     return;
   }
   saveLS();
+  booksSaved();
+}
+/* the app open twice (installed app + browser tab): the other copy reloads the list after each save,
+   so an older list can't overwrite a newer one */
+const bookSync = 'BroadcastChannel' in window ? new BroadcastChannel('bookshelf-books') : null;
+function booksSaved() {
+  try {
+    bookSync && bookSync.postMessage(Date.now());
+  } catch (e) {}
 }
 function saveLS() {
   try {
@@ -131,10 +144,12 @@ const sw = (b) =>
   FMTH = { hardcover: 258, paperback: 232, ebook: 214, pocket: 196, audio: 178 },
   sh = (b) => FMTH[b.format] || Math.round(205 + (effH(b) - 150) * 0.9);
 const st = (b) => b.status || 'read',
-  today = () => {
-    const d = new Date();
+  /* the local date (YYYY-MM-DD) of a moment, now by default */
+  dayOf = (ms = Date.now()) => {
+    const d = new Date(ms);
     return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
-  };
+  },
+  today = () => dayOf();
 const FR4 = { 0.25: '\u00bc', 0.5: '\u00bd', 0.75: '\u00be' },
   fq = (v) => Math.round((v % 1) * 4) / 4;
 const fmtStars = (v) => (Math.floor(v) || (fq(v) ? '' : '0')) + (FR4[fq(v)] || '');

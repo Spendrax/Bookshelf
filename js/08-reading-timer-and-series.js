@@ -15,10 +15,6 @@ const saveSessions = () => {
   } catch (e) {}
   markChange();
 };
-const dayKey = (t) => {
-  const d = new Date(t);
-  return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
-};
 function startSession(id) {
   active = { bookId: id, start: Date.now() };
   saveSessions();
@@ -87,22 +83,22 @@ $('rpstop').onclick = async () => {
   if (view === 'goals') renderGoals();
 };
 function streakInfo() {
-  const daysSet = new Set(sessions.map((x) => dayKey(x.start)));
+  const daysSet = new Set(sessions.map((x) => dayOf(x.start)));
   allReads().forEach((b) => {
     if (b.finished) daysSet.add(b.finished);
   });
   let n = 0;
   const d = new Date();
-  let k = dayKey(d);
+  let k = dayOf(d);
   const readToday = daysSet.has(k);
   if (!readToday) {
     d.setDate(d.getDate() - 1);
-    k = dayKey(d);
+    k = dayOf(d);
   }
   while (daysSet.has(k)) {
     n++;
     d.setDate(d.getDate() - 1);
-    k = dayKey(d);
+    k = dayOf(d);
   }
   const now = Date.now(),
     mins = (t0) => sessions.filter((x) => x.start >= t0).reduce((a, x) => a + x.min, 0);
