@@ -489,13 +489,13 @@ function petFly(a, b, way, dir, done) {
   catw.style.setProperty('--dir', dir);
   catw.classList.toggle('walking', way === 'walk');
   catw.classList.toggle('flying', way === 'fly');
-  /* the animal is mirrored when it faces the other way, so the sideways part of the path is mirrored too */
+  /* only the drawing inside is mirrored now (the box never flips), so the path is used as it is */
   const dx = a.left + a.width / 2 - (b.left + b.width / 2),
     dy = a.bottom - b.bottom,
     s0 = b.width ? a.width / b.width : 1;
   /* start already at the first point of the path: an animation only kicks in on the next frame, and for that one frame the animal showed where it was going */
   /* the trip is driven through plain numbers (--tx, --ty, --tsc) instead of animating the transform itself: an animated transform gets its own drawing layer, and on some phones the books next to the animal blinked when that layer came and went */
-  const [kf0, dur] = petPath(way, dx * dir, dy, s0),
+  const [kf0, dur] = petPath(way, dx, dy, s0),
     kf = kf0.map((k) => {
       const m = /translate\(([-\d.]+)px,([-\d.]+)px\)(?: scale\(([-\d.]+)\))?/.exec(k.transform) || [
         0, 0, 0, 1,
