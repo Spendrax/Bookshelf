@@ -399,3 +399,21 @@
     };
   }
 }
+
+/* the daily reminder skips days you've already read: note today's date where the reminder can see it
+   (a reading session saved today, or a book finished today) */
+{
+  const mark = () => {
+    try {
+      if (streakInfo().readToday) IDB.set('readDay', today()).catch(() => {});
+    } catch (e) {}
+  };
+  /* every save of books or reading sessions goes through markChange */
+  const mc = markChange;
+  markChange = function () {
+    const r = mc.apply(this, arguments);
+    setTimeout(mark, 0);
+    return r;
+  };
+  setTimeout(mark, 3000);
+}

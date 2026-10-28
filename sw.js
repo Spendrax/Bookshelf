@@ -1,4 +1,4 @@
-const V = 'bookshelf-v131';
+const V = 'bookshelf-v132';
 const FILES = ['./', 'index.html', 'i18n.js', 'i18n/fr.js', 'i18n/es.js', 'i18n/ht.js', 'i18n/pt.js', 'i18n/de.js', 'i18n/it.js', 'css/style.css', 'js/01-core.js', 'js/02-cover-scan-and-pet-placement.js', 'js/03-animal.js', 'js/04-book-lookup-and-details.js', 'js/05-walls-stats-goals-hexagon.js', 'js/06-backup-sharing-pairing.js', 'js/07-import-and-room.js', 'js/08-reading-timer-and-series.js', 'js/09-small-features.js', 'js/10-ebook-reader.js', 'js/11-shelves-journal-rewards.js', 'js/12-secrets-and-news.js', 'js/13-customize.js', 'js/14-install.js', 'js/15-book-view.js', 'js/16-animal-life.js', 'js/17-calm.js', 'js/18-animal-moves.js', 'js/19-no-blink.js', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'privacy.html', 'terms.html'];
 // GitHub Pages lets browsers reuse files for 10 minutes: 'reload' makes a new version cache the new files, not the old ones
 self.addEventListener('install', e => {
@@ -28,9 +28,16 @@ self.addEventListener('periodicsync', e => {
   e.waitUntil(new Promise(res => {
     const r = indexedDB.open('my-bookshelf', 1);
     r.onupgradeneeded = () => r.result.createObjectStore('kv');
-    r.onsuccess = () => { try { const g = r.result.transaction('kv').objectStore('kv').get('remind'); g.onsuccess = () => res(g.result); g.onerror = () => res(null); } catch (x) { res(null); } };
+    r.onsuccess = () => { try { const st = r.result.transaction('kv').objectStore('kv'), g = st.get('remind'), d = st.get('readDay');
+      g.onerror = d.onerror = () => res(null); d.onsuccess = () => res({ m: g.result, day: d.result }); } catch (x) { res(null); } };
     r.onerror = () => res(null);
-  }).then(m => self.registration.showNotification((m && m.t) || '📚 Time to read!', { body: (m && m.b) || '', icon: 'icon-192.png', tag: 'read-reminder' })));
+  }).then(x => {
+    /* already read today (a reading session or a finished book): no reminder */
+    const n = new Date(), today = new Date(n - n.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+    if (x && x.day === today) return;
+    const m = x && x.m;
+    return self.registration.showNotification((m && m.t) || '📚 Time to read!', { body: (m && m.b) || '', icon: 'icon-192.png', tag: 'read-reminder' });
+  }));
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
