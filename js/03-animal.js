@@ -299,7 +299,7 @@ let petT = null,
 ['animationend', 'animationcancel'].forEach((ev) =>
   cat.addEventListener(ev, (e) => {
     if (
-      e.target === cat &&
+      (e.target === cat || (e.target.classList && e.target.classList.contains('pose'))) &&
       (e.animationName === 'arrive' || e.animationName === 'hop' || e.animationName === 'landed')
     )
       cat.classList.remove('arrive', 'hop', 'landed');

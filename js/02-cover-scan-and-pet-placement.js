@@ -888,7 +888,12 @@ function applyLook() {
     an = ANIMALS[pet];
   if (an) {
     cat.style.cssText = an[0];
-    cat.innerHTML = an[1];
+    /* only redraw when the drawing really changed: a redraw restarts whatever the body is doing (and could replay
+       the arrival drop-in) */
+    if (cat._src !== an[1]) {
+      cat.innerHTML = an[1];
+      cat._src = an[1];
+    }
   }
   const nm = PETNAME[pet];
   $('mvcat').hidden = !nm;

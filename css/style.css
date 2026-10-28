@@ -358,7 +358,7 @@ button {
   scale: var(--dir, 1) 1;
   transition: translate var(--walk, 0s) linear;
 }
-.catw.walking .cat {
+.catw.walking .cat > .pose {
   animation: walkbob 0.32s ease-in-out infinite;
 }
 .drw {
@@ -689,7 +689,7 @@ body.paired .hexwall {
   --csy: 0.74;
   transform-origin: 50% 100%;
 }
-.catw .cat {
+.catw .cat > .pose {
   transition:
     --csx 0.8s ease,
     --csy 0.8s ease;
@@ -733,7 +733,7 @@ body.paired .hexwall {
     display: none;
   }
 }
-.cat.hop {
+.cat.hop > .pose {
   animation: hop 0.5s ease-out;
 }
 .dz,
@@ -805,7 +805,7 @@ body.paired .hexwall {
     transform: scale(1);
   }
 }
-.cat.landed {
+.cat.landed > .pose {
   animation: landed 0.42s cubic-bezier(0.3, 0.7, 0.3, 1);
   transform-origin: 50% 100%;
 }
@@ -966,7 +966,7 @@ body.paired .hexwall {
   transition: none !important;
   pointer-events: none;
 }
-.catw.flying .cat {
+.catw.flying .cat > .pose {
   animation: flap 0.22s ease-in-out infinite alternate;
 }
 
@@ -978,7 +978,7 @@ body.paired .hexwall {
   left: 44%;
   bottom: 6px;
 }
-.cat.arrive {
+.cat.arrive > .pose {
   animation: arrive 0.6s ease-out;
 }
 
@@ -3966,7 +3966,7 @@ body.season-winter .window .sill:before {
   }
 }
 
-.catw.eating .cat {
+.catw.eating .cat > .pose {
   animation: nom 0.45s ease-in-out infinite;
   transform-origin: 78% 100%;
 }
@@ -5744,13 +5744,13 @@ body.restwalls #roomv.away .leaf i {
     translate var(--fw, 0s) linear,
     scale 0.2s ease;
 }
-.friend.walking .cat {
+.friend.walking .cat > .pose {
   animation: walkbob 0.32s ease-in-out infinite;
 }
 .friend.walking .cat .tail {
   animation-duration: 0.8s;
 }
-.friend .cat {
+.friend .cat > .pose {
   transition:
     --csx 0.8s ease,
     --csy 0.8s ease;
@@ -6916,19 +6916,19 @@ html {
     --by: -4px;
   }
 }
-.catw .cat.cheer {
+.catw .cat.cheer > .pose {
   animation: cheer 0.9s ease-in-out;
 }
-.catw .cat.cheer2 {
+.catw .cat.cheer2 > .pose {
   animation: cheer2 1.1s ease-in-out;
 }
-.catw .cat.twirl {
+.catw .cat.twirl > .pose {
   animation: twirl 0.8s ease-in-out;
 }
-.catw .cat.bat {
+.catw .cat.bat > .pose {
   animation: bat 0.45s ease-in-out;
 }
-.catw.purr .cat {
+.catw.purr .cat > .pose {
   animation: purr 0.6s ease-in-out infinite;
   transform-origin: 50% 100%;
 }
@@ -7132,7 +7132,7 @@ body.calm2 .window .stars {
     --hr: 3deg;
   }
 }
-.catw.eating .cat {
+.catw.eating .cat > .pose {
   animation: lean 1.8s ease-in-out infinite;
   transform-origin: 50% 100%;
 }
@@ -7241,7 +7241,7 @@ body.calm2 .window .stars {
     --ps: 0.12;
   }
 }
-.catw.waking .cat:not(.cheer):not(.cheer2):not(.twirl):not(.hop):not(.landed):not(.bat) {
+.catw.waking .cat:not(.cheer):not(.cheer2):not(.twirl):not(.hop):not(.landed):not(.bat) > .pose {
   animation: stretch 1.4s ease-in-out;
   transform-origin: 50% 100%;
 }
@@ -7313,7 +7313,7 @@ body.calm2 .window .stars {
 .catw.scratching .cat .head {
   animation: scr 0.14s linear 10;
 }
-.catw.scratching .cat:not(.hop) {
+.catw.scratching .cat:not(.hop) > .pose {
   animation: scrb 0.14s linear 10;
 }
 /* a crouch before jumping, stretched out in the air (the landing squash was already there) */
@@ -7323,7 +7323,7 @@ body.calm2 .window .stars {
     --csy: 0.84;
   }
 }
-.catw.crouch .cat {
+.catw.crouch .cat > .pose {
   animation: crouch 0.24s ease-out forwards;
   transform-origin: 50% 100%;
 }
@@ -7445,4 +7445,10 @@ body.calm2 .window .stars {
    animal is redrawn only when it actually does something (saves battery, and helps phones that skip frames) */
 .cat * {
   animation-play-state: var(--petanim, running) !important;
+}
+
+/* every whole-body animation runs on the drawing's inner group (".pose"), not on the drawing itself: starting an
+   animation on the drawing's own box (walking, landing squash, eating…) is the moment some phones dropped the animal */
+.catw.ghost .cat > .pose {
+  animation: none;
 }

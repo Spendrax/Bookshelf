@@ -41,7 +41,9 @@ Live at https://spendrax.github.io/Bookshelf/
 - Trips (`petFly`) run a Web Animation with `fill: 'both'` and clean up in `onfinish`: without the fill, the frame
   between the end and the clean-up showed the animal back at its take-off point (the long-standing "flash").
 - Whole-body poses (hop, lean, squash…) move the inner `<g class="pose">` of the drawing, never the
-  `<svg class="cat">` box itself — moving that box made phones drop the animal for a frame.
+  `<svg class="cat">` box itself, and their animations run on `.pose` too (`… .cat > .pose { animation: … }`):
+  starting an animation on the drawing's box made phones drop the animal for a frame. `applyLook` only redraws the
+  drawing when it really changed.
 
 ## Testing
 ```

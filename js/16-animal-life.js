@@ -11,7 +11,10 @@
     cat.classList.add(cls);
   };
   cat.addEventListener('animationend', (e) => {
-    if (e.target === cat && ['cheer', 'cheer2', 'twirl', 'bat'].includes(e.animationName))
+    if (
+      (e.target === cat || (e.target.classList && e.target.classList.contains('pose'))) &&
+      ['cheer', 'cheer2', 'twirl', 'bat'].includes(e.animationName)
+    )
       cat.classList.remove(e.animationName);
   });
   const sparkle = (n, marks) => {
