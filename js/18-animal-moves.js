@@ -117,14 +117,18 @@
       catw.classList.add('crouch');
       setTimeout(() => {
         catw.classList.remove('crouch');
-        petBusy = false;
-        const keep = petSpots;
-        petSpots = ps;
-        try {
-          if (!pt()) petNext(2500);
-        } finally {
-          petSpots = keep;
-        }
+        const go = () => {
+          petBusy = false;
+          const keep = petSpots;
+          petSpots = ps;
+          try {
+            if (!pt()) petNext(2500);
+          } finally {
+            petSpots = keep;
+          }
+        };
+        /* js/19 lays a still copy over the animal for the moment it changes place */
+        window.beforeMove ? beforeMove(go) : go();
       }, 240);
       return true;
     };
