@@ -7413,3 +7413,22 @@ body.calm2 .window .stars {
   translate: 0 var(--cy);
   opacity: var(--co);
 }
+
+/* ---------- turning round also happens inside the drawing ----------
+   The animal used to face the other way by mirroring its whole box on the page. On some phones that mirror flip,
+   at the start of a walk or a landing, came with a frame where the animal was missing. Now only the drawing's
+   inner group is mirrored, so the box on the page never flips. Things beside the animal (the "z"s, its name, the
+   hunger bubble) no longer need to un-mirror themselves. */
+.catw {
+  scale: none;
+}
+.cat .pose {
+  transform: scale(var(--dir), 1) translate(0px, var(--cy)) rotate(var(--cr)) scale(var(--csx), var(--csy));
+}
+.zz {
+  transform: none;
+}
+.pname,
+.bub {
+  scale: none;
+}
