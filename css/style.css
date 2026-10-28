@@ -954,11 +954,13 @@ body.paired .hexwall {
   left: max(10px, calc(50% - 400px));
   top: -24px;
 }
-.catw.travel {
+.catw.travel:not(.inplace) {
   position: absolute !important;
   bottom: auto !important;
   right: auto !important;
   margin: 0 !important;
+}
+.catw.travel {
   z-index: 4 !important;
   translate: none !important;
   transition: none !important;

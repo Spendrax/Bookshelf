@@ -905,7 +905,8 @@ function petEdges(el, kind, w) {
   return [pad, Math.max(pad, el.clientWidth - w - pad)];
 }
 function placePet(el, kind, ratio, zone, idx) {
-  el.append(catw);
+  /* already there (it flew in place): don't take it out of the page and put it back */
+  if (catw.parentElement !== el) el.append(catw);
   catw.dataset.spot = kind;
   petReset();
   const w = catw.offsetWidth || 52,

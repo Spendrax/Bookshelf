@@ -314,13 +314,13 @@ for (let i = 0; i < 2; i++) {
 function petReset() {
   clearTimeout(petT);
   petX = 0;
-  petDir = 1;
+  /* keep facing the same way (a sudden turn looked like a flash) */
+  petDir = +catw.style.getPropertyValue('--dir') || 1;
   eatTok++;
   document.querySelectorAll('.bowl.nom').forEach((b) => b.classList.remove('nom'));
   catw.classList.remove('walking', 'sleeping', 'eating');
   catw.style.setProperty('--walk', '0s');
   catw.style.setProperty('--px', '0px');
-  catw.style.setProperty('--dir', '1');
 }
 function petRange() {
   const par = catw.parentElement,
@@ -484,15 +484,22 @@ function petPath0(way, dx, dy) {
 /* carry the animal along a path above everything, from rect a to rect b (feet to feet), growing or shrinking smoothly on the way */
 function petFly(a, b, way, dir, done) {
   petBusy = true;
-  const spot = catw.dataset.spot;
-  /* travel inside the wall itself (not pinned to the screen), so if you scroll while it moves, it stays on its path in the room */
-  const host = [RV, GV, SV].find((w) => w.contains(catw)) || RV,
-    hr = host.getBoundingClientRect();
-  host.append(catw);
-  catw.classList.add('travel');
-  catw.dataset.spot = spot;
-  catw.style.left = b.left - hr.left + host.scrollLeft + 'px';
-  catw.style.top = b.top - hr.top + host.scrollTop + 'px';
+  const spot = catw.dataset.spot,
+    now = catw.getBoundingClientRect();
+  /* already sitting on the spot it's going to (the trip placed it there to measure it): fly in place, from the start
+     point back to where it already is. Then nothing has to move in the page when it lands, and the landing can't blink. */
+  const inplace = Math.abs(now.left - b.left) < 1.5 && Math.abs(now.top - b.top) < 1.5;
+  if (inplace) catw.classList.add('travel', 'inplace');
+  else {
+    /* going somewhere else (another wall, off screen): travel inside the wall itself (not pinned to the screen), so if you scroll while it moves, it stays on its path in the room */
+    const host = [RV, GV, SV].find((w) => w.contains(catw)) || RV,
+      hr = host.getBoundingClientRect();
+    host.append(catw);
+    catw.classList.add('travel');
+    catw.dataset.spot = spot;
+    catw.style.left = b.left - hr.left + host.scrollLeft + 'px';
+    catw.style.top = b.top - hr.top + host.scrollTop + 'px';
+  }
   catw.style.transformOrigin = '50% 100%';
   catw.style.setProperty('--dir', dir);
   catw.classList.toggle('walking', way === 'walk');
@@ -520,10 +527,10 @@ function petFly(a, b, way, dir, done) {
     ended = true;
     catw.style.transform = '';
     ['--tx', '--ty', '--tsc'].forEach((p) => catw.style.removeProperty(p));
-    catw.classList.remove('travel', 'walking', 'flying');
-    catw.style.top = '';
+    catw.classList.remove('travel', 'inplace', 'walking', 'flying');
+    if (!inplace) catw.style.top = '';
     catw.style.transformOrigin = '';
-    catw.style.setProperty('--dir', 1);
+    /* it keeps facing the way it flew: turning round at the moment of landing looked like a flash */
     petBusy = false;
     done();
   };
@@ -685,9 +692,7 @@ function petToFloor(ratio, done, n = 0) {
     const b = catw.getBoundingClientRect();
     const mode =
       way === 'walk' ||
-      (GROUND.includes(catw.dataset.spot) &&
-        GROUND.includes(kind) &&
-        Math.abs(a.bottom - b.bottom) < 30)
+      (GROUND.includes(catw.dataset.spot) && GROUND.includes(kind) && Math.abs(a.bottom - b.bottom) < 30)
         ? 'walk'
         : way;
     petFly(a, b, mode, fx > b.left + b.width / 2 ? 1 : -1, () => {
