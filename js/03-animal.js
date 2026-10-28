@@ -518,15 +518,24 @@ function petFly(a, b, way, dir, done) {
       return { '--tx': m[1] + 'px', '--ty': m[2] + 'px', '--tsc': m[3] || 1 };
     });
   const setK = (k) => Object.entries(k).forEach(([p, v]) => catw.style.setProperty(p, v));
+  /* the take-off point is written on the animal (for the frame before the animation starts), and the animation holds
+     its last point after it ends (fill: both). Before, in the frame between the end of the flight and the clean-up,
+     the animal jumped back to where it took off, which looked like it vanished at landing */
   setK(kf[0]);
   catw.style.transform = 'translate(var(--tx),var(--ty)) scale(var(--tsc))';
-  const an = catw.animate(kf, { duration: dur, easing: way === 'walk' ? 'linear' : 'ease-in-out' });
+  const an = catw.animate(kf, {
+    duration: dur,
+    easing: way === 'walk' ? 'linear' : 'ease-in-out',
+    fill: 'both',
+  });
   let ended = false;
   const fin = () => {
     if (ended) return;
     ended = true;
     catw.style.transform = '';
     ['--tx', '--ty', '--tsc'].forEach((p) => catw.style.removeProperty(p));
+    an.oncancel = null;
+    an.cancel();
     catw.classList.remove('travel', 'inplace', 'walking', 'flying');
     if (!inplace) catw.style.top = '';
     catw.style.transformOrigin = '';

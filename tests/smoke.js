@@ -91,6 +91,13 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
     c.classList.add('cheer'); await new Promise(r => setTimeout(r, 150)); ok.push(still() && getComputedStyle(c.querySelector('.pose')).transform !== 'none'); c.classList.remove('cheer');
     return ok.every(Boolean); }), 'animal moves inside its drawing, never its box');
 
+  // a flight starts at the take-off point and, once it ends, stays at the landing point until it is cleaned up (no snap back)
+  check(await page.evaluate(async () => { petReset(); placePet(document.querySelector('.floor'), 'floor', 0.2); await new Promise(r => setTimeout(r, 100));
+    const a = catw.getBoundingClientRect(); placePet(document.querySelector('.floor'), 'floor', 0.8); const b = catw.getBoundingClientRect();
+    let landed = false; petFly(a, b, 'jump', -1, () => (landed = true)); const an = catw.getAnimations().find(x => x.effect.getKeyframes().some(k => '--tx' in k));
+    const start = catw.getBoundingClientRect().left; an.finish(); const end = catw.getBoundingClientRect().left; await new Promise(r => setTimeout(r, 100));
+    return Math.abs(start - a.left) < 2 && Math.abs(end - b.left) < 2 && landed; }), 'flight has no snap back at take-off or landing');
+
   // the styles really load (the test server once served them with the wrong type, so they were ignored)
   check(await page.evaluate(() => getComputedStyle(catw).position === 'absolute'), 'styles load');
 

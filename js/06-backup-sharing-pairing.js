@@ -805,11 +805,13 @@ function pGo(sp, x, mode, done) {
   w.classList.toggle('walking', mode === 'walk');
   w.classList.toggle('flying', mode === 'fly');
   w.style.transformOrigin = '50% 100%';
+  /* take-off point written on it, last point held after the end (fill: both): no snap back to the start after landing */
   setK(kf[0]);
   w.style.transform = 'translate(var(--tx),var(--ty)) scale(var(--tsc))';
   const an = w.animate(kf, {
     duration: mode === 'walk' ? Math.max(700, Math.abs(dx) / ((PETSPEED[p.pet] || 70) / 1000)) : dur,
     easing: mode === 'walk' ? 'linear' : 'ease-in-out',
+    fill: 'both',
   });
   p.an = an;
   let ended = false;
@@ -819,6 +821,8 @@ function pGo(sp, x, mode, done) {
     p.an = null;
     w.style.transform = '';
     ['--tx', '--ty', '--tsc'].forEach((q) => w.style.removeProperty(q));
+    an.oncancel = null;
+    an.cancel();
     w.classList.remove('travel', 'walking', 'flying');
     w.style.transformOrigin = '';
     if (mode === 'jump' || mode === 'hop') {
