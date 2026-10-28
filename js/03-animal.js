@@ -464,7 +464,8 @@ function petPath0(way, dx, dy) {
     };
   /* a row of little hops only makes sense along a surface: between two heights it looked like bouncing on thin air, so going up or down is one single leap */
   if (way === 'hop' && Math.abs(dy) > 30) way = 'jump';
-  if (way === 'fly') return [arc(50 + d * 0.25, 12), Math.min(2800, 1100 + d * 2)];
+  /* a short hop stays low: a fixed high arc made a flyer swoop up into the shelf just to reach the floor next to it */
+  if (way === 'fly') return [arc(Math.min(50, 10 + d * 0.35) + d * 0.15, 12), Math.min(2800, 700 + d * 2)];
   if (way === 'jump')
     return [arc(34 + Math.max(0, -dy) * 0.25 + d * 0.08, 12), Math.min(1200, 520 + d * 0.8)];
   if (way === 'hop') {
@@ -686,7 +687,6 @@ function petToFloor(ratio, done, n = 0) {
       way === 'walk' ||
       (GROUND.includes(catw.dataset.spot) &&
         GROUND.includes(kind) &&
-        way !== 'fly' &&
         Math.abs(a.bottom - b.bottom) < 30)
         ? 'walk'
         : way;
