@@ -84,7 +84,13 @@ function petHold() {
   d.vx = 0;
   d.lx = d.x;
   d.lt = performance.now();
-  catw.style.visibility = 'hidden';
+  /* hide the real animal only once the lifted copy has been on screen for two frames: hiding one and showing the
+     other in the same frame left a frame with neither on some phones */
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      if (petDrag === d) catw.style.visibility = 'hidden';
+    }),
+  );
   if (navigator.vibrate) navigator.vibrate(10);
   const tick = (t) => {
     if (petDrag !== d) return;
@@ -204,8 +210,9 @@ function petDrop() {
   }
   catw.style.visibility = 'hidden';
   const finish = () => {
-    d.g.remove();
+    /* show the real animal first and take the lifted copy away two frames later (same reason as when picking up) */
     catw.style.visibility = '';
+    requestAnimationFrame(() => requestAnimationFrame(() => d.g.remove()));
     if (!reduce) {
       cat.classList.remove('arrive', 'hop', 'landed');
       void cat.getBoundingClientRect();
