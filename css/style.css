@@ -7438,3 +7438,9 @@ body.calm2 .window .stars {
 .cat .pose {
   transform-box: view-box;
 }
+
+/* Customize › Little movements › Still: the tail, ears, eyes, breathing and head stop their small loops, so the
+   animal is redrawn only when it actually does something (saves battery, and helps phones that skip frames) */
+.cat * {
+  animation-play-state: var(--petanim, running) !important;
+}

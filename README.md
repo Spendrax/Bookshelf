@@ -27,7 +27,6 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/16-animal-life.js` | The animal's life: petting, reading with you, cheering, hungry bowls, growing up, weather naps, yarn |
 | `js/17-calm.js` | Rests the decoration after 45 s without a touch, to save battery |
 | `js/18-animal-moves.js` | How the animal moves: head while eating, settling to sleep, dreams, waking stretch and yawn, idle habits, crouch before jumps |
-| `js/19-no-blink.js` | Lays a still copy over the animal while it changes place, so phones that skip a frame show no blink |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 
@@ -38,8 +37,7 @@ Live at https://spendrax.github.io/Bookshelf/
 - A new file must be added to both `index.html` and the `FILES` list in `sw.js`.
 - Animal movement uses CSS custom properties (`--tx`, `--ty`, `--px`…) rather than
   `transform`, and the animal is never hidden while on screen — this avoids flashes.
-  When one copy of the animal replaces another (picking it up, dropping it, the still copy in
-  `js/19-no-blink.js`), the new one is shown first and the old one removed two frames later — never both in one frame.
+  When one copy of the animal replaces another (picking it up, dropping it), the new one is shown first and the old one removed two frames later — never both in one frame.
 - Whole-body poses (hop, lean, squash…) move the inner `<g class="pose">` of the drawing, never the
   `<svg class="cat">` box itself — moving that box made phones drop the animal for a frame.
 

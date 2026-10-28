@@ -148,7 +148,7 @@ let czTab = 'room';
 const CZ_TABS = [
   ['room', 'Room', ['theme', 'wall', 'floor', 'window', 'view', 'nightroom']],
   ['furn', 'Furniture', ['wood', 'rug', 'plant', 'pot', 'season', '_deco']],
-  ['pet', 'Animal', ['pet', '_name', 'coat', '_acc', '_dragon', '_spirit', 'bowls', '_friend']],
+  ['pet', 'Animal', ['pet', '_name', 'coat', '_acc', '_dragon', '_spirit', 'bowls', 'petmove', '_friend']],
   ['clock', 'Clock & weather', ['clock', 'clockc', 'therm', 'thermc', '_wx']],
   ['more', 'More', ['_lang', 'sound', '_backup', '_remind', '_btns']],
 ];
@@ -310,7 +310,8 @@ function czThumb(k, id, v) {
   } else if (k === 'bowls') {
     if (id === 'show') em('\u{1F963}');
     else none();
-  } else if (k === 'sound') em(id === 'on' ? '\u{1F514}' : '\u{1F515}');
+  } else if (k === 'petmove') em(id === 'full' ? '\u{1F43E}' : '\u{1F4A4}');
+  else if (k === 'sound') em(id === 'on' ? '\u{1F514}' : '\u{1F515}');
   else i.textContent = '';
   /* the still pictures in the drawer don't need to breathe or blink */
   i.querySelectorAll('svg *').forEach((e) => {
@@ -439,7 +440,7 @@ buildPanel = function () {
   (CZ_TABS.find((t) => t[0] === czTab) || CZ_TABS[0])[2].forEach((k) => {
     const o = OPTS.find((x) => x.k === k);
     if (o) {
-      if ((k === 'coat' || k === 'bowls') && sid('pet') === 'none') return;
+      if ((k === 'coat' || k === 'bowls' || k === 'petmove') && sid('pet') === 'none') return;
       if (k === 'coat' && sid('pet') === 'dragon') return;
       if (k === 'pot' && sid('plant') === 'none') return;
       if (k === 'clockc' && sid('clock') === 'none') return;

@@ -803,6 +803,14 @@ const OPTS = [
     ],
   },
   {
+    k: 'petmove',
+    l: 'Little movements',
+    i: [
+      ['full', 'Full', {}],
+      ['still', 'Still (saves battery)', { '--petanim': 'paused' }],
+    ],
+  },
+  {
     k: 'coat',
     l: 'Colour',
     i: [
