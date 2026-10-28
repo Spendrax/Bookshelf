@@ -668,16 +668,28 @@ body.paired .hexwall {
     animation: none;
   }
 }
+/* the wings beat all the time with a strength of 0 at rest: starting or stopping a transform animation on part of
+   the drawing (walk start, take-off, landing) is what made phones drop the dragon for a frame */
+@property --fl {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+.drw {
+  --fw: 0;
+  transform: rotate(calc(var(--fl) * var(--fw) * -26deg)) scaleY(calc(1 - var(--fl) * var(--fw) * 0.25));
+  animation: drflap 0.3s ease-in-out infinite alternate;
+}
 .catw.walking .drw,
 .catw.travel .drw {
-  animation: drflap 0.3s ease-in-out infinite alternate;
+  --fw: 1;
 }
 .catw.flying .drw {
   animation-duration: 0.18s;
 }
 @keyframes drflap {
   to {
-    transform: rotate(-26deg) scaleY(0.75);
+    --fl: 1;
   }
 }
 .catw.walking .cat .tail {
