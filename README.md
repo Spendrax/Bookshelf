@@ -44,6 +44,8 @@ Live at https://spendrax.github.io/Bookshelf/
   `<svg class="cat">` box itself, and their animations run on `.pose` too (`… .cat > .pose { animation: … }`):
   starting an animation on the drawing's box made phones drop the animal for a frame. `applyLook` only redraws the
   drawing when it really changed.
+- Never start or stop a `transform` animation on part of the drawing when the animal changes state: phones drop the
+  animal for a frame (the dragon's wings did this). Keep it running all the time and change its strength with a custom property instead (see `.drw`).
 
 ## Testing
 ```
