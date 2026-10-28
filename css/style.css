@@ -7432,3 +7432,9 @@ body.calm2 .window .stars {
 .bub {
   scale: none;
 }
+
+/* iPhones (Safari) measure "fill-box" wrongly for shapes inside a moving group, which put the eyes in the wrong place.
+   The two moving groups now turn around points given in the drawing's own units instead. */
+.cat .pose {
+  transform-box: view-box;
+}

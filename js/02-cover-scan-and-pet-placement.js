@@ -415,21 +415,21 @@ Object.defineProperty(ANIMALS.dragon, 0, {
   },
 });
 /* each animal's head is its own group, so it can dip into the bowl, look around or yawn while the body stays put.
-   The numbers are the drawing's top-level shapes that make up the head; the origin is the neck it turns around. */
+   The numbers are the drawing's top-level shapes that make up the head; the origin is the neck it turns around, in drawing units. */
 {
   const HEADS = {
-    alpaca: [[12, 24], '70% 95%'],
-    cat: [[5, 17], '70% 90%'],
-    dog: [[8, 17], '75% 90%'],
-    bird: [[5], '70% 95%'],
-    turtle: [[7], '90% 60%'],
-    fox: [[6, 15], '75% 90%'],
-    hedgehog: [[2, 5, 6, 7, 8, 9], '85% 60%'],
-    axolotl: [[5, 11], '85% 70%'],
-    frog: [[7, 17], '50% 100%'],
-    owl: [[6, 7, 8], '50% 100%'],
-    bunny: [[5, 14], '70% 90%'],
-    dragon: [[7], '80% 90%'],
+    alpaca: [[12, 24], '23px 21px'],
+    cat: [[5, 17], '29px 29px'],
+    dog: [[8, 17], '28px 30px'],
+    bird: [[5], '24px 27px'],
+    turtle: [[7], '13px 45px'],
+    fox: [[6, 15], '27px 29px'],
+    hedgehog: [[2, 5, 6, 7, 8, 9], '21px 45px'],
+    axolotl: [[5, 11], '26px 41px'],
+    frog: [[7, 17], '27px 44px'],
+    owl: [[6, 7, 8], '30px 33px'],
+    bunny: [[5, 14], '21px 32px'],
+    dragon: [[7], '28px 19px'],
   };
   const NS = 'http://www.w3.org/2000/svg';
   const STAILS = {
@@ -451,8 +451,9 @@ Object.defineProperty(ANIMALS.dragon, 0, {
     if (pick.some((e) => !e)) return;
     const g = document.createElementNS(NS, 'g');
     /* a face drawn on the body (frog, owl) only sinks a little; tilting it looked odd */
-    g.setAttribute('class', origin === '50% 100%' ? 'head face' : 'head');
-    g.setAttribute('style', 'transform-origin:' + origin);
+    g.setAttribute('class', k === 'frog' || k === 'owl' ? 'head face' : 'head');
+    /* the neck it turns around, in the drawing's own units (iPhones place fill-box origins wrongly inside moving groups) */
+    g.setAttribute('style', 'transform-box:view-box;transform-origin:' + origin);
     pick[0].before(g);
     g.append(...pick);
     /* long tails get a second, curled-up shape that is shown while sleeping: it wraps round the front paws */
