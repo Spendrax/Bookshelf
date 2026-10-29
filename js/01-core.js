@@ -196,6 +196,11 @@ async function fromUrl(u, mx) {
   if (b.size < 1500) throw 0;
   return shrink(b, mx);
 }
+/* a Google Books cover link, asked for bigger first (its default is a small thumbnail) */
+const gbBig = (t) => {
+  t = t.replace('http:', 'https:').replace('&edge=curl', '');
+  return [...new Set([t + '&fife=w480-h720', t.replace('zoom=1', 'zoom=0'), t])];
+};
 function avgColor(data) {
   return new Promise((res) => {
     const i = new Image();
@@ -834,18 +839,16 @@ async function pick(d) {
     d.key && (!desc || !subj.length)
       ? tfetch('https://openlibrary.org' + d.key + '.json', 6000).catch(() => null)
       : Promise.resolve(null);
+  /* the cover of this exact edition first (the one matched to your photo, then the one for this ISBN);
+     the book's general cover (cover_i, often another edition) only if no edition cover exists */
   const pC = (async () => {
-    if (d.cover_i) {
+    const urls = [];
+    if (d.ecover) urls.push(`https://covers.openlibrary.org/b/id/${d.ecover}-L.jpg?default=false`);
+    if (d.ethumb) urls.push(...gbBig(d.ethumb));
+    if (d.isbn) urls.push(`https://covers.openlibrary.org/b/isbn/${d.isbn}-L.jpg?default=false`);
+    for (const u of urls) {
       try {
-        return await to(
-          fromUrl(`https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg?default=false`),
-          8000,
-        );
-      } catch (e) {}
-    }
-    if (d.isbn) {
-      try {
-        return await to(fromUrl(`https://covers.openlibrary.org/b/isbn/${d.isbn}-L.jpg?default=false`), 8000);
+        return await to(fromUrl(u), 8000);
       } catch (e) {}
     }
     return null;
@@ -876,14 +879,19 @@ async function pick(d) {
     if (gb.pageCount && !$('pages').value) $('pages').value = gb.pageCount;
     if (!desc) desc = gb.description || '';
     if (!$('author').value && gb.authors) $('author').value = gb.authors[0] || '';
-    if (!cover && gb.imageLinks && gb.imageLinks.thumbnail) {
-      try {
-        cover = await to(
-          fromUrl(gb.imageLinks.thumbnail.replace('http:', 'https:').replace('zoom=1', 'zoom=0')),
-          8000,
-        );
-      } catch (e) {}
-    }
+    /* Google's picture belongs to this edition only when Google was asked by ISBN (or gave this exact result) */
+    if (!cover && gb.imageLinks && gb.imageLinks.thumbnail && (d.gb || d.isbn))
+      for (const u of gbBig(gb.imageLinks.thumbnail)) {
+        try {
+          cover = await to(fromUrl(u), 8000);
+          break;
+        } catch (e) {}
+      }
+  }
+  if (!cover && d.cover_i && !(coverShot && d.weak)) {
+    try {
+      cover = await to(fromUrl(`https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg?default=false`), 8000);
+    } catch (e) {}
   }
   desc = desc
     .replace(/<[^>]+>/g, '')

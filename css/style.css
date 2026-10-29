@@ -7579,3 +7579,8 @@ body.calm2 .window .stars {
   animation-iteration-count: 4;
   animation-fill-mode: forwards;
 }
+/* the search result that looks most like your cover photo */
+#res button.likely {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}

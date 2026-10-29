@@ -77,6 +77,12 @@ async function scanCover(f) {
       if (cnt(l2) > cnt(lines)) lines = l2;
     }
     worker.terminate();
+    /* blurbs printed on covers ("bestseller", "author of…", "now a Netflix series") are not the title */
+    const NOISE =
+      /best.?sell|new york times|author of|auteur d|a novel|un roman|now a |motion picture|netflix|million|copies|exemplaires|winner|laur[ée]at|prix |award|edition|édition/i;
+    const kept = lines.filter((l) => !NOISE.test(l.t));
+    if (kept.length) lines = kept;
+    window.coverText = lines.map((l) => l.t).join(' ');
     if (!lines.length) {
       st.textContent = L(
         'Couldn’t read any words on that cover. Try a straighter, brighter photo, or type the title.',
