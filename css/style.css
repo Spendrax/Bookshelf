@@ -7464,3 +7464,118 @@ body.calm2 .window .stars {
 .catw.ghost .cat > .pose {
   animation: none;
 }
+
+/* ---------- js/19: quote note, trick menu, genre reactions ---------- */
+.wnote {
+  position: absolute;
+  left: -104px;
+  top: 92px;
+  width: 84px;
+  padding: 7px 6px 6px;
+  border: 0;
+  background: #fbf6e8;
+  color: #3b2c20;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22);
+  rotate: -3deg;
+  font: italic 10px/1.3 Georgia, serif;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.wnote[hidden] {
+  display: none;
+}
+.wnote::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #c0392b;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.wnote .qt {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.wnote .qb {
+  font: 600 8.5px/1.2 system-ui, sans-serif;
+  color: #6b5a48;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tricks {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 24px;
+  background: rgba(255, 252, 245, 0.96);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.tricks.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+.tricks button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font-size: 19px;
+  cursor: pointer;
+}
+.tricks button:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+@keyframes shiver {
+  0%,
+  100% {
+    --cr: 0deg;
+  }
+  20%,
+  60% {
+    --cr: -3deg;
+  }
+  40%,
+  80% {
+    --cr: 3deg;
+  }
+}
+@keyframes wave {
+  0%,
+  100% {
+    --cr: 0deg;
+  }
+  25%,
+  75% {
+    --cr: -9deg;
+  }
+  50% {
+    --cr: 7deg;
+  }
+}
+.catw.shiver .cat > .pose {
+  animation: shiver 0.4s linear 2;
+}
+.catw.wave .cat > .pose {
+  animation: wave 1.2s ease-in-out;
+}
+/* the side arrows pulse a few times to be noticed, then rest (a never-ending pulse kept the phone redrawing) */
+.edgetab {
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}

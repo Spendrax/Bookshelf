@@ -57,7 +57,7 @@
 </section>
 <button type="button" class="edgetab left" id="edgetabL" aria-label="Goals &amp; quotes" data-i18n-aria><span>‹</span></button>
 <button type="button" class="edgetab" id="edgetab" aria-label="Reading stats" data-i18n-aria><span>›</span></button>
-<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true">
+<div class="ov" id="ov"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="fT">
  <div><div class="stage" id="stage"><div class="book" id="book">
   <div class="f front" id="front"><b id="fT"></b><div><i id="fA"></i><small id="fS" class="fs"></small><small id="fG" class="fg"></small><div id="fR"></div></div></div>
   <div class="f back" id="bk"></div><div class="sp" id="sp"></div><div class="pg"></div></div></div>
@@ -97,7 +97,7 @@
   <label data-i18n>Spine colour (used if no spine image)<input id="color" type="color" value="#8b2e2e"></label>
   <div class="btns"><button class="pri" type="button" id="savebtn" data-i18n>Save</button><button type="button" id="close" data-i18n>Close</button><button type="button" class="del" id="del" data-i18n>Delete</button></div>
  </form></div></div>
-<div class="ov" id="lov"><div class="pnl" role="dialog" aria-modal="true"><h2 data-i18n>Customize your room</h2><div class="pgrid" id="pgrid"></div>
+<div class="ov" id="lov"><div class="pnl" role="dialog" aria-modal="true" aria-labelledby="czh"><h2 id="czh" data-i18n>Customize your room</h2><div class="pgrid" id="pgrid"></div>
 <p id="safe" style="font-size:12px;color:var(--muted);margin:14px 0 0"></p>
 <div class="btns"><button type="button" id="aboutbtn" data-i18n>ℹ About & privacy</button><button type="button" id="shelfpic" data-i18n>🖼 Picture of my shelf</button><button type="button" id="mvcat">🐱 Move the cat</button><button type="button" id="rst" data-i18n>Reset</button><button type="button" class="pri" id="lclose" data-i18n>Done</button></div></div></div>
 <div class="ov" id="scan"><div class="scanbox" role="dialog" aria-modal="true" aria-label="Scan a barcode" data-i18n-aria>
@@ -166,7 +166,7 @@
 <div class="ov" id="instov"><div class="pnl" role="dialog" aria-modal="true" aria-labelledby="insttitle"><h2 id="insttitle" data-i18n>Install My Bookshelf</h2>
 <p id="instfor" class="fbnote"></p><ol id="inststeps" class="inststeps"></ol><p id="instnote" class="fbnote"></p>
 <div class="btns"><button type="button" class="pri" id="instx" data-i18n>Got it</button></div></div></div>
-<div class="ov" id="yrov"><div class="yrbox" role="dialog" aria-modal="true"><img id="yrimg" alt=""><div class="yrbtns"><button type="button" class="pri2" id="yrshare" data-i18n>Share</button><button type="button" id="yrsave" data-i18n>Save image</button><button type="button" id="yrlink" hidden data-i18n>🔗 Share a link</button><button type="button" id="yrclose" data-i18n>Close</button></div></div></div>
+<div class="ov" id="yrov"><div class="yrbox" role="dialog" aria-modal="true" aria-label="Your year in books" data-i18n-aria><img id="yrimg" alt=""><div class="yrbtns"><button type="button" class="pri2" id="yrshare" data-i18n>Share</button><button type="button" id="yrsave" data-i18n>Save image</button><button type="button" id="yrlink" hidden data-i18n>🔗 Share a link</button><button type="button" id="yrclose" data-i18n>Close</button></div></div></div>
 <div class="ov" id="genov"><div class="pnl" role="dialog" aria-modal="true" aria-labelledby="gentitle"><h2 id="gentitle" data-i18n>Choose genres</h2><div class="taglist" id="genlist"></div><div class="btns"><button type="button" class="pri" id="gendone" data-i18n>Done</button></div></div></div>
 <div class="rpill" id="rpill" hidden role="status"><span id="rptitle"></span><b id="rptime">0:00</b><button type="button" id="rpamb"></button><button type="button" id="rpstop" data-i18n>Stop</button></div>
 <div id="toast"></div>
@@ -190,4 +190,5 @@
 <script src="js/16-animal-life.js"></script>
 <script src="js/17-calm.js"></script>
 <script src="js/18-animal-moves.js"></script>
+<script src="js/19-speed-quotes-tricks.js"></script>
 </body></html>

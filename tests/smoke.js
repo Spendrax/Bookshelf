@@ -143,6 +143,10 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
   check(await page.evaluate(() => lang === 'fr' && L('Save') !== 'Save'), 'French loads when picked');
   await page.evaluate(() => setLang('en')); await page.waitForTimeout(300);
 
+  // reading speed, quote note, trick menu
+  check(await page.evaluate(() => { const b = books.find((x) => x.title === 'Smoke Test Book'); sessions.push({ bookId: b.id, start: Date.now() - 9e6, min: 60 }); renderStats(); return [...document.querySelectorAll('#stbody h2')].some((h) => h.textContent === L('Reading speed')); }), 'reading speed card shows');
+  check(await page.evaluate(() => { quotes.push({ id: 'qs', bookId: books[0].id, text: 'A smoke quote' }); saveQuotes(); const n = document.querySelector('.wnote'); return !n.hidden && n.textContent.includes('A smoke quote'); }), 'saved quote is pinned by the window');
+  check(await page.evaluate(() => { petBusy = false; petDragged = false; catw.classList.remove('travel', 'eating'); cat.dispatchEvent(new MouseEvent('click', { bubbles: true })); return document.querySelector('.tricks.on') && document.querySelectorAll('.tricks button').length === 4; }), 'tapping the animal shows its tricks');
   check(!(await page.evaluate(() => window.CSPV || [])).length, 'nothing blocked by the security policy');
   check(!errors.length, 'no JavaScript errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''));
 

@@ -118,9 +118,9 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-10-26',
+  id: '2026-10-29',
   items: [
-    '🐾 Your animal is more alive: hold your finger on it to pet it, it reads with you during a session, cheers when you finish a book, plays, naps in the sun, and grows as you read. Its bowls empty each night, so fill them when you visit!',
+    '✨ New: your reading speed on the stats wall, a saved quote pinned by the window, seasonal outfits for your animal, tricks when you tap it, and it reacts to what you read.',
   ],
 };
 const NEWSK = 'bookshelf-news';

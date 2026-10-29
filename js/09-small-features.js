@@ -792,6 +792,16 @@ const TOUR = [
     'Swipe left or right: one wall has your reading goal, streak and quotes, the other has your stats.',
   ],
   [
+    '\u{1F43E}',
+    'Meet your animal',
+    'Hold your finger on it to pet it, tap it for tricks, and fill its bowls when they’re empty. It grows as you read.',
+  ],
+  [
+    '⏱️',
+    'Time your reading',
+    'Open a book you’re reading and tap “Start reading”: your animal reads with you, and your streak and reading speed show on the walls.',
+  ],
+  [
     '\u{1F3A8}',
     'Make it yours',
     'Open Customize to change the walls, the furniture, the clock and your little animal. Try tapping the lamp, the bowls and the animal too.',

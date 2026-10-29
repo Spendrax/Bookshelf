@@ -1572,14 +1572,21 @@ setTimeout(() => {
 
 /* the leaves of the stats and goals walls cover the whole wall, however long it is, and take proportionally longer to fall */
 function leafFit() {
-  document.querySelectorAll('.statsv>.leaves,#leaves').forEach((l) => {
-    l.style.height = '0px';
-    const h = Math.max(innerHeight, l.parentElement.scrollHeight),
-      k = h / Math.max(1, innerHeight);
-    l.style.height = h + 'px';
+  /* all writes, then all reads, then all writes: one layout instead of one per wall and per leaf */
+  const ls = [...document.querySelectorAll('.statsv>.leaves,#leaves')];
+  ls.forEach((l) => (l.style.height = '0px'));
+  const hs = ls.map((l) => Math.max(innerHeight, l.parentElement.scrollHeight));
+  ls.forEach((l) =>
     l.querySelectorAll('.leaf').forEach((f) => {
       if (!f.dataset.d) f.dataset.d = parseFloat(getComputedStyle(f).animationDuration) || 10;
-      f.style.animationDuration = (f.dataset.d * k).toFixed(2) + 's';
+    }),
+  );
+  ls.forEach((l, i) => {
+    const k = hs[i] / Math.max(1, innerHeight);
+    l.style.height = hs[i] + 'px';
+    l.querySelectorAll('.leaf').forEach((f) => {
+      const v = (f.dataset.d * k).toFixed(2) + 's';
+      if (f.style.animationDuration !== v) f.style.animationDuration = v;
     });
   });
 }
