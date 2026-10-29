@@ -49,14 +49,21 @@
       "sizes": "720x1280",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Book details, ratings and series"
+      "label": "Book details and ratings"
     },
     {
-      "src": "screenshots/phone-4-goals.jpg",
+      "src": "screenshots/phone-3-goals.jpg",
       "sizes": "720x1280",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Reading goal, streak and quotes"
+    },
+    {
+      "src": "screenshots/phone-4-stats.jpg",
+      "sizes": "720x1280",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Reading stats"
     },
     {
       "src": "screenshots/wide-1-room.jpg",
@@ -66,7 +73,21 @@
       "label": "Your bookshelf room"
     },
     {
-      "src": "screenshots/wide-3-stats.jpg",
+      "src": "screenshots/wide-2-book.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Book details and ratings"
+    },
+    {
+      "src": "screenshots/wide-3-goals.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Reading goal, streak and quotes"
+    },
+    {
+      "src": "screenshots/wide-4-stats.jpg",
       "sizes": "1280x720",
       "type": "image/jpeg",
       "form_factor": "wide",
