@@ -149,6 +149,8 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
   check(await page.evaluate(() => { petBusy = false; petDragged = false; catw.classList.remove('travel', 'eating'); cat.dispatchEvent(new MouseEvent('click', { bubbles: true })); return document.querySelector('.tricks.on') && document.querySelectorAll('.tricks button').length === 4; }), 'tapping the animal shows its tricks');
   // book card extras: spoilers hidden and kept out of shared links
   check(await page.evaluate(() => spoilStrip('a ||secret|| b') === 'a [' + L('spoiler') + '] b'), 'spoilers stay out of shared text');
+  // a reading book's page can be changed right on its card
+  check(await page.evaluate(async () => { const b = books.find((x) => x.title === 'Smoke Test Book'); closeModal(); await new Promise((r) => setTimeout(r, 900)); b.status = 'reading'; b.pages = 300; b.page = 10; store(); openModal(b); await new Promise((r) => setTimeout(r, 900)); const r = document.querySelector('.bxpage'); if (!r) return false; r.querySelector('input').value = 42; r.querySelector('input').dispatchEvent(new Event('input')); r.querySelector('.pri2').click(); const ok = b.page === 42; closeModal(); await new Promise((r) => setTimeout(r, 900)); return ok; }), 'page can be changed on a reading book card');
   check(!(await page.evaluate(() => window.CSPV || [])).length, 'nothing blocked by the security policy');
   check(!errors.length, 'no JavaScript errors' + (errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''));
 

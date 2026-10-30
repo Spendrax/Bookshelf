@@ -7760,3 +7760,30 @@ body.calm2 .window .stars {
 .spbtn {
   margin: -4px 0 10px;
 }
+/* the page you're on, changed right on the book card */
+.bxpage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.bxpl {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.bxpage input {
+  width: 72px;
+  text-align: center;
+  font-size: 17px;
+  padding: 6px;
+}
+.bxpage .qbtn {
+  min-width: 40px;
+}
+.bxpage .qbtn[hidden] {
+  display: none;
+}

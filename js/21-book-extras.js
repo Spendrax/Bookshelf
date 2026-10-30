@@ -302,6 +302,63 @@
     out.append(s);
   }
 
+  /* ---- the page you're on, right on the card ---- */
+  function pageRow(b, view) {
+    const r = el('div', 'bxpage'),
+      minus = el('button', 'qbtn', '−'),
+      plus = el('button', 'qbtn', '+'),
+      inp = el('input'),
+      save = el('button', 'qbtn pri2', L('Save'));
+    [minus, plus, save].forEach((x) => (x.type = 'button'));
+    minus.setAttribute('aria-label', L('One page less'));
+    plus.setAttribute('aria-label', L('One page more'));
+    inp.type = 'number';
+    inp.min = 0;
+    if (b.pages) inp.max = b.pages;
+    inp.inputMode = 'numeric';
+    inp.value = b.page || 0;
+    inp.setAttribute('aria-label', L("Page I'm on"));
+    const lab = el('label', 'bxpl', L("Page I'm on"));
+    const step = (d) => {
+      inp.value = Math.max(0, Math.min(b.pages || 1e5, (+inp.value || 0) + d));
+      save.hidden = +inp.value === (b.page || 0);
+    };
+    minus.onclick = () => step(-1);
+    plus.onclick = () => step(1);
+    inp.oninput = () => (save.hidden = +inp.value === (b.page || 0));
+    inp.onkeydown = (e) => e.key === 'Enter' && (e.preventDefault(), save.click());
+    save.hidden = true;
+    save.onclick = () => {
+      const p = Math.max(0, Math.round(+inp.value || 0)),
+        v = b.pages ? Math.min(p, b.pages) : p;
+      b.page = v;
+      logPage(b, v);
+      store();
+      render();
+      save.hidden = true;
+      if (autoFinish(b)) {
+        closeModal();
+        return;
+      }
+      /* the card's bar and page line follow */
+      const pct = b.pages ? Math.min(100, Math.round((v / b.pages) * 100)) : 0,
+        f = view.querySelector('.bvbar i');
+      if (f) f.style.width = pct + '%';
+      const sm = view.querySelector('.bvbar + .bvsmall');
+      if (sm && b.pages)
+        sm.textContent =
+          L(', page {p} of {n}', { p: v, n: b.pages }).replace(/^,\s*/, '') + ' · ' + pct + '%';
+      $('page').value = v;
+      toast(L('Page saved.'));
+    };
+    const tot = b.pages ? el('span', 'bvsmall', '/ ' + b.pages) : null;
+    r.append(lab, minus, inp, plus);
+    if (tot) r.append(tot);
+    r.append(save);
+    const after = view.querySelector('.bvbar + .bvsmall') || view.querySelector('.bvmeta');
+    after.after(r);
+  }
+
   /* ---- the card ---- */
   const om = openModal;
   openModal = function (b) {
@@ -309,6 +366,8 @@
     const view = $('bview');
     if (!b || view.hidden || !books.includes(b)) return r;
     try {
+      /* reading: change the page right here, without starting a session or opening the form */
+      if (st(b) === 'reading') pageRow(b, view);
       /* thoughts with spoilers */
       const nt = view.querySelector('.bvnote');
       if (nt && b.note && b.note.includes('||')) nt.replaceChildren(...spoil(b.note));
