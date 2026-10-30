@@ -7927,3 +7927,6 @@ body.calm2 .window .stars {
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
 }
+.cvt.bad {
+  opacity: 0.35;
+}

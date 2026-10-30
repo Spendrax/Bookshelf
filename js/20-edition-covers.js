@@ -314,7 +314,8 @@
             return;
           } catch (e) {}
         b.classList.remove('busy');
-        toast(L('Could not read that image'));
+        b.classList.add('bad');
+        toast(L('This cover can’t be downloaded. Try another one.'));
       };
       grid.append(b);
     });

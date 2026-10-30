@@ -190,7 +190,15 @@ async function shrink(blob, max = 520) {
   return c.toDataURL('image/jpeg', 0.78);
 }
 async function fromUrl(u, mx) {
-  const r = await fetch(u);
+  let r;
+  try {
+    r = await fetch(u);
+  } catch (e) {
+    /* some sites (Google Books among them) show their pictures but don't let apps download them: the picture is
+       then fetched through wsrv.nl, a free image service that allows it. A missing picture (404) is not retried. */
+    if (!/^https:/.test(u) || u.includes('wsrv.nl')) throw e;
+    r = await fetch('https://wsrv.nl/?url=' + encodeURIComponent(u) + '&w=' + (mx || 520) + '&output=jpg');
+  }
   if (!r.ok) throw 0;
   const b = await r.blob();
   if (b.size < 1500) throw 0;
