@@ -284,20 +284,50 @@
         : o.after
           ? L('Is this the right cover? Tap another one to switch.')
           : L('Tap the cover you want.');
-    all.slice(0, 40).forEach((c) => {
+    /* only covers that are sharp enough are offered: each one's big picture is checked first */
+    const sharp = (c) =>
+      c.data
+        ? Promise.resolve(c.src)
+        : (async () => {
+            for (const u of big(c)) {
+              const w = await new Promise((res) => {
+                const t = new Image();
+                t.onload = () => res(t.naturalWidth);
+                t.onerror = () => res(0);
+                t.src = u;
+                setTimeout(() => res(0), 8000);
+              });
+              if (w >= COVERMIN) return u;
+            }
+            return null;
+          })();
+    let shown = 0;
+    const done = () => {
+      if (!grid.querySelector('.cvt:not(.on)') && !shown)
+        msg.textContent = L('No other sharp covers found online. You can take a photo instead.');
+    };
+    let left = Math.min(all.length, 30);
+    if (!left) done();
+    all.slice(0, 30).forEach((c) => {
       const b = el('button', 'cvt' + (c.mine ? ' mine' : '') + (c.on ? ' on' : ''));
       b.type = 'button';
+      b.hidden = true;
       const im = el('img');
-      im.loading = 'lazy';
       im.alt = '';
-      im.src = c.src;
-      im.onerror = () => b.remove();
-      im.onload = () => im.naturalWidth < 20 && b.remove();
       b.append(im);
+      sharp(c).then((u) => {
+        if (u) {
+          im.src = u;
+          b.hidden = false;
+          if (!c.data) shown++;
+        } else b.remove();
+        if (!--left) done();
+      });
       if (c.label) b.append(el('small', '', c.label));
       b.onclick = async () => {
         b.classList.add('busy');
         const d = c.data || (await bestCover(big(c)));
+        if (!d) b.remove();
         if (d) {
           draft[k] = d;
           if (k === 'cover' && !draft.spine && !draft.colorSet) {
@@ -305,9 +335,6 @@
             if (col) $('color').value = col;
           }
           pv();
-          /* only a small picture exists online for this one: say so, a photo will be sharper */
-          if (!c.data && bestCover.w && bestCover.w < 260)
-            toast(L('Only a small picture of this cover exists online. Tap 📷 Photo for a sharper one.'));
           /* after a scan the choices stay, so you can try another; elsewhere they close */
           if (o.after) {
             grid.querySelectorAll('.cvt.on').forEach((x) => x.classList.remove('on'));

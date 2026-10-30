@@ -23,3 +23,5 @@ Object.assign(TR.it, {"💬 You’ve been testing My Bookshelf for a few days. C
 Object.assign(TR.it, {"This cover can’t be downloaded. Try another one.": "Questa copertina non si può scaricare. Provane un’altra."});
 
 Object.assign(TR.it, {"Only a small picture of this cover exists online. Tap 📷 Photo for a sharper one.": "Online esiste solo un’immagine piccola di questa copertina. Tocca 📷 Foto per una più nitida.", "Only a small, blurry cover exists online: pick another below or take a photo.": "Online c’è solo una copertina piccola e sfocata: scegline un’altra qui sotto o scatta una foto."});
+
+Object.assign(TR.it, {"No sharp cover found online – take a photo of yours below.": "Nessuna copertina nitida trovata online – fotografa la tua qui sotto.", "No other sharp covers found online. You can take a photo instead.": "Nessun’altra copertina nitida trovata online. Puoi scattare una foto."});

@@ -23,3 +23,5 @@ Object.assign(TR.ht, {"💬 You’ve been testing My Bookshelf for a few days. C
 Object.assign(TR.ht, {"This cover can’t be downloaded. Try another one.": "Nou pa ka telechaje kouvèti sa a. Eseye yon lòt."});
 
 Object.assign(TR.ht, {"Only a small picture of this cover exists online. Tap 📷 Photo for a sharper one.": "Se sèlman yon ti imaj kouvèti sa a ki egziste sou entènèt. Touche 📷 Foto pou yon imaj ki pi klè.", "Only a small, blurry cover exists online: pick another below or take a photo.": "Se sèlman yon ti kouvèti flou ki egziste sou entènèt: chwazi yon lòt anba a oswa pran yon foto."});
+
+Object.assign(TR.ht, {"No sharp cover found online – take a photo of yours below.": "Pa jwenn okenn kouvèti klè sou entènèt – pran yon foto pa w la anba a.", "No other sharp covers found online. You can take a photo instead.": "Pa jwenn lòt kouvèti klè sou entènèt. Ou ka pran yon foto."});
