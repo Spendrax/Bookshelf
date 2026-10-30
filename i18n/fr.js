@@ -14,3 +14,5 @@ Object.assign(TR.fr, {"Add “{t}” to Want to read?": "Ajouter « {t} » à En
 Object.assign(TR.fr, {"One page less": "Une page de moins", "One page more": "Une page de plus", "Page saved.": "Page enregistrée.", "📖 Reading a book? Tap it on the shelf to change your page right on its card.": "📖 Un livre en cours ? Touche-le sur l’étagère pour changer ta page directement sur sa fiche."});
 
 Object.assign(TR.fr, {"No description yet.": "Pas encore de description."});
+
+Object.assign(TR.fr, {"Chosen": "Choisie", "Your photo": "Votre photo", "Is this the right cover? Tap another one to switch.": "Est-ce la bonne couverture ? Touchez-en une autre pour changer.", "📷 After scanning a book, its possible covers appear right away: tap the one that matches yours.": "📷 Après avoir scanné un livre, ses couvertures possibles s’affichent tout de suite : touche celle qui correspond à la tienne."});

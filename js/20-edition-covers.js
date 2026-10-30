@@ -221,11 +221,11 @@
   const big = (c) =>
     c.ecover ? [`https://covers.openlibrary.org/b/id/${c.ecover}-L.jpg?default=false`] : gbBig(c.ethumb);
   let pickTok = 0;
-  async function openPicker(k, slot) {
+  async function openPicker(k, slot, o = {}) {
     const old = document.querySelector('.cvpick');
     if (old) {
       old.remove();
-      if (old.dataset.k === k) return;
+      if (old.dataset.k === k && !o.after) return;
     }
     const title = $('title').value.trim();
     if (!title) {
@@ -238,7 +238,8 @@
     const msg = el('p', 'cvmsg', L('Looking for covers…')),
       grid = el('div', 'cvgrid');
     box.append(msg, grid);
-    slot.parentElement.after(box);
+    (o.after || slot.parentElement).after(box);
+    if (o.after) box.classList.add('scan');
     const isbn = toIsbn13($('isbn').value || '');
     const [own, list] = await Promise.all([
       /* this exact edition's pictures first */
@@ -266,18 +267,25 @@
     if (tok !== pickTok || !box.isConnected) return;
     const seen = new Set();
     let all = [...own, ...list].filter((c) => !seen.has(c.src) && seen.add(c.src));
+    /* right after a scan: the cover it chose and your own photo come first, so you can compare */
+    const mine = [];
+    if (o.current) mine.push({ data: o.current, src: o.current, label: L('Chosen'), on: 1 });
+    if (o.photo && o.photo !== o.current) mine.push({ data: o.photo, src: o.photo, label: L('Your photo') });
+    all = [...mine, ...all];
     /* for the back, the extra pictures go first: that's where back covers usually are */
     if (k === 'back') all = [...all.filter((c) => c.extra), ...all.filter((c) => !c.extra)];
-    if (!all.length) {
+    if (all.length <= mine.length && !o.after) {
       msg.textContent = L('No other covers found online. You can take a photo instead.');
       return;
     }
     msg.textContent =
       k === 'back'
         ? L('Back covers are rare online: the likely ones are first. Tap a picture to use it.')
-        : L('Tap the cover you want.');
+        : o.after
+          ? L('Is this the right cover? Tap another one to switch.')
+          : L('Tap the cover you want.');
     all.slice(0, 40).forEach((c) => {
-      const b = el('button', 'cvt' + (c.mine ? ' mine' : ''));
+      const b = el('button', 'cvt' + (c.mine ? ' mine' : '') + (c.on ? ' on' : ''));
       b.type = 'button';
       const im = el('img');
       im.loading = 'lazy';
@@ -286,17 +294,23 @@
       im.onerror = () => b.remove();
       im.onload = () => im.naturalWidth < 20 && b.remove();
       b.append(im);
+      if (c.label) b.append(el('small', '', c.label));
       b.onclick = async () => {
         b.classList.add('busy');
-        for (const u of big(c))
+        for (const u of c.data ? [c.data] : big(c))
           try {
-            draft[k] = await fromUrl(u);
+            draft[k] = c.data || (await fromUrl(u));
             if (k === 'cover' && !draft.spine && !draft.colorSet) {
               const col = await avgColor(draft.cover);
               if (col) $('color').value = col;
             }
             pv();
-            box.remove();
+            /* after a scan the choices stay, so you can try another; elsewhere they close */
+            if (o.after) {
+              grid.querySelectorAll('.cvt.on').forEach((x) => x.classList.remove('on'));
+              b.classList.remove('busy');
+              b.classList.add('on');
+            } else box.remove();
             return;
           } catch (e) {}
         b.classList.remove('busy');
@@ -305,6 +319,7 @@
       grid.append(b);
     });
   }
+  window.openCoverPicker = openPicker;
   const bs = buildSlots;
   buildSlots = function () {
     const r = bs.apply(this, arguments);
@@ -321,22 +336,26 @@
   };
 }
 
-/* after a barcode or cover scan, a reminder that the back can be added too (the book is in your hands) */
+/* after a barcode or cover scan: the covers to choose from appear right under the result, and a reminder that the
+   back can be added too (the book is in your hands) */
 {
-  const hint = () => {
-    if (!draft.back && draft.cover) $('st').textContent += ' ' + L('Add the back cover with 📷 under “Back”.');
+  const after = (photo) => {
+    if (!draft.back && draft.cover)
+      $('st').textContent += ' ' + L('Add the back cover with 📷 under “Back”.');
+    if ($('title').value.trim() && navigator.onLine !== false)
+      openCoverPicker('cover', null, { after: $('st'), current: draft.cover, photo });
   };
   const li = lookupIsbn;
   lookupIsbn = async function () {
     const r = await li.apply(this, arguments);
-    hint();
+    after();
     return r;
   };
   const pk = pick;
   pick = async function () {
-    const fromPhoto = !!coverShot,
+    const photo = coverShot,
       r = await pk.apply(this, arguments);
-    if (fromPhoto) hint();
+    if (photo) after(photo);
     return r;
   };
 }

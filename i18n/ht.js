@@ -15,3 +15,5 @@ Object.assign(TR.ht, {"Add “{t}” to Want to read?": "Ajoute “{t}” nan Vl
 Object.assign(TR.ht, {"One page less": "Yon paj mwens", "One page more": "Yon paj anplis", "Page saved.": "Paj anrejistre.", "📖 Reading a book? Tap it on the shelf to change your page right on its card.": "📖 W ap li yon liv? Touche l sou etajè a pou chanje paj ou dirèkteman sou fich li."});
 
 Object.assign(TR.ht, {"No description yet.": "Poko gen deskripsyon."});
+
+Object.assign(TR.ht, {"Chosen": "Chwazi", "Your photo": "Foto ou", "Is this the right cover? Tap another one to switch.": "Èske se bon kouvèti a? Touche yon lòt pou chanje.", "📷 After scanning a book, its possible covers appear right away: tap the one that matches yours.": "📷 Apre w eskane yon liv, kouvèti posib li yo parèt touswit: touche sa ki sanble ak pa w la."});

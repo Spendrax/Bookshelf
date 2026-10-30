@@ -7906,3 +7906,24 @@ body.calm2 .window .stars {
     opacity: 0;
   }
 }
+/* the cover choices right after a scan */
+.cvpick.scan {
+  margin-top: 4px;
+}
+.cvt {
+  position: relative;
+}
+.cvt.on {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 2px var(--acc);
+}
+.cvt small {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2px 0;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
