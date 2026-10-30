@@ -728,7 +728,8 @@ function recLink(b, by) {
   if (b.author) o.a = String(b.author).slice(0, 80);
   if (b.isbn) o.i = b.isbn;
   if (st(b) === 'read' && b.stars) o.s = b.stars;
-  const n = (b.note || '').trim();
+  /* spoilers stay out of a shared link */
+  const n = (window.spoilStrip ? spoilStrip(b.note) : b.note || '').trim();
   if (n) o.n = n.slice(0, 600);
   if (b.series) {
     o.se = String(b.series).slice(0, 60);
