@@ -297,22 +297,25 @@
       if (c.label) b.append(el('small', '', c.label));
       b.onclick = async () => {
         b.classList.add('busy');
-        for (const u of c.data ? [c.data] : big(c))
-          try {
-            draft[k] = c.data || (await fromUrl(u));
-            if (k === 'cover' && !draft.spine && !draft.colorSet) {
-              const col = await avgColor(draft.cover);
-              if (col) $('color').value = col;
-            }
-            pv();
-            /* after a scan the choices stay, so you can try another; elsewhere they close */
-            if (o.after) {
-              grid.querySelectorAll('.cvt.on').forEach((x) => x.classList.remove('on'));
-              b.classList.remove('busy');
-              b.classList.add('on');
-            } else box.remove();
-            return;
-          } catch (e) {}
+        const d = c.data || (await bestCover(big(c)));
+        if (d) {
+          draft[k] = d;
+          if (k === 'cover' && !draft.spine && !draft.colorSet) {
+            const col = await avgColor(draft.cover);
+            if (col) $('color').value = col;
+          }
+          pv();
+          /* only a small picture exists online for this one: say so, a photo will be sharper */
+          if (!c.data && bestCover.w && bestCover.w < 260)
+            toast(L('Only a small picture of this cover exists online. Tap 📷 Photo for a sharper one.'));
+          /* after a scan the choices stay, so you can try another; elsewhere they close */
+          if (o.after) {
+            grid.querySelectorAll('.cvt.on').forEach((x) => x.classList.remove('on'));
+            b.classList.remove('busy');
+            b.classList.add('on');
+          } else box.remove();
+          return;
+        }
         b.classList.remove('busy');
         b.classList.add('bad');
         toast(L('This cover can’t be downloaded. Try another one.'));

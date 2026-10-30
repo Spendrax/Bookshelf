@@ -202,7 +202,32 @@ async function fromUrl(u, mx) {
   if (!r.ok) throw 0;
   const b = await r.blob();
   if (b.size < 1500) throw 0;
-  return shrink(b, mx);
+  const out = await shrink(b, mx);
+  /* how wide the picture really was, so a sharper copy can be preferred */
+  try {
+    const bm = await createImageBitmap(b);
+    coverW.set(out, bm.width);
+  } catch (e) {}
+  return out;
+}
+const coverW = new Map();
+/* the sharpest of several copies of a cover: tries them in order, stops at one that's sharp enough */
+async function bestCover(urls, ms = 8000) {
+  let best = null,
+    bw = 0;
+  for (const u of urls) {
+    try {
+      const d = await Promise.race([fromUrl(u), new Promise((_, r) => setTimeout(() => r(0), ms))]),
+        w = coverW.get(d) || 0;
+      if (w > bw || !best) {
+        best = d;
+        bw = w;
+      }
+      if (bw >= 380) break;
+    } catch (e) {}
+  }
+  if (best) bestCover.w = bw;
+  return best;
 }
 /* a Google Books cover link, asked for bigger first (its default is a small thumbnail) */
 const gbBig = (t) => {
@@ -854,12 +879,7 @@ async function pick(d) {
     if (d.ecover) urls.push(`https://covers.openlibrary.org/b/id/${d.ecover}-L.jpg?default=false`);
     if (d.ethumb) urls.push(...gbBig(d.ethumb));
     if (d.isbn) urls.push(`https://covers.openlibrary.org/b/isbn/${d.isbn}-L.jpg?default=false`);
-    for (const u of urls) {
-      try {
-        return await to(fromUrl(u), 8000);
-      } catch (e) {}
-    }
-    return null;
+    return bestCover(urls);
   })();
   const pG = d.gb
     ? Promise.resolve(d.gb)
@@ -889,12 +909,7 @@ async function pick(d) {
     if (!$('author').value && gb.authors) $('author').value = gb.authors[0] || '';
     /* Google's picture belongs to this edition only when Google was asked by ISBN (or gave this exact result) */
     if (!cover && gb.imageLinks && gb.imageLinks.thumbnail && (d.gb || d.isbn))
-      for (const u of gbBig(gb.imageLinks.thumbnail)) {
-        try {
-          cover = await to(fromUrl(u), 8000);
-          break;
-        } catch (e) {}
-      }
+      cover = await bestCover(gbBig(gb.imageLinks.thumbnail));
   }
   if (!cover && d.cover_i && !(coverShot && d.weak)) {
     try {
@@ -922,7 +937,11 @@ async function pick(d) {
   draft.genres = guessGenres(subj, cats);
   drawTagRow();
   $('st').textContent =
-    (cover ? L('Cover found.') : L('No cover found \u2013 upload one below.')) +
+    (cover
+      ? (coverW.get(cover) || 999) < 260
+        ? L('Only a small, blurry cover exists online: pick another below or take a photo.')
+        : L('Cover found.')
+      : L('No cover found \u2013 upload one below.')) +
     ' ' +
     (desc ? L('Blurb added.') : L('No blurb found.'));
   pv();
