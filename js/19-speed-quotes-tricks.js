@@ -258,3 +258,77 @@
   );
   addEventListener('scroll', hideMenu, { passive: true, capture: true });
 }
+
+/* ---------- hearts: every ♥ your animal gives you is counted (kept with the goals, so it's in backups) ---------- */
+{
+  const STEPS = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
+  let tip = null,
+    tipT = 0,
+    saveT = 0;
+  const name = () => (look.petName || '').trim();
+  const show = (n) => {
+    if (!tip) {
+      tip = el('b', 'hcount');
+      tip.setAttribute('aria-hidden', 'true');
+      catw.append(tip);
+    }
+    tip.textContent = '♥ ' + nf(n);
+    tip.classList.add('on');
+    clearTimeout(tipT);
+    tipT = setTimeout(() => tip.classList.remove('on'), 1600);
+  };
+  new MutationObserver((ms) => {
+    let add = 0;
+    ms.forEach((m) =>
+      m.addedNodes.forEach((x) => {
+        if (x.classList && x.classList.contains('heart') && x.textContent.trim() === '♥') add++;
+      }),
+    );
+    if (!add) return;
+    const was = +goals.hearts || 0,
+      now = was + add;
+    goals.hearts = now;
+    show(now);
+    clearTimeout(saveT);
+    saveT = setTimeout(saveGoals, 1500);
+    const hit = STEPS.find((s) => was < s && now >= s);
+    if (hit)
+      setTimeout(
+        () =>
+          toast(
+            name()
+              ? L('💖 {name} has given you {n} hearts!', { name: name(), n: nf(hit) })
+              : L('💖 Your animal has given you {n} hearts!', { n: nf(hit) }),
+          ),
+        700,
+      );
+  }).observe(catw, { childList: true });
+
+  /* on the goals wall, under the streak */
+  const rg = renderGoals;
+  renderGoals = function () {
+    const r = rg.apply(this, arguments);
+    if (sid('pet') === 'none') return r;
+    const n = +goals.hearts || 0,
+      c = card(L('Hearts'), true),
+      row = el('div', 'streak');
+    row.append(el('div', 'fl', '♥ ' + nf(n)));
+    const sub = el('div', 'sub');
+    sub.append(
+      el(
+        'span',
+        '',
+        name() ? L('given to you by {name}', { name: name() }) : L('given to you by your animal'),
+      ),
+      el('span', '', L('Pet it, tap it and read together to get more.')),
+    );
+    const next = STEPS.find((s) => s > n);
+    if (next) sub.append(el('span', '', L('Next milestone: {n}', { n: nf(next) })));
+    row.append(sub);
+    c.append(row);
+    const sc = [...$('glbody').querySelectorAll('.card h2')].find((h) => h.textContent === L('Reading streak'));
+    if (sc) sc.parentElement.after(c);
+    else $('glbody').append(c);
+    return r;
+  };
+}

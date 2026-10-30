@@ -7930,3 +7930,26 @@ body.calm2 .window .stars {
 .cvt.bad {
   opacity: 0.35;
 }
+/* the running count of hearts, shown for a moment above the animal */
+.hcount {
+  position: absolute;
+  left: 50%;
+  top: -26px;
+  translate: -50% 0;
+  scale: none;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 250, 240, 0.92);
+  color: #d6455d;
+  font:
+    700 12px system-ui,
+    sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 3;
+}
+.hcount.on {
+  opacity: 1;
+}

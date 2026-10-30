@@ -118,8 +118,9 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-10-30d',
+  id: '2026-10-30e',
   items: [
+    '♥ Your animal now counts the hearts it gives you. See the total on the goals wall.',
     '📷 After scanning a book, its possible covers appear right away: tap the one that matches yours.',
     '📖 Reading a book? Tap it on the shelf to change your page right on its card.',
     '📚 On each book: tap the author to see their other books, see the community rating, “Readers also enjoyed” suggestions, your progress over time, and hide spoilers in your thoughts with 🙈.',
