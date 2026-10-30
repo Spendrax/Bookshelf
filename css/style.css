@@ -7953,3 +7953,17 @@ body.calm2 .window .stars {
 .hcount.on {
   opacity: 1;
 }
+/* scanning a front cover: a tall frame the shape of a book */
+#scan.cover .cam .guide {
+  left: 12%;
+  right: 12%;
+  top: 8%;
+  height: 84%;
+}
+#scan.cover .cam .guide:after {
+  animation-duration: 3s;
+}
+#scan.cover .multi,
+#scan.cover #multishelf {
+  display: none;
+}
