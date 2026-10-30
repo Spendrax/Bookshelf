@@ -7787,3 +7787,122 @@ body.calm2 .window .stars {
 .bxpage .qbtn[hidden] {
   display: none;
 }
+/* preview of a book you don't have yet (author's books, readers also enjoyed) */
+.bxprev {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(20, 14, 8, 0);
+  transition: background 0.25s;
+}
+.bxprev.on {
+  background: rgba(20, 14, 8, 0.55);
+}
+.bxpc {
+  width: min(460px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 20px 20px 0 0;
+  padding: 0 20px 20px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.35);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-align: center;
+}
+.bxprev.on .bxpc {
+  transform: none;
+}
+.bxpcv {
+  display: flex;
+  justify-content: center;
+  margin: -1px 0 12px;
+  padding-top: 22px;
+}
+.bxpcv img,
+.bxpcv span {
+  max-width: 150px;
+  max-height: 225px;
+  border-radius: 3px 6px 6px 3px;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.35),
+    inset 4px 0 6px rgba(0, 0, 0, 0.2);
+}
+.bxpcv span {
+  display: flex;
+  align-items: center;
+  width: 130px;
+  height: 195px;
+  padding: 10px;
+  background: var(--acc);
+  color: #fff;
+  font:
+    700 16px Georgia,
+    serif;
+}
+.bxpi h3 {
+  font:
+    700 21px/1.2 Georgia,
+    serif;
+  margin: 0;
+}
+.bxpa {
+  font: italic 16px Georgia, serif;
+  margin: 4px 0 2px;
+}
+.bxpm {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 0 10px;
+  min-height: 1em;
+}
+.bxpd {
+  text-align: left;
+  font-size: 14.5px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bxpd.open {
+  display: block;
+}
+.bxpd:empty {
+  display: none;
+}
+.bxpb {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.bxpb .qbtn {
+  flex: 1;
+  max-width: 200px;
+  padding: 12px;
+  font-size: 15px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bxprev,
+  .bxpc {
+    transition: none;
+  }
+}
+/* the cover arrives with a little tilt, like a book handed to you */
+@media (prefers-reduced-motion: no-preference) {
+  .bxprev.on .bxpcv > * {
+    animation: bxhand 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  }
+}
+@keyframes bxhand {
+  from {
+    transform: translateY(40px) rotate(-8deg) scale(0.85);
+    opacity: 0;
+  }
+}

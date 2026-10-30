@@ -75,7 +75,6 @@
 
   /* ---- a row of book covers; tapping one opens it if it's on your shelf, or offers to add it to Want to read ---- */
   function addWant(d) {
-    if (!confirm(L('Add “{t}” to Want to read?', { t: d.title }))) return;
     closeModal();
     const go = () => {
       if (busy || $('ov').classList.contains('on')) return setTimeout(go, 120);
@@ -83,6 +82,92 @@
       setTimeout(() => pick(d), 60);
     };
     setTimeout(go, 200);
+  }
+  /* a book you don't have: a preview card with its cover, rating and story, instead of a plain yes/no box */
+  function preview(d) {
+    document.querySelectorAll('.bxprev').forEach((x) => x.remove());
+    const ov = el('div', 'bxprev'),
+      card = el('div', 'bxpc');
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.setAttribute('aria-label', d.title);
+    const shut = () => {
+      ov.classList.remove('on');
+      setTimeout(() => ov.remove(), 250);
+    };
+    ov.onclick = (e) => e.target === ov && shut();
+    const cv = el('div', 'bxpcv');
+    if (d.cover_i) {
+      const im = el('img');
+      im.alt = '';
+      im.src = `https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg`;
+      cv.append(im);
+    } else cv.append(el('span', '', d.title));
+    const info = el('div', 'bxpi');
+    info.append(el('h3', '', d.title));
+    const au = (d.author_name || [])[0];
+    if (au) info.append(el('p', 'bxpa', au));
+    const meta = el('p', 'bxpm', d.first_publish_year ? String(d.first_publish_year) : '');
+    info.append(meta);
+    const desc = el('p', 'bxpd', L('Looking…'));
+    desc.onclick = () => desc.classList.toggle('open');
+    const acts = el('div', 'bxpb'),
+      add = el('button', 'qbtn pri2', '＋ ' + L('Want to read')),
+      no = el('button', 'qbtn', L('Close'));
+    add.type = no.type = 'button';
+    add.onclick = () => {
+      ov.remove();
+      addWant({ ...d, desc: d.desc || '' });
+    };
+    no.onclick = shut;
+    acts.append(add, no);
+    card.append(cv, info, desc, acts);
+    ov.append(card);
+    document.body.append(ov);
+    requestAnimationFrame(() => ov.classList.add('on'));
+    setTimeout(() => add.focus(), 60);
+    ov.addEventListener('keydown', (e) => e.key === 'Escape' && (e.stopPropagation(), shut()));
+    /* its story and rating, looked up once and kept */
+    if (d.key && navigator.onLine !== false)
+      cached('p:' + d.key, 30, () =>
+        Promise.all([
+          tfetch('https://openlibrary.org' + d.key + '.json', 7000).catch(() => ({})),
+          tfetch(
+            'https://openlibrary.org/search.json?limit=1&fields=ratings_average,ratings_count,number_of_pages_median&q=key:' +
+              encodeURIComponent(d.key),
+            7000,
+          ).catch(() => ({})),
+        ]).then(([w, s]) => {
+          const x = (s.docs || [])[0] || {},
+            t =
+              typeof w.description === 'string'
+                ? w.description
+                : (w.description && w.description.value) || '';
+          return {
+            desc: t
+              .replace(/\r?\n?\s*-{3,}[\s\S]*$/, '')
+              .replace(/\(\[source\][^)]*\)/g, '')
+              .trim()
+              .slice(0, 1200),
+            avg: x.ratings_average,
+            n: x.ratings_count,
+            pages: x.number_of_pages_median,
+          };
+        }),
+      ).then((v) => {
+        if (!ov.isConnected) return;
+        v = v || {};
+        const bits = [
+          v.avg ? '👥 ★ ' + nf(v.avg, 1) + (v.n ? ' (' + nf(v.n) + ')' : '') : '',
+          d.first_publish_year || '',
+          v.pages ? L('{n} pages', { n: v.pages }) : '',
+        ].filter(Boolean);
+        meta.textContent = bits.join(' · ');
+        desc.textContent = v.desc || '';
+        if (v.desc) d.desc = v.desc;
+        if (v.pages) d.pages = v.pages;
+      });
+    else desc.textContent = '';
   }
   function row(list) {
     const r = el('div', 'bxrow');
@@ -106,7 +191,7 @@
           closeModal();
           const go = () => (busy || $('ov').classList.contains('on') ? setTimeout(go, 120) : openModal(mine));
           setTimeout(go, 200);
-        } else addWant(d);
+        } else preview(d);
       };
       r.append(t);
     });
