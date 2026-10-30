@@ -118,8 +118,9 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-10-29b',
+  id: '2026-10-30',
   items: [
+    '🖼️ Not the right cover? Tap “Other covers” under the book to choose another edition’s cover, or “Find online” to look for a back cover.',
     '📷 Scanning a barcode or a cover photo now finds the cover of your exact edition.',
     '✨ New: your reading speed on the stats wall, a saved quote pinned by the window, seasonal outfits for your animal, tricks when you tap it, and it reacts to what you read.',
   ],

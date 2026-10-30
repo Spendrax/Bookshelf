@@ -28,7 +28,7 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/17-calm.js` | Rests the decoration after 45 s without a touch, to save battery |
 | `js/18-animal-moves.js` | How the animal moves: head while eating, settling to sleep, dreams, waking stretch and yawn, idle habits, crouch before jumps |
 | `js/19-speed-quotes-tricks.js` | Reading speed on the stats wall, a saved quote by the window, seasonal outfits, reactions to what you read, the trick menu |
-| `js/20-edition-covers.js` | After a cover photo: orders the results by how much they look like the photo, and picks the edition whose cover matches |
+| `js/20-edition-covers.js` | After a cover photo: orders the results by likeness and picks the matching edition; the "Other covers" / "Find online" picker for the cover and back |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 

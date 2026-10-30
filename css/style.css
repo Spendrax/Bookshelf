@@ -7584,3 +7584,41 @@ body.calm2 .window .stars {
   outline: 2px solid var(--acc);
   outline-offset: -2px;
 }
+/* choosing another cover from the ones found online */
+.cvpick {
+  margin: 8px 0 12px;
+}
+.cvmsg {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.cvgrid {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+}
+.cvt {
+  flex: none;
+  width: 64px;
+  height: 96px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  overflow: hidden;
+}
+.cvt.mine {
+  border-color: var(--acc);
+}
+.cvt.busy {
+  opacity: 0.5;
+}
+.cvt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

@@ -93,14 +93,18 @@
         ? tfetch('https://openlibrary.org' + key + '/editions.json?limit=60', 7000)
             .then((j) =>
               (j.entries || []).reduce((out, e) => {
-                const c = (e.covers || []).find((x) => x > 0);
-                if (c)
+                const cs = (e.covers || []).filter((x) => x > 0),
+                  isbn = toIsbn13((e.isbn_13 || [])[0] || (e.isbn_10 || [])[0] || '') || undefined;
+                cs.forEach((c, i) =>
                   out.push({
                     ecover: c,
                     src: `https://covers.openlibrary.org/b/id/${c}-S.jpg`,
-                    isbn: toIsbn13((e.isbn_13 || [])[0] || (e.isbn_10 || [])[0] || '') || undefined,
+                    isbn,
                     pages: e.number_of_pages,
-                  });
+                    /* an edition's second and later pictures are often its back cover */
+                    extra: i > 0,
+                  }),
+                );
                 return out;
               }, []),
             )
@@ -116,8 +120,13 @@
       ol.unshift({ ecover: d.cover_i, src: `https://covers.openlibrary.org/b/id/${d.cover_i}-S.jpg` });
     if (d.thumb) g.unshift({ ethumb: d.thumb, src: d.thumb, isbn: d.isbn, pages: d.pages });
     const seen = new Set();
-    return [...ol.slice(0, 30), ...g.slice(0, 10)].filter((c) => !seen.has(c.src) && seen.add(c.src));
+    return [
+      ...ol.filter((c) => !c.extra).slice(0, 30),
+      ...ol.filter((c) => c.extra).slice(0, 12),
+      ...g.slice(0, 10),
+    ].filter((c) => !seen.has(c.src) && seen.add(c.src));
   }
+  window.coverCandidates = candidates;
 
   /* no edition looks like the photo: forget the found book's own pictures, so your photo is used as the cover */
   const weak = (d) => ({ ...d, weak: true, isbn: undefined, gb: undefined, thumb: undefined });
@@ -128,7 +137,7 @@
     $('st').textContent = L('Finding the edition that matches your photo…');
     try {
       const ps = photoSigs(await bitmap(coverShot, 3000)),
-        list = await candidates(d),
+        list = (await candidates(d)).filter((c) => !c.extra),
         scored = (
           await Promise.all(
             list.map((c) =>
@@ -204,5 +213,130 @@
     } catch (e) {}
     $('st').textContent = st;
     return n;
+  };
+}
+
+/* ---- choose another cover (or a back cover) from the pictures that exist online for this book ---- */
+{
+  const big = (c) =>
+    c.ecover ? [`https://covers.openlibrary.org/b/id/${c.ecover}-L.jpg?default=false`] : gbBig(c.ethumb);
+  let pickTok = 0;
+  async function openPicker(k, slot) {
+    const old = document.querySelector('.cvpick');
+    if (old) {
+      old.remove();
+      if (old.dataset.k === k) return;
+    }
+    const title = $('title').value.trim();
+    if (!title) {
+      toast(L('Type a title or an ISBN first.'));
+      return;
+    }
+    const tok = ++pickTok,
+      box = el('div', 'cvpick');
+    box.dataset.k = k;
+    const msg = el('p', 'cvmsg', L('Looking for covers…')),
+      grid = el('div', 'cvgrid');
+    box.append(msg, grid);
+    slot.parentElement.after(box);
+    const isbn = toIsbn13($('isbn').value || '');
+    const [own, list] = await Promise.all([
+      /* this exact edition's pictures first */
+      isbn
+        ? tfetch(`https://openlibrary.org/isbn/${isbn}.json`, 6000)
+            .then((e) =>
+              (e.covers || []).reduce((out, c, i) => {
+                if (c > 0)
+                  out.push({
+                    ecover: c,
+                    src: `https://covers.openlibrary.org/b/id/${c}-S.jpg`,
+                    extra: i > 0,
+                    mine: 1,
+                  });
+                return out;
+              }, []),
+            )
+            .catch(() => [])
+        : [],
+      coverCandidates({
+        title,
+        author_name: $('author').value.trim() ? [$('author').value.trim()] : undefined,
+      }).catch(() => []),
+    ]);
+    if (tok !== pickTok || !box.isConnected) return;
+    const seen = new Set();
+    let all = [...own, ...list].filter((c) => !seen.has(c.src) && seen.add(c.src));
+    /* for the back, the extra pictures go first: that's where back covers usually are */
+    if (k === 'back') all = [...all.filter((c) => c.extra), ...all.filter((c) => !c.extra)];
+    if (!all.length) {
+      msg.textContent = L('No other covers found online. You can take a photo instead.');
+      return;
+    }
+    msg.textContent =
+      k === 'back'
+        ? L('Back covers are rare online: the likely ones are first. Tap a picture to use it.')
+        : L('Tap the cover you want.');
+    all.slice(0, 40).forEach((c) => {
+      const b = el('button', 'cvt' + (c.mine ? ' mine' : ''));
+      b.type = 'button';
+      const im = el('img');
+      im.loading = 'lazy';
+      im.alt = '';
+      im.src = c.src;
+      im.onerror = () => b.remove();
+      im.onload = () => im.naturalWidth < 20 && b.remove();
+      b.append(im);
+      b.onclick = async () => {
+        b.classList.add('busy');
+        for (const u of big(c))
+          try {
+            draft[k] = await fromUrl(u);
+            if (k === 'cover' && !draft.spine && !draft.colorSet) {
+              const col = await avgColor(draft.cover);
+              if (col) $('color').value = col;
+            }
+            pv();
+            box.remove();
+            return;
+          } catch (e) {}
+        b.classList.remove('busy');
+        toast(L('Could not read that image'));
+      };
+      grid.append(b);
+    });
+  }
+  const bs = buildSlots;
+  buildSlots = function () {
+    const r = bs.apply(this, arguments);
+    document.querySelectorAll('#slots .slot').forEach((s) => {
+      const k = s.dataset.k;
+      if (k !== 'cover' && k !== 'back') return;
+      const b = el('button', 'more', '🔎 ' + L(k === 'cover' ? 'Other covers' : 'Find online'));
+      b.type = 'button';
+      b.onclick = () => openPicker(k, s);
+      s.querySelector('.rm').before(b);
+    });
+    document.querySelectorAll('.cvpick').forEach((x) => x.remove());
+    return r;
+  };
+}
+
+/* after a barcode or cover scan, a reminder that the back can be added too (the book is in your hands) */
+{
+  const hint = () => {
+    if (!draft.back && draft.cover) $('st').textContent += ' ' + L('Add the back cover with 📷 under “Back”.');
+  };
+  const li = lookupIsbn;
+  lookupIsbn = async function () {
+    const r = await li.apply(this, arguments);
+    hint();
+    return r;
+  };
+  const pk = pick;
+  pick = async function () {
+    const fromPhoto = !!coverShot,
+      r = await pk.apply(this, arguments);
+    if (fromPhoto) hint();
+    return r;
   };
 }
