@@ -325,3 +325,58 @@ const TESTING = true;
   };
   setTimeout(tester, 3000);
 }
+
+/* ---------- testers: after a few days of use, a friendly ask to send private feedback on Google Play.
+   Google wants to see testers give feedback and the app improve because of it. Only in the Play app, while TESTING. ---------- */
+const PLAYURL = 'https://play.google.com/store/apps/details?id=com.spendrax.bookshelf';
+function playFeedback() {
+  window.open(PLAYURL, '_blank', 'noopener');
+}
+{
+  const K = 'bookshelf-fb-asked',
+    F = 'bookshelf-first-day';
+  try {
+    if (!localStorage.getItem(F)) localStorage.setItem(F, today());
+  } catch (e) {}
+  let tries = 0;
+  const askFb = () => {
+    try {
+      if (!TESTING || !sessionStorage.getItem('bookshelf-inapp')) return;
+      const a = localStorage.getItem(K);
+      /* asked already, or "later" not over yet */
+      if (a === 'done' || (a && Date.now() < +a)) return;
+      const first = localStorage.getItem(F) || today(),
+        days = Math.round((new Date(today()) - new Date(first)) / 864e5);
+      if (days < 3 || !localStorage.getItem('bookshelf-tester-asked')) return;
+      if (document.querySelector('.ov.on') || $('askov').classList.contains('on')) {
+        if (++tries < 40) setTimeout(askFb, 5000);
+        return;
+      }
+    } catch (e) {
+      return;
+    }
+    ask(
+      L(
+        '💬 You’ve been testing My Bookshelf for a few days. Could you tell me what you think? On the app’s Google Play page, scroll down to “Private feedback” and write a sentence or two: what you like, what’s confusing, what you’d change. Only I can read it, and it’s what Google looks at before letting the app into the Play Store.',
+      ),
+      L('Open Google Play'),
+      L('Later'),
+    ).then((y) => {
+      try {
+        localStorage.setItem(K, y ? 'done' : String(Date.now() + 3 * 864e5));
+      } catch (e) {}
+      if (y) playFeedback();
+    });
+  };
+  setTimeout(askFb, 8000);
+}
+/* also in the Feedback window, for anyone who wants to do it later */
+{
+  const send = $('fbsend'),
+    b = el('button', 'fbtn', '💬 ' + L('Private feedback on Google Play'));
+  b.type = 'button';
+  b.hidden = !TESTING || !sessionStorage.getItem('bookshelf-inapp');
+  b.onclick = playFeedback;
+  send.after(b);
+  b.before(document.createTextNode(' '));
+}
