@@ -794,7 +794,7 @@ const TOUR = [
   [
     '\u{1F43E}',
     'Meet your animal',
-    'Hold your finger on it to pet it, tap it for tricks, and fill its bowls when they’re empty. It grows as you read.',
+    'Hold your finger on it to pet it and see its tricks, and fill its bowls when they’re empty. It grows as you read.',
   ],
   [
     '⏱️',

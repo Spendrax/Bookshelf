@@ -238,16 +238,40 @@
         return b;
       }),
     );
-  cat.addEventListener('click', () => {
-    if (petDragged || petBusy || catw.classList.contains('travel') || catw.classList.contains('eating'))
+  /* a long press on the animal (it purrs meanwhile) opens its tricks; a short tap stays a tap */
+  let holdT = 0;
+  const openMenu = () => {
+    if (
+      petBusy ||
+      (petDrag && petDrag.on) ||
+      catw.classList.contains('travel') ||
+      catw.classList.contains('eating')
+    )
       return;
     drawMenu();
     const r = catw.getBoundingClientRect();
     menu.style.left = Math.max(8, Math.min(innerWidth - 168, r.left + r.width / 2 - 80)) + 'px';
     menu.style.top = Math.max(8, r.top - 46) + 'px';
     menu.classList.add('on');
+    if (navigator.vibrate) navigator.vibrate(12);
     clearTimeout(menuT);
-    menuT = setTimeout(hideMenu, 4000);
+  };
+  catw.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    clearTimeout(holdT);
+    holdT = setTimeout(openMenu, 650);
+  });
+  ['pointerup', 'pointercancel'].forEach((ev) =>
+    document.addEventListener(ev, () => {
+      clearTimeout(holdT);
+      if (menu.classList.contains('on')) {
+        clearTimeout(menuT);
+        menuT = setTimeout(hideMenu, 5000);
+      }
+    }),
+  );
+  document.addEventListener('pointermove', () => petDrag && petDrag.on && clearTimeout(holdT), {
+    passive: true,
   });
   document.addEventListener(
     'pointerdown',
@@ -326,7 +350,9 @@
     if (next) sub.append(el('span', '', L('Next milestone: {n}', { n: nf(next) })));
     row.append(sub);
     c.append(row);
-    const sc = [...$('glbody').querySelectorAll('.card h2')].find((h) => h.textContent === L('Reading streak'));
+    const sc = [...$('glbody').querySelectorAll('.card h2')].find(
+      (h) => h.textContent === L('Reading streak'),
+    );
     if (sc) sc.parentElement.after(c);
     else $('glbody').append(c);
     return r;
