@@ -7934,7 +7934,7 @@ body.calm2 .window .stars {
 .hcount {
   position: absolute;
   left: 50%;
-  top: -26px;
+  bottom: calc(100% + 16px);
   translate: -50% 0;
   scale: none;
   padding: 2px 8px;
@@ -7966,4 +7966,8 @@ body.calm2 .window .stars {
 #scan.cover .multi,
 #scan.cover #multishelf {
   display: none;
+}
+/* when the name shows too, the heart count sits just above it instead of on top of it */
+.catw:has(.pname) .hcount {
+  bottom: calc(100% + 46px);
 }
