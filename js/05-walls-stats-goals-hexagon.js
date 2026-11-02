@@ -89,7 +89,19 @@ function renderStats() {
   const tiles = el('div', 'sttiles');
   [
     [nf(set.length), L('Books read')],
-    [nf(pages), L('Pages read')],
+    /* pages of books still in progress count too (a book you're halfway through is pages read) */
+    [
+      nf(
+        pages +
+          (stYear === 'all' || stYear === cy
+            ? books.reduce((a, b) => {
+                const k = st(b);
+                return a + ((k === 'reading' || k === 'dnf') && b.page > 0 ? +b.page : 0);
+              }, 0)
+            : 0),
+      ),
+      L('Pages read'),
+    ],
     [
       rated.length ? '★ ' + nf(rated.reduce((a, b) => a + b.stars, 0) / rated.length, 2) : '–',
       L('Average rating'),
