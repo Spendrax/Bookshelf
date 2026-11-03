@@ -7972,15 +7972,51 @@ body.calm2 .window .stars {
   bottom: calc(100% + 46px);
 }
 /* their weather sits where your thermometer is, beside the window (not on it) */
+/* small and well clear of the window, mirroring the clock on the other side */
 .proomc .ptherm {
   left: auto;
-  right: -86px;
-  top: 34px;
+  right: -76px;
+  top: 30px;
+  width: 58px;
+  padding: 5px 4px;
   z-index: 2;
 }
-@media (max-width: 420px) {
-  .proomc .ptherm {
-    right: -74px;
-    padding: 5px 7px;
-  }
+.proomc .ptherm b {
+  font-size: 15px;
+  white-space: nowrap;
+}
+.proomc .ptherm small {
+  font-size: 10px;
+  max-width: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* their floor goes to the bottom of the screen, like yours, with the way back on it */
+#proomv {
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+#proomv .pinner {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 0;
+}
+.proomc {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+.proomc .floor {
+  flex: 1 0 auto;
+  min-height: 190px;
+  margin-top: 24px;
+}
+.proomc .pback {
+  position: absolute;
+  left: 14px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 2;
 }

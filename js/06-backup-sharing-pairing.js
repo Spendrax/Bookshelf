@@ -649,10 +649,11 @@ function renderPartner() {
   const back = el('button', 'fbtn', '↩ ' + L('Back to my room'));
   back.type = 'button';
   back.onclick = () => turnTo(0);
-  box.append(back);
+  back.classList.add('pback');
+  /* the floor is the bottom of their room, like yours: the way back sits on it */
+  (box.querySelector('.pfloor') || box).append(back);
   PRV.replaceChildren(box);
   PRV._books = bks;
-  pPetStart(d.look);
   try {
     partnerCopy(renderGoals, GV, PGV);
   } catch (e) {}
@@ -666,6 +667,7 @@ function renderPartner() {
       w.style.transform = 'translateX(100.5vw)';
     });
   pFill(bks);
+  pPetStart(d.look);
 }
 /* their books on the copied shelves, laid out by the same code as yours (it needs the wall to be measurable) */
 function pFill(bks) {
@@ -788,6 +790,21 @@ function pSpots() {
     if (x1 - x0 > 12) out.push({ k: 'shelf', y, x0, x1 });
   });
   return out;
+}
+/* the room can move under the animal (books drawn, screen turned, fonts loaded): put it back on the nearest place it
+   can stand, so it never floats in the air */
+function pSnap(p) {
+  if (!p || p.an) return;
+  const sps = pSpots();
+  if (!sps.length) return;
+  const fit = sps
+    .filter((s) => p.x >= s.x0 - 30 && p.x <= s.x1 + 30)
+    .sort((a, b) => Math.abs(a.y - p.y) - Math.abs(b.y - p.y))[0];
+  const s = fit || sps.find((x) => x.k === 'floor') || sps[0];
+  if (Math.abs(s.y - p.y) > 2 || p.x < s.x0 || p.x > s.x1) {
+    p.spot = s;
+    pSet(Math.min(s.x1, Math.max(s.x0, p.x)), s.y);
+  }
 }
 const pAtRest = () => view === 'proom' && !turning() && document.visibilityState === 'visible' && !PRV.hidden;
 function pSet(x, y) {
@@ -915,6 +932,7 @@ function pPetTick() {
   const h = new Date().getHours(),
     night = h >= 22 || h < 7,
     r = Math.random();
+  pSnap(p);
   if (p.asleep) {
     if (Math.random() < (night ? 0.8 : 0.55)) {
       again(7000 + Math.random() * 8000);
