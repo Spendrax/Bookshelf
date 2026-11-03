@@ -892,7 +892,7 @@ function pGo(sp, x, mode, done) {
   p.spot = sp;
   const dx = a.x - x,
     dy = a.y - sp.y,
-    [kf0, dur] = petPath(mode, dx * dir, dy, 1);
+    [kf0, dur] = petPath(mode, dx, dy, 1);
   const kf = kf0.map((k) => {
     const m = /translate\(([-\d.]+)px,([-\d.]+)px\)(?: scale\(([-\d.]+)\))?/.exec(k.transform) || [
       0, 0, 0, 1,

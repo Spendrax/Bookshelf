@@ -8028,3 +8028,10 @@ body.calm2 .window .stars {
 #pstatsv .ptitle {
   margin-top: 40px;
 }
+/* their floor is as tall as yours, so the crate is never cut off at the bottom */
+.proomc .floor.pfloor {
+  height: auto;
+  min-height: 230px;
+  margin-bottom: 0;
+  padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+}
