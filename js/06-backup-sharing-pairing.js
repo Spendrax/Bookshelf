@@ -506,7 +506,14 @@ function partnerPet(lk) {
 }
 /* their Goals and Stats walls: drawn by the same code as yours, from their data, then copied over as a picture you can scroll */
 function partnerCopy(fn, src, dest) {
-  const keep = { books, goals, sessions, quotes, stYear: typeof stYear !== 'undefined' ? stYear : null };
+  const keep = {
+    books,
+    goals,
+    sessions,
+    quotes,
+    look,
+    stYear: typeof stYear !== 'undefined' ? stYear : null,
+  };
   try {
     books = fixBooks(JSON.parse(JSON.stringify(partnerData.books))).map((b, i) =>
       Object.assign(b, { id: 'p' + i }),
@@ -514,6 +521,8 @@ function partnerCopy(fn, src, dest) {
     goals = partnerData.goals && typeof partnerData.goals === 'object' ? partnerData.goals : {};
     sessions = Array.isArray(partnerData.sessions) ? partnerData.sessions : [];
     quotes = [];
+    /* their look too, so their wall names their animal, not yours */
+    look = partnerData.look && typeof partnerData.look === 'object' ? partnerData.look : {};
     fn();
     const c = src.cloneNode(true);
     c.querySelectorAll('#backroom,#backroom2,#yrbtn').forEach((e) => e.remove());
@@ -534,6 +543,7 @@ function partnerCopy(fn, src, dest) {
     dest.replaceChildren(el('p', 'stempty', L('Couldn’t draw this wall.')));
   } finally {
     books = keep.books;
+    look = keep.look;
     goals = keep.goals;
     sessions = keep.sessions;
     quotes = keep.quotes;
@@ -853,6 +863,11 @@ const pAtRest = () => view === 'proom' && !turning() && document.visibilityState
 function pSet(x, y) {
   const w = pPet.w;
   w.style.left = x + 'px';
+  /* never below their floor (a spot measured too early made the wall scroll on and on) */
+  const box = w.parentElement,
+    fl = box && box.querySelector('.pfloor'),
+    maxY = fl ? fl.getBoundingClientRect().bottom - box.getBoundingClientRect().top - 6 : y;
+  y = Math.min(y, maxY);
   w.style.top = y - w.offsetHeight + 'px';
   pPet.x = x;
   pPet.y = y;
@@ -934,7 +949,7 @@ function pEat(p, bowl, called) {
     x = Math.min(fl.x1, Math.max(fl.x0, bb.left - br.left + bb.width / 2 - 14));
   const eat = () => {
     if (pPet !== p) return;
-    p.w.style.setProperty('--dir', 1);
+    /* keeps facing the way it came: turning round on the spot looked like a jump */
     p.w.classList.add('eating');
     p.lastEat = Date.now();
     p.t = setTimeout(
