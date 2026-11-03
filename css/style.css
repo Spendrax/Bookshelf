@@ -7971,3 +7971,16 @@ body.calm2 .window .stars {
 .catw:has(.pname) .hcount {
   bottom: calc(100% + 46px);
 }
+/* their weather sits where your thermometer is, beside the window (not on it) */
+.proomc .ptherm {
+  left: auto;
+  right: -86px;
+  top: 34px;
+  z-index: 2;
+}
+@media (max-width: 420px) {
+  .proomc .ptherm {
+    right: -74px;
+    padding: 5px 7px;
+  }
+}

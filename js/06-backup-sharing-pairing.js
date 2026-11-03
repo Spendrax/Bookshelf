@@ -697,7 +697,7 @@ function pFill(bks) {
   /* their books open their card, not yours; empty-shelf hints speak about them */
   PRV.querySelectorAll('.proomc .bk').forEach((e) => e.classList.add('pbk'));
   PRV.querySelectorAll('.proomc .empty, .proomc .rempty, .proomc .dnfhint').forEach((e) => e.remove());
-  PRV.querySelectorAll('.proomc .row, .proomc .rrow').forEach((r) => r.classList.add('pshelf'));
+  PRV.querySelectorAll('.proomc .row:not(.dnfrow), .proomc .rrow').forEach((r) => r.classList.add('pshelf'));
   PRV.querySelectorAll('.proomc .dz').forEach((r) => r.classList.remove('dz'));
 }
 /* ---------- their animal, alive on their side: walks their floor, jumps or flies up to free space on their shelves, naps, hops when tapped.
@@ -774,14 +774,17 @@ function pSpots() {
       x1: Math.min(r.right - br.left - W + 4, br.width - W - 8),
     });
   }
+  /* each shelf: standing on its board, beside the last book */
   box.querySelectorAll('.pshelf').forEach((sh) => {
-    const r = sh.getBoundingClientRect(),
-      sp = sh.querySelectorAll('.spine'),
+    const bd = sh.nextElementSibling,
+      r = sh.getBoundingClientRect();
+    if (!r.width) return;
+    const top = bd && /board/.test(bd.className) ? bd.getBoundingClientRect().top : r.bottom,
+      sp = sh.querySelectorAll('.bk, .spine'),
       last = sp.length ? sp[sp.length - 1].getBoundingClientRect().right : r.left;
-    const z = r.height / (sh.offsetHeight || r.height),
-      x0 = last - br.left + 6,
+    const x0 = Math.max(last, r.left) - br.left + 6,
       x1 = Math.min(r.right - br.left - W - 8, br.width - W - 8),
-      y = r.bottom - br.top - 12 * z;
+      y = top - br.top + 2;
     if (x1 - x0 > 12) out.push({ k: 'shelf', y, x0, x1 });
   });
   return out;
