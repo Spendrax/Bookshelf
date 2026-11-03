@@ -125,9 +125,6 @@ const NEWS = {
     '📷 After scanning a book, its possible covers appear right away: tap the one that matches yours.',
     '📖 Reading a book? Tap it on the shelf to change your page right on its card.',
     '📚 On each book: tap the author to see their other books, see the community rating, “Readers also enjoyed” suggestions, your progress over time, and hide spoilers in your thoughts with 🙈.',
-    '🖼️ Not the right cover? Tap “Other covers” under the book to choose another edition’s cover, or “Find online” to look for a back cover.',
-    '📷 Scanning a barcode or a cover photo now finds the cover of your exact edition.',
-    '✨ New: your reading speed on the stats wall, a saved quote pinned by the window, seasonal outfits for your animal, tricks when you tap it, and it reacts to what you read.',
   ],
 };
 const NEWSK = 'bookshelf-news';

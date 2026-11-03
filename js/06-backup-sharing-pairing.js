@@ -594,76 +594,58 @@ function renderPartner() {
       L('{r} read · {c} reading · {w} to read', { r: n('read'), c: n('reading'), w: n('want') }),
     ),
   );
-  [
-    ['reading', 'Currently reading'],
-    ['read', 'Read'],
-    ['want', 'Want to read'],
-    ['dnf', "Didn't finish"],
-  ].forEach(([z, lab]) => {
-    const list = bks.filter((b) => st(b) === z);
-    if (!list.length) return;
-    if (z === 'read') list.sort((a, b) => String(b.finished || '').localeCompare(String(a.finished || '')));
-    box.append(el('h3', 'pshh', L(lab) + ' · ' + list.length));
-    const sh = el('div', 'pshelf');
-    list.forEach((b) => {
-      let sp;
-      try {
-        sp = makeSpine(b);
-      } catch (e) {
-        sp = el('button', 'spine', b.title);
-      }
-      sp.classList.add('pbk');
-      sp.dataset.id = b.id;
-      sh.append(sp);
-    });
-    box.append(sh);
-  });
+  /* their room is a copy of yours (same bookcases, window, clock, plant, floor and crate) dressed in their look and
+     filled with their books, so both sides look alike */
   const lk = d.look || {},
     pick = (k, v) => {
       const o = OPTS.find((x) => x.k === k);
       return o && (o.i.find((x) => x[0] === v) || o.i[0]);
     };
-  const area = el('div', 'pwallarea'),
-    win = pick('window', lk.window),
+  ALLV.forEach((v) => PRV.style.removeProperty(v));
+  OPTS.forEach((o) => {
+    if (!o.k) return;
+    const it = pick(o.k, lk[o.k]);
+    if (it) Object.entries(it[2]).forEach(([p, v]) => PRV.style.setProperty(p, v));
+  });
+  const room = el('div', 'proomc'),
+    sc = document.querySelector('#roomv .scene').cloneNode(true),
+    fl = document.querySelector('#roomv > .floor').cloneNode(true);
+  room.append(sc, fl);
+  /* nothing of yours comes along: your animal, the add and arrange buttons, the gift, your season lights */
+  room
+    .querySelectorAll('.catw, .wbtns, .plq button, .gift, .lights, .pname, .bub, .rbook, .hcount, .tricks')
+    .forEach((x) => x.remove());
+  if (lk.season === 'hide') room.querySelectorAll('.seasonal').forEach((x) => x.replaceChildren());
+  room.querySelectorAll('[tabindex], button, [role=button]').forEach((x) => {
+    x.removeAttribute('tabindex');
+    x.removeAttribute('role');
+    if (x.tagName === 'BUTTON') x.tabIndex = -1;
+  });
+  const pl = room.querySelector('.plant'),
     plant = pick('plant', lk.plant);
-  if (win && win[0] !== 'none') {
-    const wn = el('div', 'pwin');
-    wn.style.setProperty('--pwr', (win[2] && win[2]['--wr']) || '60px 60px 6px 6px');
-    area.append(wn, el('div', 'psill'));
-  }
-  if (plant && plant[0] !== 'none' && PLANTS[plant[0]]) {
-    const pl = el('div', 'pplant'),
-      pot = pick('pot', lk.pot);
-    pl.style.setProperty('--pot', (pot && pot[2] && pot[2]['--pot']) || '#c1663a');
-    pl.innerHTML = `<svg viewBox="0 0 80 110" aria-hidden="true">${PLANTS[plant[0]]}</svg>`;
-    area.append(pl);
-  }
+  if (pl) pl.innerHTML = (plant && PLANTS[plant[0]]) || '';
+  /* the shelves are emptied here and filled with their books once the wall can be measured */
+  const ZID = { reading: 'reading', read: 'shelf', want: 'want', dnf: 'dnfbox' };
+  Object.entries(ZID).forEach(([z, id]) => {
+    const c = room.querySelector('#' + id);
+    if (c) {
+      c.replaceChildren();
+      c.id = 'pp-' + id;
+    }
+  });
+  /* their weather, where your thermometer is */
   const th = el('div', 'ptherm');
   th.hidden = true;
-  area.append(th);
+  const tm = room.querySelector('.therm');
+  if (tm) tm.replaceWith(th);
+  else room.prepend(th);
   pWeather(lk.wx, th);
-  box.append(area);
-  const floor = el('div', 'pfloor'),
-    rug = pick('rug', lk.rug),
-    bw = pick('bowls', lk.bowls);
-  if (rug && rug[0] !== 'none') {
-    const rg = el('div', 'prug');
-    if (rug[2] && rug[2]['--rugbg']) rg.style.background = rug[2]['--rugbg'];
-    floor.append(rg);
-  }
-  if (bw && bw[0] !== 'none') {
-    const bx = el('div', 'pbowls');
-    ['foodbowl', 'waterbowl'].forEach((id) => {
-      const sv = $(id) && $(id).querySelector('svg');
-      if (sv) {
-        const b = el('div', 'pbowl');
-        b.append(sv.cloneNode(true));
-        bx.append(b);
-      }
-    });
-    floor.append(bx);
-  }
-  box.append(floor);
+  /* marks their animal uses to find the floor, the sill and the shelves */
+  fl.classList.add('pfloor');
+  const sill = room.querySelector('.sill');
+  if (sill) sill.classList.add('psill');
+  room.querySelectorAll('.bowl').forEach((x) => x.classList.add('pbowl'));
+  box.append(room);
   const back = el('button', 'fbtn', '↩ ' + L('Back to my room'));
   back.type = 'button';
   back.onclick = () => turnTo(0);
@@ -683,6 +665,40 @@ function renderPartner() {
       w.inert = true;
       w.style.transform = 'translateX(100.5vw)';
     });
+  pFill(bks);
+}
+/* their books on the copied shelves, laid out by the same code as yours (it needs the wall to be measurable) */
+function pFill(bks) {
+  if (PRV.hidden) return;
+  const keep = { books, ZS },
+    ids = {},
+    crl = $('crlab').textContent;
+  Object.keys(ZONES).forEach((z) => {
+    ids[z] = ZONES[z][0];
+    ZONES[z] = ['pp-' + ZONES[z][0], ZONES[z][1]];
+  });
+  books = bks;
+  ZS = {};
+  try {
+    ['reading', 'want', 'read', 'dnf'].forEach((z) => {
+      try {
+        renderZone(z);
+      } catch (e) {}
+    });
+  } finally {
+    books = keep.books;
+    ZS = keep.ZS;
+    Object.keys(ids).forEach((z) => (ZONES[z] = [ids[z], ZONES[z][1]]));
+    $('crlab').textContent = crl;
+  }
+  const n = bks.filter((b) => st(b) === 'dnf').length,
+    cl = PRV.querySelector('.crlab');
+  if (cl) cl.textContent = L("Didn't finish") + (n ? ' · ' + n : '');
+  /* their books open their card, not yours; empty-shelf hints speak about them */
+  PRV.querySelectorAll('.proomc .bk').forEach((e) => e.classList.add('pbk'));
+  PRV.querySelectorAll('.proomc .empty, .proomc .rempty, .proomc .dnfhint').forEach((e) => e.remove());
+  PRV.querySelectorAll('.proomc .row, .proomc .rrow').forEach((r) => r.classList.add('pshelf'));
+  PRV.querySelectorAll('.proomc .dz').forEach((r) => r.classList.remove('dz'));
 }
 /* ---------- their animal, alive on their side: walks their floor, jumps or flies up to free space on their shelves, naps, hops when tapped.
    Moves use the same trick as your animal (the end position is set first and the path is drawn back from where it was, in one go),
@@ -751,7 +767,12 @@ function pSpots() {
   const sl = box.querySelector('.psill');
   if (sl) {
     const r = sl.getBoundingClientRect();
-    out.push({ k: 'sill', y: r.top - br.top, x0: r.left - br.left - 4, x1: r.right - br.left - W + 4 });
+    out.push({
+      k: 'sill',
+      y: r.top - br.top,
+      x0: r.left - br.left - 4,
+      x1: Math.min(r.right - br.left - W + 4, br.width - W - 8),
+    });
   }
   box.querySelectorAll('.pshelf').forEach((sh) => {
     const r = sh.getBoundingClientRect(),
@@ -759,7 +780,7 @@ function pSpots() {
       last = sp.length ? sp[sp.length - 1].getBoundingClientRect().right : r.left;
     const z = r.height / (sh.offsetHeight || r.height),
       x0 = last - br.left + 6,
-      x1 = r.right - br.left - W - 8,
+      x1 = Math.min(r.right - br.left - W - 8, br.width - W - 8),
       y = r.bottom - br.top - 12 * z;
     if (x1 - x0 > 12) out.push({ k: 'shelf', y, x0, x1 });
   });
