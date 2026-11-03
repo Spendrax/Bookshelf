@@ -31,3 +31,5 @@ Object.assign(TR.ht, {"💖 {name} has given you {n} hearts!": "💖 {name} ba o
 Object.assign(TR.ht, {"Hold the front cover inside the frame. It will be read by itself.": "Kenbe kouvèti a anndan kad la. L ap li poukont li.", "Reading the cover… hold still.": "N ap li kouvèti a… pa bouje.", "Got it! Looking up the book…": "Men li! N ap chèche liv la…", "📖 “Scan the cover” now works like the barcode scanner: hold the front cover up to the camera and it’s read by itself, no photo to take.": "📖 “Eskane kouvèti a” mache kounye a tankou eskanè kòd ba a: montre kamera a kouvèti a epi l ap li poukont li, san w pa pran foto."});
 
 Object.assign(TR.ht, {"Hold your finger on it to pet it and see its tricks, and fill its bowls when they’re empty. It grows as you read.": "Kenbe dwèt ou sou li pou karese l epi wè trik li yo, epi ranpli bòl li yo lè yo vid. Li grandi pandan w ap li."});
+
+Object.assign(TR.ht, {"Beloved": "Renmen anpil", "Get 100 hearts from your animal": "Resevwa 100 kè nan men bèt ou", "Best friends": "Pi bon zanmi", "Get 1,000 hearts from your animal": "Resevwa 1 000 kè nan men bèt ou"});

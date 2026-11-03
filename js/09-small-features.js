@@ -510,6 +510,8 @@ function badgeList() {
       'Reach your yearly reading goal',
       goal > 0 && reads.filter((b) => (b.finished || '').startsWith(y)).length >= goal,
     ],
+    ['h100', '\u{1F496}', 'Beloved', 'Get 100 hearts from your animal', (+goals.hearts || 0) >= 100],
+    ['h1k', '\u{1F49E}', 'Best friends', 'Get 1,000 hearts from your animal', (+goals.hearts || 0) >= 1000],
   ];
 }
 function badgeCard() {

@@ -31,3 +31,5 @@ Object.assign(TR.pt, {"💖 {name} has given you {n} hearts!": "💖 {name} já 
 Object.assign(TR.pt, {"Hold the front cover inside the frame. It will be read by itself.": "Segure a capa dentro da moldura. Ela será lida sozinha.", "Reading the cover… hold still.": "Lendo a capa… não se mexa.", "Got it! Looking up the book…": "Pronto! Procurando o livro…", "📖 “Scan the cover” now works like the barcode scanner: hold the front cover up to the camera and it’s read by itself, no photo to take.": "📖 “Escanear a capa” agora funciona como o leitor de código de barras: mostre a capa para a câmera e ela é lida sozinha, sem tirar foto."});
 
 Object.assign(TR.pt, {"Hold your finger on it to pet it and see its tricks, and fill its bowls when they’re empty. It grows as you read.": "Segure o dedo nele para fazer carinho e ver seus truques, e encha as tigelas quando estiverem vazias. Ele cresce conforme você lê."});
+
+Object.assign(TR.pt, {"Beloved": "Amado", "Get 100 hearts from your animal": "Receba 100 corações do seu bichinho", "Best friends": "Melhores amigos", "Get 1,000 hearts from your animal": "Receba 1.000 corações do seu bichinho"});

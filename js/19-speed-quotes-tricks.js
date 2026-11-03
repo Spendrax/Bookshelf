@@ -286,21 +286,8 @@
 /* ---------- hearts: every ♥ your animal gives you is counted (kept with the goals, so it's in backups) ---------- */
 {
   const STEPS = [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
-  let tip = null,
-    tipT = 0,
-    saveT = 0;
+  let saveT = 0;
   const name = () => (look.petName || '').trim();
-  const show = (n) => {
-    if (!tip) {
-      tip = el('b', 'hcount');
-      tip.setAttribute('aria-hidden', 'true');
-      catw.append(tip);
-    }
-    tip.textContent = '♥ ' + nf(n);
-    tip.classList.add('on');
-    clearTimeout(tipT);
-    tipT = setTimeout(() => tip.classList.remove('on'), 1600);
-  };
   new MutationObserver((ms) => {
     let add = 0;
     ms.forEach((m) =>
@@ -312,7 +299,6 @@
     const was = +goals.hearts || 0,
       now = was + add;
     goals.hearts = now;
-    show(now);
     clearTimeout(saveT);
     saveT = setTimeout(saveGoals, 1500);
     const hit = STEPS.find((s) => was < s && now >= s);
@@ -350,10 +336,9 @@
     if (next) sub.append(el('span', '', L('Next milestone: {n}', { n: nf(next) })));
     row.append(sub);
     c.append(row);
-    const sc = [...$('glbody').querySelectorAll('.card h2')].find(
-      (h) => h.textContent === L('Reading streak'),
-    );
-    if (sc) sc.parentElement.after(c);
+    /* next to the badges, where the heart badges are */
+    const bc = [...$('glbody').querySelectorAll('.card h2')].find((h) => h.textContent.includes(L('Badges')));
+    if (bc) bc.parentElement.before(c);
     else $('glbody').append(c);
     return r;
   };
