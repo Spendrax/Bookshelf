@@ -618,7 +618,9 @@ function renderPartner() {
   room.append(sc, fl);
   /* nothing of yours comes along: your animal, the add and arrange buttons, the gift, your season lights */
   room
-    .querySelectorAll('.catw, .wbtns, .plq button, .gift, .lights, .pname, .bub, .rbook, .hcount, .tricks')
+    .querySelectorAll(
+      '.catw, .friend, .deco, .wbtns, .plq button, .gift, .lights, .pname, .bub, .rbook, .hcount, .tricks',
+    )
     .forEach((x) => x.remove());
   if (lk.season === 'hide') room.querySelectorAll('.seasonal').forEach((x) => x.replaceChildren());
   room.querySelectorAll('[tabindex], button, [role=button]').forEach((x) => {
@@ -626,6 +628,19 @@ function renderPartner() {
     x.removeAttribute('role');
     if (x.tagName === 'BUTTON') x.tabIndex = -1;
   });
+  /* their own bookcase decoration, if they have one */
+  {
+    const dk = typeof DECOS !== 'undefined' && DECOS.find((x) => x[0] === lk._deco),
+      cs = room.querySelector('.scene>.case:not(.small)');
+    if (dk && cs) {
+      const dv = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      dv.setAttribute('class', 'deco');
+      dv.setAttribute('viewBox', '0 0 46 50');
+      dv.setAttribute('aria-hidden', 'true');
+      dv.innerHTML = dk[3];
+      cs.append(dv);
+    }
+  }
   const pl = room.querySelector('.plant'),
     plant = pick('plant', lk.plant);
   if (pl) pl.innerHTML = (plant && PLANTS[plant[0]]) || '';
@@ -777,7 +792,10 @@ function pSpots() {
   const fl = box.querySelector('.pfloor');
   if (fl) {
     const r = fl.getBoundingClientRect();
-    out.push({ k: 'floor', y: r.top - br.top + 30, x0: 10, x1: br.width - W - 10 });
+    /* in line with the bowls, like your animal, not on the skirting board */
+    const bw = fl.querySelector('.bowl'),
+      y = bw ? bw.getBoundingClientRect().bottom - br.top - 2 : r.top - br.top + 44;
+    out.push({ k: 'floor', y, x0: 10, x1: br.width - W - 10 });
   }
   const sl = box.querySelector('.psill');
   if (sl) {
@@ -795,8 +813,10 @@ function pSpots() {
       r = sh.getBoundingClientRect();
     if (!r.width) return;
     const top = bd && /board/.test(bd.className) ? bd.getBoundingClientRect().top : r.bottom,
-      sp = sh.querySelectorAll('.bk, .spine'),
-      last = sp.length ? sp[sp.length - 1].getBoundingClientRect().right : r.left;
+      sp = sh.querySelectorAll('.bk, .spine');
+    /* an empty shelf has nothing to measure it by: the animal doesn't go there */
+    if (!sp.length) return;
+    const last = sp.length ? sp[sp.length - 1].getBoundingClientRect().right : r.left;
     const x0 = Math.max(last, r.left) - br.left + 6,
       x1 = Math.min(r.right - br.left - W - 8, br.width - W - 8),
       y = top - br.top + 2;
@@ -806,18 +826,28 @@ function pSpots() {
 }
 /* the room can move under the animal (books drawn, screen turned, fonts loaded): put it back on the nearest place it
    can stand, so it never floats in the air */
-function pSnap(p) {
-  if (!p || p.an) return;
+function pSnap(p, done) {
+  if (!p || p.an) return false;
   const sps = pSpots();
-  if (!sps.length) return;
+  if (!sps.length) return false;
   const fit = sps
     .filter((s) => p.x >= s.x0 - 30 && p.x <= s.x1 + 30)
     .sort((a, b) => Math.abs(a.y - p.y) - Math.abs(b.y - p.y))[0];
   const s = fit || sps.find((x) => x.k === 'floor') || sps[0];
-  if (Math.abs(s.y - p.y) > 2 || p.x < s.x0 || p.x > s.x1) {
+  const x = Math.min(s.x1, Math.max(s.x0, p.x));
+  if (Math.abs(s.y - p.y) <= 3 && Math.abs(x - p.x) <= 3) return false;
+  /* a few pixels (fonts loaded): just adjust. Further: it walks or hops there, it never jumps across instantly */
+  if (Math.abs(s.y - p.y) <= 12 && Math.abs(x - p.x) <= 12) {
     p.spot = s;
-    pSet(Math.min(s.x1, Math.max(s.x0, p.x)), s.y);
+    pSet(x, s.y);
+    return false;
   }
+  if (p.asleep) {
+    p.asleep = false;
+    p.w.classList.remove('sleeping');
+  }
+  pGo(s, x, Math.abs(s.y - p.y) <= 3 ? 'walk' : p.way === 'fly' ? 'fly' : 'hop', done);
+  return true;
 }
 const pAtRest = () => view === 'proom' && !turning() && document.visibilityState === 'visible' && !PRV.hidden;
 function pSet(x, y) {
@@ -945,7 +975,7 @@ function pPetTick() {
   const h = new Date().getHours(),
     night = h >= 22 || h < 7,
     r = Math.random();
-  pSnap(p);
+  if (pSnap(p, () => again(2500))) return;
   if (p.asleep) {
     if (Math.random() < (night ? 0.8 : 0.55)) {
       again(7000 + Math.random() * 8000);
