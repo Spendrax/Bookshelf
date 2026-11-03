@@ -8020,3 +8020,11 @@ body.calm2 .window .stars {
   bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   z-index: 2;
 }
+/* their walls' titles sit at the same height as yours */
+#proomv .ptitle {
+  margin-top: 20px;
+}
+#pgoalsv .ptitle,
+#pstatsv .ptitle {
+  margin-top: 40px;
+}

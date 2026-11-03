@@ -560,8 +560,13 @@ function renderPartner() {
     return;
   }
   const sig = JSON.stringify(partnerData) + lang;
-  if (PRV._sig === sig && PRV.firstChild) return;
-  if (['pgoals', 'proom', 'pstats'].includes(view) || turning()) {
+  if (PRV._sig === sig && PRV.firstChild) {
+    /* drawn while the wall couldn't be measured: put their books on the shelves now */
+    if (!PRV._filled && PRV._books) pFill(PRV._books);
+    return;
+  }
+  /* an empty wall is drawn right away, even while you're turning or looking at it (it used to stay blank) */
+  if ((['pgoals', 'proom', 'pstats'].includes(view) || turning()) && PRV.firstChild) {
     renderPartner.pending = true;
     return;
   }
@@ -667,11 +672,17 @@ function renderPartner() {
       w.style.transform = 'translateX(100.5vw)';
     });
   pFill(bks);
-  pPetStart(d.look);
 }
 /* their books on the copied shelves, laid out by the same code as yours (it needs the wall to be measurable) */
-function pFill(bks) {
-  if (PRV.hidden) return;
+function pFill(bks, tries = 0) {
+  PRV._filled = false;
+  /* the shelves are laid out by measuring the wall: wait until it can be measured */
+  if (PRV.hidden || !PRV.clientWidth) {
+    clearTimeout(pFill.t);
+    if (tries < 60) pFill.t = setTimeout(() => PRV._books === bks && pFill(bks, tries + 1), 250);
+    return;
+  }
+  PRV._filled = true;
   const keep = { books, ZS },
     ids = {},
     crl = $('crlab').textContent;
@@ -701,6 +712,8 @@ function pFill(bks) {
   PRV.querySelectorAll('.proomc .empty, .proomc .rempty, .proomc .dnfhint').forEach((e) => e.remove());
   PRV.querySelectorAll('.proomc .row:not(.dnfrow), .proomc .rrow').forEach((r) => r.classList.add('pshelf'));
   PRV.querySelectorAll('.proomc .dz').forEach((r) => r.classList.remove('dz'));
+  /* their animal comes in once the books are on the shelves, so it lands on the real floor */
+  pPetStart(partnerData && partnerData.look);
 }
 /* ---------- their animal, alive on their side: walks their floor, jumps or flies up to free space on their shelves, naps, hops when tapped.
    Moves use the same trick as your animal (the end position is set first and the path is drawn back from where it was, in one go),
