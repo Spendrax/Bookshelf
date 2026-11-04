@@ -411,9 +411,21 @@
     minus.onclick = () => step(-1);
     plus.onclick = () => step(1);
     inp.oninput = () => (save.hidden = +inp.value === (b.page || 0));
-    inp.onkeydown = (e) => e.key === 'Enter' && (e.preventDefault(), save.click());
+    /* (an on… handler that returns false cancels the key: that blocked typing digits) */
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        save.hidden = false;
+        save.click();
+      }
+    });
+    /* tapping the box selects the number, so typing replaces it */
+    inp.addEventListener('focus', () => setTimeout(() => inp.select(), 0));
+    /* leaving the box (or the keyboard's Go) saves too */
+    inp.addEventListener('change', () => +inp.value !== (b.page || 0) && save.click());
     save.hidden = true;
     save.onclick = () => {
+      inp.blur();
       const p = Math.max(0, Math.round(+inp.value || 0)),
         v = b.pages ? Math.min(p, b.pages) : p;
       b.page = v;
