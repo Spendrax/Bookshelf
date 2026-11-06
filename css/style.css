@@ -8035,3 +8035,26 @@ body.calm2 .window .stars {
   margin-bottom: 0;
   padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
 }
+/* the second animal's name, shown for a moment when it's tapped */
+.friend .fname {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  translate: -50% -4px;
+  /* the animal's box is mirrored when it faces left: mirror the name back so it reads */
+  scale: var(--fd, -1) 1;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 250, 240, 0.92);
+  color: #3b2c20;
+  font:
+    700 12px system-ui,
+    sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.friend .fname.on {
+  opacity: 1;
+}

@@ -33,3 +33,5 @@ Object.assign(TR.ht, {"Hold the front cover inside the frame. It will be read by
 Object.assign(TR.ht, {"Hold your finger on it to pet it and see its tricks, and fill its bowls when they’re empty. It grows as you read.": "Kenbe dwèt ou sou li pou karese l epi wè trik li yo, epi ranpli bòl li yo lè yo vid. Li grandi pandan w ap li."});
 
 Object.assign(TR.ht, {"Beloved": "Renmen anpil", "Get 100 hearts from your animal": "Resevwa 100 kè nan men bèt ou", "Best friends": "Pi bon zanmi", "Get 1,000 hearts from your animal": "Resevwa 1 000 kè nan men bèt ou"});
+
+Object.assign(TR.ht, {"Second animal’s name": "Non dezyèm bèt la", "Second animal’s colour": "Koulè dezyèm bèt la", "Second animal’s accessory": "Akseswa dezyèm bèt la", "🐾 Your second animal can now have its own name, colour and accessory, in Customize.": "🐾 Dezyèm bèt ou a ka gen pwòp non, koulè ak akseswa li kounye a, nan Pèsonalize."});

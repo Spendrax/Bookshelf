@@ -33,3 +33,5 @@ Object.assign(TR.de, {"Hold the front cover inside the frame. It will be read by
 Object.assign(TR.de, {"Hold your finger on it to pet it and see its tricks, and fill its bowls when they’re empty. It grows as you read.": "Halte den Finger darauf, um es zu streicheln und seine Tricks zu sehen, und fülle seine Näpfe, wenn sie leer sind. Es wächst, während du liest."});
 
 Object.assign(TR.de, {"Beloved": "Geliebt", "Get 100 hearts from your animal": "Bekomme 100 Herzen von deinem Tier", "Best friends": "Beste Freunde", "Get 1,000 hearts from your animal": "Bekomme 1.000 Herzen von deinem Tier"});
+
+Object.assign(TR.de, {"Second animal’s name": "Name des zweiten Tiers", "Second animal’s colour": "Farbe des zweiten Tiers", "Second animal’s accessory": "Accessoire des zweiten Tiers", "🐾 Your second animal can now have its own name, colour and accessory, in Customize.": "🐾 Dein zweites Tier kann jetzt einen eigenen Namen, eine Farbe und ein Accessoire haben, unter Anpassen."});

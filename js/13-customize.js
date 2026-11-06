@@ -286,12 +286,12 @@ function czThumb(k, id, v) {
         '<svg ',
         '<svg class="cat" ',
       );
-  } else if (k === 'coat') {
-    const an = ANIMALS[sid('pet')],
+  } else if (k === 'coat' || k === '_fcoat') {
+    const an = ANIMALS[k === 'coat' ? sid('pet') : look._friend],
       nat = an && (an[0].match(/--a:(#[0-9a-f]+)/i) || [])[1];
     dot(v['--cat'] || nat || '#d98a3d');
-  } else if (k === '_acc') {
-    const pet = sid('pet'),
+  } else if (k === '_acc' || k === '_facc') {
+    const pet = k === '_acc' ? sid('pet') : look._friend,
       an = ANIMALS[pet];
     if (!id || !an) none();
     else
@@ -515,6 +515,43 @@ buildPanel = function () {
           (v) => setOwn('_friend', v, roomRewards),
         ),
       );
+      /* the second animal gets its own name, colour and accessory */
+      if (ok) {
+        const l = document.createElement('label');
+        l.textContent = L('Second animal’s name');
+        const ni = document.createElement('input');
+        ni.className = 'petname';
+        ni.maxLength = 20;
+        ni.autocomplete = 'off';
+        ni.value = look._fname || '';
+        ni.oninput = () => {
+          look._fname = ni.value.slice(0, 20);
+          czSaveLook();
+          roomRewards();
+        };
+        l.append(ni);
+        out.append(l);
+        if (ok !== 'dragon')
+          out.append(
+            czGroup(
+              '_fcoat',
+              L('Second animal’s colour'),
+              OPTS.find((x) => x.k === 'coat').i.map((x) => [x[0], L(x[1]), x[2]]),
+              look._fcoat || 'def',
+              (v) => setOwn('_fcoat', v, roomRewards),
+            ),
+          );
+        const fa = ACCS.find((x) => x[0] === look._facc);
+        out.append(
+          czGroup(
+            '_facc',
+            L('Second animal’s accessory'),
+            [['', L('None')], ...ACCS.map((x) => [x[0], L(x[1]), null, x[2]])],
+            fa && badgeCount() >= fa[2] ? fa[0] : '',
+            (v) => setOwn('_facc', v, roomRewards),
+          ),
+        );
+      }
     } else if (k === '_spirit') {
       if (!spiritOn() || sid('pet') === 'none') return;
       out.append(

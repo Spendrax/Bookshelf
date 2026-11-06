@@ -118,8 +118,9 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-10-30f',
+  id: '2026-11-06',
   items: [
+    '🐾 Your second animal can now have its own name, colour and accessory, in Customize.',
     '📖 “Scan the cover” now works like the barcode scanner: hold the front cover up to the camera and it’s read by itself, no photo to take.',
     '♥ Your animal now counts the hearts it gives you. See the total on the goals wall.',
     '📷 After scanning a book, its possible covers appear right away: tap the one that matches yours.',
@@ -279,21 +280,47 @@ function roomRewards() {
           s.classList.remove('hop');
           void s.offsetWidth;
           s.classList.add('hop');
+          /* its name, for a moment */
+          if (look._fname) {
+            let n = f.querySelector('.fname');
+            if (!n) f.append((n = el('b', 'fname')));
+            n.textContent = look._fname;
+            n.classList.add('on');
+            clearTimeout(n._t);
+            n._t = setTimeout(() => n.classList.remove('on'), 1800);
+          }
           try {
             sfx('pop');
           } catch (e) {}
         };
         wc.append(f);
       }
-      if (f.dataset.k !== look._friend) {
-        f.dataset.k = look._friend;
+      /* its own colour and accessory, chosen in Customize (not your animal's) */
+      const coat = (OPTS.find((x) => x.k === 'coat').i.find((x) => x[0] === look._fcoat) || [0, 0, {}])[2],
+        acc = ACCS.find((x) => x[0] === look._facc && badgeCount() >= x[2]),
+        key = [look._friend, look._fcoat || '', acc ? acc[0] : ''].join('|');
+      if (f.dataset.k !== key) {
+        f.dataset.k = key;
+        const vars = ['--cat', '--cat-st', '--cat-eye', '--cat-nose']
+          .map((v) => v + ':' + (look._friend !== 'dragon' && coat[v] ? coat[v] : 'initial'))
+          .join(';');
         f.innerHTML =
           '<svg class="cat" viewBox="0 0 60 56" aria-hidden="true" style="' +
           an[0] +
-          ';--cat:initial;--cat-st:initial;--cat-eye:initial;--cat-nose:initial">' +
+          ';' +
+          vars +
+          '">' +
           an[1] +
           '</svg>';
+        if (acc) {
+          const sv = f.firstChild;
+          (sv.querySelector('.head') || sv.querySelector('.pose') || sv).insertAdjacentHTML(
+            'beforeend',
+            petAccSvg(look._friend, acc[0]),
+          );
+        }
       }
+      f.setAttribute('aria-label', look._fname || '');
     }
   }
 }
