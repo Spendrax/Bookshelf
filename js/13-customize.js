@@ -193,6 +193,16 @@ function czShow(k) {
 const czSvg = (vb, inner, style) =>
     `<svg viewBox="${vb}" aria-hidden="true"${style ? ` style="${style}"` : ''}>${inner}</svg>`,
   czNat = ';--cat:initial;--cat-st:initial;--cat-eye:initial;--cat-nose:initial';
+/* the second animal's chosen colour as inline styles (so it doesn't take on your main animal's colour) */
+function friendCoat() {
+  const c = (OPTS.find((x) => x.k === 'coat').i.find((x) => x[0] === look._fcoat) || [0, 0, {}])[2];
+  return (
+    ';' +
+    ['--cat', '--cat-st', '--cat-eye', '--cat-nose']
+      .map((v) => v + ':' + (look._friend !== 'dragon' && c[v] ? c[v] : 'initial'))
+      .join(';')
+  );
+}
 function czThumb(k, id, v) {
   const i = document.createElement('i'),
     bg = (s) => {
@@ -295,10 +305,11 @@ function czThumb(k, id, v) {
       an = ANIMALS[pet];
     if (!id || !an) none();
     else
-      i.innerHTML = czSvg('0 0 60 56', an[1] + petAccSvg(pet, id), an[0]).replace(
-        '<svg ',
-        '<svg class="cat" ',
-      );
+      i.innerHTML = czSvg(
+        '0 0 60 56',
+        an[1] + petAccSvg(pet, id),
+        an[0] + (k === '_facc' ? friendCoat() : ''),
+      ).replace('<svg ', '<svg class="cat" ');
   } else if (k === '_deco') {
     const d = DECOS.find((x) => x[0] === id);
     if (!d) none();
@@ -434,6 +445,8 @@ buildPanel = function () {
     after && after();
     press(k, v);
     if (k === '_acc' || k === '_dragon' || k === '_spirit') stage();
+    /* the second animal's previews follow its new colour (or the new animal) */
+    if (k === '_fcoat' || k === '_friend') buildPanel();
     setTimeout(() => czShow(k), 60);
   };
   if (czTab === 'pet') out.append(czPetStage());
