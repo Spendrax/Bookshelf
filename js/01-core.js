@@ -236,33 +236,50 @@ const gbBig = (t) => {
   t = t.replace('http:', 'https:').replace('&edge=curl', '');
   return [...new Set([t + '&fife=w800-h1200', t + '&fife=w480-h720', t.replace('zoom=1', 'zoom=0'), t])];
 };
+/* the spine colour: the cover's main colour (the one covering the most of it, favouring real colours over greys),
+   not an average, which turned most covers muddy brown */
 function avgColor(data) {
   return new Promise((res) => {
     const i = new Image();
     i.onload = () => {
-      const c = document.createElement('canvas');
-      c.width = c.height = 4;
+      const W = 24,
+        H = 36,
+        c = document.createElement('canvas');
+      c.width = W;
+      c.height = H;
       const x = c.getContext('2d');
-      x.drawImage(i, 0, 0, 4, 4);
-      const d = x.getImageData(0, 0, 4, 4).data;
-      let r = 0,
-        g = 0,
-        b = 0;
-      for (let k = 0; k < 64; k += 4) {
-        r += d[k];
-        g += d[k + 1];
-        b += d[k + 2];
+      x.drawImage(i, 0, 0, W, H);
+      const d = x.getImageData(0, 0, W, H).data,
+        bins = new Map();
+      for (let k = 0; k < d.length; k += 4) {
+        const r = d[k],
+          g = d[k + 1],
+          b = d[k + 2],
+          mx = Math.max(r, g, b),
+          mn = Math.min(r, g, b),
+          sat = mx ? (mx - mn) / mx : 0,
+          key = (r >> 5) * 64 + (g >> 5) * 8 + (b >> 5),
+          e = bins.get(key) || { n: 0, w: 0, r: 0, g: 0, b: 0 };
+        /* near-white margins and black text count less */
+        const w = (mx > 240 && sat < 0.1) || mx < 25 ? 0.25 : 0.55 + sat;
+        e.n++;
+        e.w += w;
+        e.r += r;
+        e.g += g;
+        e.b += b;
+        bins.set(key, e);
       }
-      res(
-        '#' +
-          [r, g, b]
-            .map((v) =>
-              Math.round((v / 16) * 0.75)
-                .toString(16)
-                .padStart(2, '0'),
-            )
-            .join(''),
-      );
+      let best = null;
+      bins.forEach((e) => {
+        if (!best || e.w > best.w) best = e;
+      });
+      if (!best) return res(null);
+      /* a little darker, so the white title on the spine stays readable */
+      const k2 = (v) =>
+        Math.round((v / best.n) * 0.82)
+          .toString(16)
+          .padStart(2, '0');
+      res('#' + k2(best.r) + k2(best.g) + k2(best.b));
     };
     i.onerror = () => res(null);
     i.src = data;

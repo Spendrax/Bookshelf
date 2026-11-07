@@ -129,3 +129,39 @@
     }
   };
 }
+
+/* ---- adding a new book starts with the two quickest ways, big and explained, at the top of the form
+   (a tester didn't find the scan buttons at first) ---- */
+{
+  const qs = el('div', 'quickscan');
+  const b1 = el('button', 'qsb', ''),
+    b2 = el('button', 'qsb', '');
+  b1.type = b2.type = 'button';
+  b1.append(el('b', '', '📷 ' + L('Scan the barcode')), el('small', '', L('On the back of the book')));
+  b2.append(
+    el('b', '', '📖 ' + L('Scan the cover')),
+    el('small', '', L('Hold the front cover to the camera')),
+  );
+  b1.onclick = () => $('scanbtn').click();
+  b2.onclick = () => $('coverbtn').click();
+  const h = el('p', 'qsh', L('Add a book in seconds:'));
+  const or = el('p', 'qsor', L('or type the title below'));
+  qs.append(h, b1, b2, or);
+  $('form').prepend(qs);
+  const sync = () => (qs.hidden = !!cur || !!$('title').value.trim());
+  const om = openModal;
+  openModal = function () {
+    const r = om.apply(this, arguments);
+    sync();
+    return r;
+  };
+  $('title').addEventListener('input', sync);
+  /* found by a scan: the book is filled in, the big buttons step aside */
+  const pk = pick;
+  pick = async function () {
+    const r = await pk.apply(this, arguments);
+    sync();
+    return r;
+  };
+  sync();
+}

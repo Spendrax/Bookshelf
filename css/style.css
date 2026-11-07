@@ -8058,3 +8058,76 @@ body.calm2 .window .stars {
 .friend .fname.on {
   opacity: 1;
 }
+
+/* ---------- bookcase styles and the "didn't finish" box (Customize → Furniture); all through variables, so a
+   partner's room shows their choice too ---------- */
+.case {
+  background: var(--case-bg, linear-gradient(90deg, var(--wood2), var(--wood) 50%, var(--wood2)));
+  border-radius: var(--case-r, 8px 8px 0 0);
+  box-shadow: var(--case-sh, 8px 0 18px rgba(0, 0, 0, 0.25));
+}
+.unit {
+  background: var(--unit-bg, var(--wood2));
+}
+.case .row {
+  background: var(--row-bg, rgba(0, 0, 0, 0.28));
+  box-shadow: var(--row-sh, inset 0 10px 18px rgba(0, 0, 0, 0.35));
+  border-radius: var(--row-r, 0);
+}
+.board {
+  height: var(--board-h, 16px);
+  background: var(--board-bg, linear-gradient(var(--wood), var(--wood2)));
+}
+.crate {
+  width: var(--cr-w, 200px);
+}
+.crate .crfront {
+  height: var(--cr-h, 52px);
+  background: var(--cr-bg, repeating-linear-gradient(0deg, var(--wood) 0 14px, var(--wood2) 14px 17px));
+  border-radius: var(--cr-r, 3px);
+  clip-path: var(--cr-clip, none);
+}
+/* the two quick ways to add a book, at the top of the form */
+.quickscan {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.quickscan[hidden] {
+  display: none;
+}
+.quickscan .qsh,
+.quickscan .qsor {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.quickscan .qsh {
+  font:
+    700 16px Georgia,
+    serif;
+  color: var(--ink);
+}
+.qsb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--acc);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+.qsb b {
+  font-size: 16px;
+}
+.qsb small {
+  font-size: 12px;
+  opacity: 0.9;
+}

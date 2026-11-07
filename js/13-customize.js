@@ -147,7 +147,7 @@ try {
 let czTab = 'room';
 const CZ_TABS = [
   ['room', 'Room', ['theme', 'wall', 'floor', 'window', 'view', 'nightroom']],
-  ['furn', 'Furniture', ['wood', 'rug', 'plant', 'pot', 'season', '_deco']],
+  ['furn', 'Furniture', ['wood', 'casest', 'dnfbox', 'rug', 'plant', 'pot', 'season', '_deco']],
   ['pet', 'Animal', ['pet', '_name', 'coat', '_acc', '_dragon', '_spirit', 'bowls', 'petmove', '_friend']],
   ['clock', 'Clock & weather', ['clock', 'clockc', 'therm', 'thermc', '_wx']],
   ['more', 'More', ['_lang', 'sound', '_backup', '_remind', '_btns']],
@@ -248,6 +248,9 @@ function czThumb(k, id, v) {
       v['--floorbg'] ||
         `repeating-linear-gradient(90deg,${v['--fl1'] || '#b98a5a'} 0 18px,${v['--fl2'] || '#a67a4c'} 18px 20px)`,
     );
+  else if (k === 'casest')
+    em({ def: '\u{1F4DA}', round: '\u{1F9F8}', open: '\u{1FAB5}', metal: '\u{1F529}' }[id] || '');
+  else if (k === 'dnfbox') em({ def: '\u{1F9FA}', bin: '\u{1F5D1}\uFE0F', box: '\u{1F4E6}' }[id] || '');
   else if (k === 'rug') {
     if (id === 'none') none();
     else

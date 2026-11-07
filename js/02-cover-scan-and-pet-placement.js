@@ -681,6 +681,63 @@ const OPTS = [
     ],
   },
   {
+    k: 'casest',
+    l: 'Bookcase style',
+    i: [
+      ['def', 'Classic', {}],
+      ['round', 'Rounded', { '--case-r': '26px 26px 6px 6px', '--row-r': '14px 14px 0 0' }],
+      [
+        'open',
+        'Open shelves',
+        {
+          '--case-bg': 'transparent',
+          '--case-sh': 'none',
+          '--unit-bg': 'transparent',
+          '--row-bg': 'transparent',
+          '--row-sh': 'none',
+        },
+      ],
+      [
+        'metal',
+        'Industrial',
+        {
+          '--case-bg': 'linear-gradient(90deg,#26272b,#3b3d43 50%,#26272b)',
+          '--unit-bg': '#2a2b30',
+          '--board-bg': 'linear-gradient(#5b5e66,#2c2e33)',
+          '--board-h': '8px',
+          '--case-r': '3px',
+        },
+      ],
+    ],
+  },
+  {
+    k: 'dnfbox',
+    l: 'Didn’t finish box',
+    i: [
+      ['def', 'Crate', {}],
+      [
+        'bin',
+        'Trash can',
+        {
+          '--cr-bg': 'repeating-linear-gradient(90deg,#9aa0a8 0 9px,#767c85 9px 12px)',
+          '--cr-clip': 'polygon(0 0,100% 0,93% 100%,7% 100%)',
+          '--cr-h': '66px',
+          '--cr-w': '160px',
+          '--cr-r': '4px 4px 8px 8px',
+        },
+      ],
+      [
+        'box',
+        'Cardboard box',
+        {
+          '--cr-bg':
+            'linear-gradient(90deg,transparent 46%,rgba(225,205,150,.9) 46% 54%,transparent 54%),linear-gradient(#c99c63,#a97a45)',
+          '--cr-r': '2px',
+        },
+      ],
+    ],
+  },
+  {
     k: 'plant',
     l: 'Plant',
     i: [

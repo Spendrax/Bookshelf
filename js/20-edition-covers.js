@@ -390,3 +390,69 @@
     return r;
   };
 }
+
+/* ---- once: spines that still have the old automatic colour (an average of the cover) get the cover's real main
+   colour. A colour you picked yourself is left alone: it no longer matches that average. ---- */
+{
+  const oldAvg = (data) =>
+    new Promise((res) => {
+      const i = new Image();
+      i.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = c.height = 4;
+        const x = c.getContext('2d');
+        x.drawImage(i, 0, 0, 4, 4);
+        const d = x.getImageData(0, 0, 4, 4).data;
+        let r = 0,
+          g = 0,
+          b = 0;
+        for (let k = 0; k < 64; k += 4) {
+          r += d[k];
+          g += d[k + 1];
+          b += d[k + 2];
+        }
+        res(
+          '#' +
+            [r, g, b]
+              .map((v) =>
+                Math.round((v / 16) * 0.75)
+                  .toString(16)
+                  .padStart(2, '0'),
+              )
+              .join(''),
+        );
+      };
+      i.onerror = () => res(null);
+      i.src = data;
+    });
+  const K = 'bookshelf-spine-colour-v2';
+  const run = async () => {
+    try {
+      if (localStorage.getItem(K)) return;
+    } catch (e) {
+      return;
+    }
+    if (!booksReady) return setTimeout(run, 2000);
+    let n = 0;
+    for (const b of books) {
+      if (!b.cover || b.spine || !b.color) continue;
+      try {
+        if ((await oldAvg(b.cover)) === b.color.toLowerCase()) {
+          const c = await avgColor(b.cover);
+          if (c && c !== b.color) {
+            b.color = c;
+            n++;
+          }
+        }
+      } catch (e) {}
+    }
+    if (n) {
+      store();
+      render();
+    }
+    try {
+      localStorage.setItem(K, '1');
+    } catch (e) {}
+  };
+  setTimeout(run, 4000);
+}
