@@ -8039,19 +8039,22 @@ body.calm2 .window .stars {
 .friend .fname {
   position: absolute;
   left: 50%;
-  bottom: 100%;
-  translate: -50% -4px;
-  /* the animal's box is mirrored when it faces left: mirror the name back so it reads */
-  scale: var(--fd, -1) 1;
+  bottom: calc(100% + 10px);
+  translate: -50% 0;
+  /* the animal's box is mirrored when it turns: the same mirror again keeps the name readable
+     (--fd can't be used here: it isn't passed down to the label) */
+  scale: inherit;
   padding: 2px 8px;
-  border-radius: 10px;
-  background: rgba(255, 250, 240, 0.92);
-  color: #3b2c20;
+  border-radius: 9px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
   font:
-    700 12px system-ui,
+    600 12px system-ui,
     sans-serif;
   white-space: nowrap;
   pointer-events: none;
+  z-index: 3;
   opacity: 0;
   transition: opacity 0.3s;
 }
