@@ -696,6 +696,7 @@ const OPTS = [
           '--row-bg': 'transparent',
           '--row-sh': 'none',
           '--case-topd': 'block',
+          '--case-pt': '24px',
         },
       ],
       [

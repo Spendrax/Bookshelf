@@ -8147,3 +8147,7 @@ body.calm2 .window .stars {
   background: linear-gradient(var(--wood), var(--wood2));
   box-shadow: 0 5px 8px rgba(0, 0, 0, 0.3);
 }
+/* room under the top board for the gold plaque (open shelves) */
+.case {
+  padding-top: var(--case-pt, 10px);
+}
