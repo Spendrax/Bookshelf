@@ -8131,3 +8131,16 @@ body.calm2 .window .stars {
   font-size: 12px;
   opacity: 0.9;
 }
+/* open shelves: a top board for the lamp, plant and decorations to stand on */
+.case::before {
+  content: '';
+  display: var(--case-topd, none);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(var(--wood), var(--wood2));
+  box-shadow: 0 5px 8px rgba(0, 0, 0, 0.3);
+}
