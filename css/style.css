@@ -126,7 +126,7 @@ button {
 .tools .arrbtn {
   border: 0;
   border-radius: 0;
-  background: color-mix(in srgb, var(--acc) 22%, var(--card));
+  background: var(--card);
   padding: 9px 14px 9px 24px;
   clip-path: polygon(0 50%, 16px 0, 100% 0, 100% 100%, 16px 100%);
 }
