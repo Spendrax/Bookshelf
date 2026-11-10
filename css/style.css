@@ -8151,3 +8151,7 @@ body.calm2 .window .stars {
 .case {
   padding-top: var(--case-pt, 10px);
 }
+/* the second animal on the sill sits in front of the window's cross bars, like your main animal */
+.window > .friend {
+  z-index: 4;
+}
