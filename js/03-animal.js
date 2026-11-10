@@ -75,6 +75,15 @@ function petHold() {
   setTimeout(() => a.remove(), 900);
   document.body.append(g);
   d.g = g;
+  /* the lifted copy starts exactly over the animal, so the two frames where both are on screen show one animal */
+  {
+    const r0 = catw.getBoundingClientRect();
+    g.style.transform = `translate(${r0.left}px,${r0.top}px)`;
+    const gp = (g.querySelector('.pose') || g).getBoundingClientRect(),
+      rp = (cat.querySelector('.pose') || cat).getBoundingClientRect();
+    g.style.transform = `translate(${r0.left + rp.left - gp.left}px,${r0.top + rp.top - gp.top}px)`;
+    d.wait = true;
+  }
   d.sv = g.querySelector('.cat');
   d.off = d.touch ? 26 : 12;
   d.gh = d.sv.getBoundingClientRect().height || 48;
@@ -88,7 +97,11 @@ function petHold() {
      other in the same frame left a frame with neither on some phones */
   requestAnimationFrame(() =>
     requestAnimationFrame(() => {
-      if (petDrag === d) catw.style.visibility = 'hidden';
+      if (petDrag === d) {
+        catw.style.visibility = 'hidden';
+        d.wait = false;
+        if (d.px != null) petMove(d.px, d.py);
+      }
     }),
   );
   if (navigator.vibrate) navigator.vibrate(10);
@@ -146,18 +159,20 @@ function petMove(x, y) {
     d.lx = x;
     d.lt = now;
   }
+  d.px = x;
+  d.py = y;
+  if (d.wait) return;
   d.gx = x - w / 2;
   d.gy = y + d.off;
   d.g.style.transform = `translate(${d.gx}px,${d.gy}px)`;
-  d.px = x;
-  d.py = y;
   if (turning()) {
     land.style.display = 'none';
     return;
   }
   const p = perchAt(x, d.gy + d.gh - 4);
   d.p = p;
-  if (p) {
+  if (p && /^(floor|wfloor|rug|wrug)$/.test(p.kind)) land.style.display = 'none';
+  else if (p) {
     land.style.display = 'block';
     land.style.left = Math.max(p.r.left + 14, Math.min(p.r.right - 14, x)) + 'px';
     land.style.top = p.line + 'px';
@@ -210,14 +225,26 @@ function petDrop() {
   }
   catw.style.visibility = 'hidden';
   const finish = () => {
-    /* show the real animal first and take the lifted copy away two frames later (same reason as when picking up) */
+    /* line the copy up with the real drawing (they could be a few pixels apart, which showed two animals), then show
+       the real animal and take the copy away two frames later (same reason as when picking up) */
+    if (d.done) return;
+    d.done = true;
+    cat.classList.remove('arrive', 'hop', 'landed');
+    const gp = (d.g.querySelector('.pose') || d.sv).getBoundingClientRect(),
+      rp = (cat.querySelector('.pose') || cat).getBoundingClientRect(),
+      gr = d.g.getBoundingClientRect();
+    d.g.style.transform = `translate(${gr.left + rp.left - gp.left}px,${gr.top + rp.top - gp.top}px)`;
+    d.g.getAnimations().forEach((a) => a.cancel());
     catw.style.visibility = '';
-    requestAnimationFrame(() => requestAnimationFrame(() => d.g.remove()));
-    if (!reduce) {
-      cat.classList.remove('arrive', 'hop', 'landed');
-      void cat.getBoundingClientRect();
-      cat.classList.add('landed');
-    }
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        d.g.remove();
+        if (!reduce) {
+          void cat.getBoundingClientRect();
+          cat.classList.add('landed');
+        }
+      }),
+    );
     petNext(4000 + Math.random() * 3000);
   };
   if (reduce || d.gx === undefined) {
