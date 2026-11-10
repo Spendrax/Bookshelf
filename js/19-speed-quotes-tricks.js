@@ -281,10 +281,13 @@ const heartsNow = () => +goals.hearts || 0;
     )
       return;
     drawMenu();
+    catw.dispatchEvent(new Event('menuopen'));
     const r = catw.getBoundingClientRect();
-    const mw = menu.offsetWidth || 300;
+    const mw = menu.offsetWidth || 300,
+      mh = menu.offsetHeight || 44;
     menu.style.left = Math.max(8, Math.min(innerWidth - mw - 8, r.left + r.width / 2 - mw / 2)) + 'px';
-    menu.style.top = Math.max(8, r.top - 46) + 'px';
+    /* above the animal, or below it when there's no room */
+    menu.style.top = (r.top - mh - 10 >= 8 ? r.top - mh - 10 : r.bottom + 10) + 'px';
     menu.classList.add('on');
     if (navigator.vibrate) navigator.vibrate(12);
     clearTimeout(menuT);

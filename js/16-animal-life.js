@@ -169,7 +169,8 @@
     catw.classList.remove('purr');
     petDragged = true; /* the lift that ends petting isn't also a tap */
     setTimeout(() => (petDragged = false), 120);
-    if (readCount() >= 25 && Math.random() < 0.5) setTimeout(trick, 350);
+    if (readCount() >= 25 && Math.random() < 0.5 && !document.querySelector('.tricks.on'))
+      setTimeout(trick, 350);
     petNext(4000 + Math.random() * 3000);
   };
   catw.addEventListener('pointerdown', (e) => {
@@ -187,6 +188,8 @@
     }, 420);
   });
   ['pointerup', 'pointercancel'].forEach((ev) => document.addEventListener(ev, purrStop));
+  /* its trick menu opened: the petting stops there, so hearts don't float through the menu */
+  catw.addEventListener('menuopen', purrStop);
   catw.addEventListener('contextmenu', (e) => e.preventDefault());
   {
     const ph = petHold;

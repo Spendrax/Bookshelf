@@ -184,7 +184,12 @@ document.addEventListener(
     const d = petDrag;
     if (!d || e.pointerId !== d.id) return;
     if (!d.on) {
-      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) return;
+      /* a finger drifts while holding: carry the animal only on a real move, and not once its tricks are open */
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < (d.touch ? 12 : 6)) return;
+      if (document.querySelector('.tricks.on')) {
+        petDrag = null;
+        return;
+      }
       petHold();
     }
     e.preventDefault();
