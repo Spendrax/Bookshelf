@@ -282,16 +282,20 @@ const heartsNow = () => +goals.hearts || 0;
       return;
     drawMenu();
     catw.dispatchEvent(new Event('menuopen'));
-    const r = catw.getBoundingClientRect();
-    const mw = menu.offsetWidth || 300,
-      mh = menu.offsetHeight || 44;
-    menu.style.left = Math.max(8, Math.min(innerWidth - mw - 8, r.left + r.width / 2 - mw / 2)) + 'px';
-    /* above the animal, or below it when there's no room */
-    menu.style.top = (r.top - mh - 10 >= 8 ? r.top - mh - 10 : r.bottom + 10) + 'px';
+    placeMenu();
     menu.classList.add('on');
     if (navigator.vibrate) navigator.vibrate(12);
     clearTimeout(menuT);
   };
+  /* above the animal, or below it when there's no room */
+  function placeMenu() {
+    const r = catw.getBoundingClientRect(),
+      mw = menu.offsetWidth || 300,
+      mh = menu.offsetHeight || 44;
+    menu.style.left = Math.max(8, Math.min(innerWidth - mw - 8, r.left + r.width / 2 - mw / 2)) + 'px';
+    menu.style.top = (r.top - mh - 10 >= 8 ? r.top - mh - 10 : r.bottom + 10) + 'px';
+    return r.bottom > 0 && r.top < innerHeight;
+  }
   catw.addEventListener('pointerdown', (e) => {
     if (e.button > 0) return;
     clearTimeout(holdT);
@@ -316,7 +320,12 @@ const heartsNow = () => +goals.hearts || 0;
     },
     true,
   );
-  addEventListener('scroll', hideMenu, { passive: true, capture: true });
+  /* a page that moves a little under the finger (or by itself) used to close the menu at once: it follows the animal
+     instead, and closes only when the animal leaves the screen */
+  addEventListener('scroll', () => menu.classList.contains('on') && !placeMenu() && hideMenu(), {
+    passive: true,
+    capture: true,
+  });
 }
 
 /* ---------- hearts: every ♥ your animal gives you is counted (kept with the goals, so it's in backups) ---------- */
