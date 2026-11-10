@@ -118,13 +118,12 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-11-07',
+  id: '2026-11-10',
   items: [
-    '🎨 From your feedback: big scan buttons when adding a book, spines in the cover’s real colour, new bookcase styles, and a trash can (or box) for books you didn’t finish, in Customize.',
-    '🐾 Your second animal can now have its own name, colour and accessory, in Customize.',
-    '📖 “Scan the cover” now works like the barcode scanner: hold the front cover up to the camera and it’s read by itself, no photo to take.',
-    '♥ Your animal now counts the hearts it gives you. See the total on the goals wall.',
-    '📷 After scanning a book, its possible covers appear right away: tap the one that matches yours.',
+    '🐾 Your animal now learns new tricks from the hearts it gives you: Wave, Sit, Dance and Celebrate. Hold your finger on it to see them.',
+    '👋 It says hello each new day, with three hearts for you.',
+    '❔ Hold it and tap ❔ to see everything it can do.',
+    '💞 Tap a book on your partner’s shelves to see their cover, back, tags and blurb, and add it to your list.',
   ],
 };
 const NEWSK = 'bookshelf-news';

@@ -1,3 +1,6 @@
+/* tricks the animal learns as it gives you hearts (the hearts it has given you so far) */
+const TRICKNEED = { Wave: 15, Sit: 40, Dance: 100, Celebrate: 250 };
+const heartsNow = () => +goals.hearts || 0;
 /* ---------- reading speed (stats wall), a saved quote pinned by the window, seasonal outfits,
    the animal reacting to what you read, and a little trick menu when you tap it ---------- */
 {
@@ -217,18 +220,34 @@
         petNext(5000);
       },
     ],
+    [
+      '💃',
+      'Dance',
+      () => {
+        catw.classList.add('wave');
+        setTimeout(() => (catw.classList.remove('wave'), play('hop', 700)), 900);
+        setTimeout(() => play('twirl'), 1700);
+      },
+    ],
+    ['🎉', 'Celebrate', () => play('cheer2')],
   ];
   const drawMenu = () =>
     menu.replaceChildren(
       ...TRICKS.map(([ico, name, fn]) => {
-        const b = el('button', '', ico);
+        const need = TRICKNEED[name] || 0,
+          locked = heartsNow() < need,
+          b = el('button', locked ? 'locked' : '', locked ? '🔒' : ico);
         b.type = 'button';
         b.setAttribute('role', 'menuitem');
-        b.setAttribute('aria-label', L(name));
-        b.title = L(name);
+        b.setAttribute('aria-label', locked ? L('{t}: unlocks at {n} ♥', { t: L(name), n: need }) : L(name));
+        b.title = b.getAttribute('aria-label');
         b.onclick = (e) => {
           e.stopPropagation();
           hideMenu();
+          if (locked) {
+            toast(ico + ' ' + L('{t}: unlocks at {n} ♥', { t: L(name), n: need }));
+            return;
+          }
           if (petBusy || petDrag || catw.classList.contains('travel')) return;
           clearTimeout(petT);
           catw.classList.remove('sleeping', 'waiting', 'sitting');
@@ -237,6 +256,19 @@
         };
         return b;
       }),
+      (() => {
+        const q = el('button', 'tq', '❔');
+        q.type = 'button';
+        q.setAttribute('role', 'menuitem');
+        q.title = L('What can it do?');
+        q.setAttribute('aria-label', q.title);
+        q.onclick = (e) => {
+          e.stopPropagation();
+          hideMenu();
+          animalGuide();
+        };
+        return q;
+      })(),
     );
   /* a long press on the animal (it purrs meanwhile) opens its tricks; a short tap stays a tap */
   let holdT = 0;
@@ -250,7 +282,8 @@
       return;
     drawMenu();
     const r = catw.getBoundingClientRect();
-    menu.style.left = Math.max(8, Math.min(innerWidth - 168, r.left + r.width / 2 - 80)) + 'px';
+    const mw = menu.offsetWidth || 300;
+    menu.style.left = Math.max(8, Math.min(innerWidth - mw - 8, r.left + r.width / 2 - mw / 2)) + 'px';
     menu.style.top = Math.max(8, r.top - 46) + 'px';
     menu.classList.add('on');
     if (navigator.vibrate) navigator.vibrate(12);
@@ -301,6 +334,18 @@
     goals.hearts = now;
     clearTimeout(saveT);
     saveT = setTimeout(saveGoals, 1500);
+    const learnt = Object.keys(TRICKNEED).find((k) => was < TRICKNEED[k] && now >= TRICKNEED[k]);
+    if (learnt)
+      setTimeout(
+        () =>
+          toast(
+            L('🎓 New trick learned: {t}! Hold your finger on {name} to try it.', {
+              t: L(learnt),
+              name: name() || L('your animal'),
+            }),
+          ),
+        1600,
+      );
     const hit = STEPS.find((s) => was < s && now >= s);
     if (hit)
       setTimeout(
@@ -334,12 +379,50 @@
     );
     const next = STEPS.find((s) => s > n);
     if (next) sub.append(el('span', '', L('Next milestone: {n}', { n: nf(next) })));
+    const nt = Object.keys(TRICKNEED).find((k) => TRICKNEED[k] > n);
+    if (nt) sub.append(el('span', '', L('Next trick: {t} at {n} ♥', { t: L(nt), n: TRICKNEED[nt] })));
     row.append(sub);
     c.append(row);
+    const gb = el('button', 'fbtn', '🐾 ' + L('What can it do?'));
+    gb.type = 'button';
+    gb.onclick = animalGuide;
+    c.append(gb);
     /* next to the badges, where the heart badges are */
     const bc = [...$('glbody').querySelectorAll('.card h2')].find((h) => h.textContent.includes(L('Badges')));
     if (bc) bc.parentElement.before(c);
     else $('glbody').append(c);
     return r;
   };
+}
+
+/* ---------- everything the animal can do, in one place (from its trick menu ❔, the hearts card, and the tour) ---------- */
+function animalGuide() {
+  const T = TRICKNEED;
+  const items = [
+    ['👆', 'Tap it: it says hello and shows its name.'],
+    ['✋', 'Hold your finger on it: it purrs and gives you hearts. Keep holding to open its tricks.'],
+    ['🤏', 'Drag it to carry it anywhere: a shelf, the windowsill, or to another wall.'],
+    ['🥣', 'Tap the bowls to fill them when they’re empty: it comes over to eat and drink.'],
+    ['📖', 'Start reading a book: it curls up beside you and reads too.'],
+    [
+      '♥',
+      L('Every heart teaches it something: {w} at {a} ♥, {s} at {b} ♥, {d} at {c} ♥, {e} at {f} ♥.', {
+        w: L('Wave'),
+        a: T.Wave,
+        s: L('Sit'),
+        b: T.Sit,
+        d: L('Dance'),
+        c: T.Dance,
+        e: L('Celebrate'),
+        f: T.Celebrate,
+      }),
+    ],
+    ['🌱', 'It grows up after 10 books read and cheers every book you finish.'],
+    ['☀️', 'It naps at night, suns itself, watches the rain and says hello each new day.'],
+    ['🎨', 'In Customize: change its kind, colour, name and accessory, or add a second animal.'],
+    ['🥚', 'Some books hide a surprise…'],
+  ];
+  $('newslist').replaceChildren(...items.map(([i, t]) => el('li', '', i + ' ' + L(t))));
+  $('newsh').textContent = '🐾 ' + L('What can it do?');
+  $('newsov').classList.add('on');
 }

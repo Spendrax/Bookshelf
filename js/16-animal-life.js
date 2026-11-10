@@ -69,6 +69,45 @@
     sparkle(2, ['✨']);
   };
 
+  /* ---- a hello each new day: a happy hop, a few words and three hearts ---- */
+  const HK = 'bookshelf-hello';
+  setTimeout(function hello(n = 0) {
+    if (!booksReady || view !== 'room' || petBusy || petDrag || document.hidden) {
+      if (n < 40) setTimeout(() => hello(n + 1), 1500);
+      return;
+    }
+    if (!petOn()) return;
+    const today = dayOf();
+    try {
+      if (localStorage.getItem(HK) === today) return;
+      localStorage.setItem(HK, today);
+    } catch (e) {
+      return;
+    }
+    /* someone brand new hasn't met it yet: just hearts, no "welcome back" */
+    const new_ = !books.length,
+      sk = typeof streakInfo === 'function' ? streakInfo() : { n: 0, readToday: false },
+      nm = (look.petName || '').trim(),
+      says = new_
+        ? nm
+          ? L('Hi! I’m {name}.', { name: nm })
+          : L('Hi! Nice to meet you.')
+        : sk.n > 1 && !sk.readToday
+          ? L('🔥 {n} days in a row! Shall we read today?', { n: sk.n })
+          : [L('Welcome back!'), L('I missed you!'), L('Ready for a chapter?'), L('Hello again!')][
+              Math.floor(Math.random() * 4)
+            ];
+    catw.classList.remove('sleeping', 'waiting');
+    restart('cheer');
+    sparkle(3, ['♥']);
+    sound();
+    catw.querySelectorAll('.psay').forEach((x) => x.remove());
+    const b = el('b', 'psay', says);
+    catw.append(b);
+    setTimeout(() => b.remove(), 4500);
+    petNext(5000);
+  }, 2500);
+
   /* ---- cheering when a book is finished (bigger when it reaches your yearly goal) ---- */
   function cheer(big) {
     if (!petOn() || petBusy || petDrag) return;
