@@ -1319,7 +1319,7 @@ body.dragmode {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .leftcol {
     width: 100%;
     margin-top: 6px;
@@ -1339,7 +1339,7 @@ body.dragmode {
     order: 2;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .frame {
     display: none;
   }
@@ -1348,7 +1348,7 @@ body.dragmode {
     left: 8px;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .scene {
     flex-direction: column;
     align-items: center;
@@ -2538,7 +2538,7 @@ body.turningview .wallext {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .sttiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2580,7 +2580,7 @@ body.turningview .wallext {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .stgrid {
     grid-template-columns: 1fr;
   }
@@ -3385,7 +3385,7 @@ body.night-live .lamp.off {
     opacity: 0.3;
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .gift {
     right: 6%;
   }
@@ -3482,7 +3482,7 @@ body.night-live .lamp.off {
   width: 100%;
   padding-bottom: 40px;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .crate {
     right: 3%;
     width: 150px;
@@ -3492,7 +3492,7 @@ body.night-live .lamp.off {
 .floor:has(.crate) {
   min-height: 150px;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .floor:has(.crate) .rug {
     width: 40%;
   }
@@ -3982,7 +3982,7 @@ body.season-winter .window .sill:before {
   animation: nom 0.45s ease-in-out infinite;
   transform-origin: 78% 100%;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .bowls {
     gap: 18px;
   }
@@ -4210,7 +4210,7 @@ body.season-winter .window .sill:before {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   color: #3b2c20;
 }
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .wclock {
     left: -66px;
     top: 10px;
@@ -4249,7 +4249,7 @@ body.season-winter .window .sill:before {
   }
 }
 /* wide screens: the window sits near the left edge, so the clock hangs on the right, above the thermometer */
-@media (min-width: 721px) {
+@media (min-width: 721px) and (min-height: 521px), (min-width: 721px) and (orientation: portrait) {
   .wclock {
     left: auto;
     right: -68px;
@@ -4562,7 +4562,7 @@ body.season-winter .window .sill:before {
   right: auto;
   left: calc(100% + 14px);
 }
-@media (min-width: 721px) {
+@media (min-width: 721px) and (min-height: 521px), (min-width: 721px) and (orientation: portrait) {
   .wclock[data-s='digital'],
   .wclock[data-s='flip'] {
     right: auto;
@@ -4579,7 +4579,7 @@ body.season-winter .window .sill:before {
 }
 
 /* a bit of wall between the window and the clock / temperature */
-@media (max-width: 720px) {
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
   .wclock[data-s] {
     left: auto;
     right: calc(100% + 34px);
@@ -4592,7 +4592,7 @@ body.season-winter .window .sill:before {
     top: -4px;
   }
 }
-@media (min-width: 721px) {
+@media (min-width: 721px) and (min-height: 521px), (min-width: 721px) and (orientation: portrait) {
   .leftcol {
     width: 300px;
   }
@@ -5791,6 +5791,7 @@ body.restwalls #roomv.away .leaf i {
   }
 }
 
+/* a phone turned sideways keeps the phone layout (one column), instead of the computer layout squeezed into a short screen */
 /* ---------- Customize is a drawer: the room stays in view above it and changes as you tap, so the room itself is the preview ---------- */
 #lov {
   align-items: flex-end;
