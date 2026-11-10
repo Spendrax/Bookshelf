@@ -122,6 +122,18 @@ button {
   color: var(--ink);
   font-size: 14px;
 }
+/* Goals and Stats point to the wall on their side of Customize */
+.tools .arrbtn {
+  border: 0;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--acc) 22%, var(--card));
+  padding: 9px 14px 9px 24px;
+  clip-path: polygon(0 50%, 16px 0, 100% 0, 100% 100%, 16px 100%);
+}
+.tools #statsbtn {
+  padding: 9px 24px 9px 14px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+}
 .tools .add {
   background: var(--acc);
   color: #fff;
