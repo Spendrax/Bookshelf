@@ -8195,3 +8195,29 @@ body.calm2 .window .stars {
   z-index: 10;
   cursor: zoom-out;
 }
+
+/* a partner's book: what they put on it */
+.pinfo .pmeta {
+  margin: 8px 0 0;
+  font: 14px/1.4 system-ui, sans-serif;
+  opacity: 0.8;
+}
+.pchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pchips span {
+  font: 13px system-ui, sans-serif;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.pblurb {
+  margin: 10px 0 0;
+  max-height: 30vh;
+  overflow: auto;
+  font-size: 14px;
+  white-space: pre-line;
+}

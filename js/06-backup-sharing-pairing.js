@@ -300,6 +300,12 @@ const shareJson = () =>
       w: b.w || 0,
       h: b.h || 0,
       format: b.format || '',
+      /* what helps someone decide to read it too (their own thoughts stay private) */
+      page: b.page || 0,
+      isbn: b.isbn || '',
+      blurb: String(b.blurb || '').slice(0, 1500),
+      genres: b.genres || [],
+      tags: b.tags || [],
       ...['cover', 'back', 'spine'].reduce((o, f) => {
         const t = b[f] && THUMB.get(b[f]);
         if (t) o[f] = t;
@@ -1158,6 +1164,39 @@ PRV.addEventListener(
     const key = (b.title + '|' + (b.author || '')).toLowerCase(),
       have = books.some((x) => (x.title + '|' + (x.author || '')).toLowerCase() === key);
     const msg = b.title + (b.author ? ' — ' + b.author : '') + (b.stars ? '  ★ ' + fmtStars(b.stars) : '');
+    const strs = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string').slice(0, 12) : []);
+    /* what they put on it: where it sits, how far they are, series, genres, tags, the blurb */
+    const info = () => {
+      const z = st(b),
+        P = +b.pages || 0,
+        pg = +b.page || 0,
+        lines = [
+          {
+            read: L('Read'),
+            reading: L('Currently reading'),
+            want: L('Want to read'),
+            dnf: L("Didn't finish"),
+          }[z],
+          z === 'read' && b.finished ? L('Finished {d}', { d: fmtDate(b.finished) }) : '',
+          z === 'reading' && pg && P
+            ? L('Page {p} of {n}', { p: pg, n: P })
+            : P
+              ? L('{n} pages', { n: P })
+              : '',
+          b.series ? L('Series') + ': ' + b.series + (b.seriesNo ? ' #' + b.seriesNo : '') : '',
+        ].reduce((a, t) => (t ? a.concat(t) : a), []);
+      const box = el('div', 'pinfo');
+      box.append(el('p', 'pmeta', lines.join(' · ')));
+      const chips = [...strs(b.genres), ...strs(b.tags).map((t) => '🏷 ' + t)];
+      if (chips.length) {
+        const c = el('div', 'pchips');
+        chips.forEach((t) => c.append(el('span', '', t)));
+        box.append(c);
+      }
+      if (b.blurb) box.append(el('p', 'pblurb', String(b.blurb).slice(0, 1500)));
+      if (have) box.append(el('p', 'pmeta', L('Already on your shelves.')));
+      $('askmsg').append(box);
+    };
     /* their photos of it: spine, front and back, side by side; tap one to see it big */
     const pics = () => {
       const row = el('div', 'ppics');
@@ -1173,11 +1212,13 @@ PRV.addEventListener(
     };
     if (have) {
       const a = ask(msg, L('Close'), L('Close'));
+      info();
       pics();
       await a;
       return;
     }
     const a = ask(msg, '+ ' + L('Want to read'), L('Close'));
+    info();
     pics();
     if (await a) {
       books.push({
@@ -1189,6 +1230,11 @@ PRV.addEventListener(
         w: b.w,
         h: b.h,
         ...(b.cover ? { cover: b.cover } : {}),
+        ...(+b.pages ? { pages: +b.pages } : {}),
+        ...(b.isbn ? { isbn: String(b.isbn).slice(0, 20) } : {}),
+        ...(b.blurb ? { blurb: String(b.blurb).slice(0, 1500) } : {}),
+        ...(b.series ? { series: b.series, seriesNo: b.seriesNo || 0 } : {}),
+        ...(strs(b.genres).length ? { genres: strs(b.genres) } : {}),
         createdAt: Date.now(),
         recBy: pName(),
       });
