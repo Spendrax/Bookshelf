@@ -300,6 +300,11 @@ const shareJson = () =>
       w: b.w || 0,
       h: b.h || 0,
       format: b.format || '',
+      ...['cover', 'back', 'spine'].reduce((o, f) => {
+        const t = b[f] && THUMB.get(b[f]);
+        if (t) o[f] = t;
+        return o;
+      }, {}),
     })),
     ...(pairShare()
       ? {
@@ -328,8 +333,25 @@ const shareJson = () =>
         }
       : {}),
   });
+/* small copies of the covers, backs and spines so a partner or friend sees the real books (kept small: the shared file stays light) */
+const THUMB = new Map();
+async function prepThumbs() {
+  for (const b of books)
+    for (const f of ['cover', 'back', 'spine']) {
+      const u = b[f];
+      if (!u || THUMB.has(u)) continue;
+      try {
+        THUMB.set(u, await shrink(await (await fetch(u)).blob(), f === 'spine' ? 220 : 260));
+      } catch (e) {}
+    }
+}
+const okImg = (u) =>
+  typeof u === 'string' &&
+  u.length < 200000 &&
+  /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(u);
 async function shareUpload() {
   let id = shareId();
+  await prepThumbs();
   const body = shareJson();
   if (id) {
     try {
@@ -593,6 +615,7 @@ function renderPartner() {
             ],
         w: +b.w || 30 + (hue(b.title) % 24),
         h: +b.h || 150 + (hue(b.title) % 62),
+        ...['cover', 'back', 'spine'].reduce((o, f) => ((o[f] = okImg(b[f]) ? b[f] : ''), o), {}),
       }),
     );
   const box = el('div', 'pinner'),
@@ -1135,11 +1158,28 @@ PRV.addEventListener(
     const key = (b.title + '|' + (b.author || '')).toLowerCase(),
       have = books.some((x) => (x.title + '|' + (x.author || '')).toLowerCase() === key);
     const msg = b.title + (b.author ? ' — ' + b.author : '') + (b.stars ? '  ★ ' + fmtStars(b.stars) : '');
+    /* their photos of it: spine, front and back, side by side; tap one to see it big */
+    const pics = () => {
+      const row = el('div', 'ppics');
+      [b.spine, b.cover, b.back].forEach((u) => {
+        if (!u) return;
+        const im = el('img');
+        im.src = u;
+        im.alt = '';
+        im.onclick = () => im.classList.toggle('big');
+        row.append(im);
+      });
+      if (row.children.length) $('askmsg').append(row);
+    };
     if (have) {
-      await ask(msg, L('Close'), L('Close'));
+      const a = ask(msg, L('Close'), L('Close'));
+      pics();
+      await a;
       return;
     }
-    if (await ask(msg, '+ ' + L('Want to read'), L('Close'))) {
+    const a = ask(msg, '+ ' + L('Want to read'), L('Close'));
+    pics();
+    if (await a) {
       books.push({
         id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
         title: b.title,
@@ -1148,6 +1188,7 @@ PRV.addEventListener(
         color: b.color,
         w: b.w,
         h: b.h,
+        ...(b.cover ? { cover: b.cover } : {}),
         createdAt: Date.now(),
         recBy: pName(),
       });

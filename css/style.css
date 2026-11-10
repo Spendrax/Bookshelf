@@ -8168,3 +8168,30 @@ body.calm2 .window .stars {
 .window > .friend {
   z-index: 4;
 }
+
+/* a partner's book: their photos of the spine, front and back */
+.ppics {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+.ppics img {
+  height: 150px;
+  max-width: 40%;
+  object-fit: contain;
+  border-radius: 3px;
+  box-shadow: 0 3px 10px #0006;
+  cursor: zoom-in;
+}
+.ppics img.big {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: auto;
+  max-height: 85vh;
+  max-width: 92vw;
+  z-index: 10;
+  cursor: zoom-out;
+}
