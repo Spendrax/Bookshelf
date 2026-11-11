@@ -7550,9 +7550,13 @@ body.calm2 .window .stars {
   background: none;
   font-size: 19px;
   cursor: pointer;
+  /* Android drew a blue square over the tapped trick while the menu faded: that was the flash */
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
 .tricks button:active {
   background: rgba(0, 0, 0, 0.08);
+  scale: 0.9;
 }
 @keyframes shiver {
   0%,
