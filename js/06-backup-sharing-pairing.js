@@ -553,7 +553,10 @@ function partnerCopy(fn, src, dest) {
     look = partnerData.look && typeof partnerData.look === 'object' ? partnerData.look : {};
     fn();
     const c = src.cloneNode(true);
-    c.querySelectorAll('#backroom,#backroom2,#yrbtn').forEach((e) => e.remove());
+    /* your animal (and its bits) can be standing on this wall: the copy is theirs, so it goes */
+    c.querySelectorAll(
+      '#backroom,#backroom2,#yrbtn,.catw,.friend,.pname,.psay,.bub,.hcount,.tricks,.land,.heart',
+    ).forEach((e) => e.remove());
     c.querySelectorAll('[id]').forEach((e) => e.removeAttribute('id'));
     c.querySelectorAll('button,input,select,textarea,a').forEach((e) => {
       e.tabIndex = -1;
