@@ -31,6 +31,9 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/20-edition-covers.js` | After a cover photo: orders the results by likeness and picks the matching edition; the "Other covers" / "Find online" picker for the cover and back |
 | `js/21-book-extras.js` | On the book card: the author's other books, community rating, "Readers also enjoyed", progress over time, spoilers |
 | `js/22-live-cover-scan.js` | Scanning a front cover live with the camera (read by itself, no photo to take) |
+| `js/23-safety.js` | What the shared file includes (switches), automatic Google Drive backup, storage warning |
+| `js/24-partner-extras.js` | Pair extras: recommend a book to your partner, buddy reads |
+| `js/25-challenge.js` | The monthly challenge card on the goals wall |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 

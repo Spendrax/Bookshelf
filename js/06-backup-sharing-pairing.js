@@ -547,6 +547,8 @@ function partnerPet(lk) {
 }
 /* their Goals and Stats walls: drawn by the same code as yours, from their data, then copied over as a picture you can scroll */
 function partnerCopy(fn, src, dest) {
+  /* while their walls are drawn, nothing may be saved or rewarded: the data in hand is theirs */
+  partnerCopy.on = true;
   const keep = {
     books,
     goals,
@@ -586,6 +588,7 @@ function partnerCopy(fn, src, dest) {
   } catch (e) {
     dest.replaceChildren(el('p', 'stempty', L('Couldn’t draw this wall.')));
   } finally {
+    partnerCopy.on = false;
     books = keep.books;
     look = keep.look;
     goals = keep.goals;

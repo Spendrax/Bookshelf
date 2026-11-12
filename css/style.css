@@ -8280,3 +8280,24 @@ body.calm2 .window .stars {
   accent-color: var(--acc);
   flex: none;
 }
+
+/* the month's challenge, on the goals wall */
+.chal .chtext {
+  margin: 0 0 10px;
+  font: 600 17px/1.3 Georgia, serif;
+}
+.chbar {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  overflow: hidden;
+}
+.chbar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acc);
+}
+.chal .sub {
+  margin: 8px 0 0;
+}

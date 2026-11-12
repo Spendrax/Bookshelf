@@ -177,7 +177,8 @@ function migrate() {
   });
 }
 const lum = (h) => {
-  const n = parseInt(h.slice(1), 16);
+  /* a book with no colour (an old backup, a hand-made file) must not stop the shelf from drawing */
+  const n = parseInt(String(h || '#8b2e2e').slice(1), 16) || 0;
   return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
 };
 async function shrink(blob, max = 520) {

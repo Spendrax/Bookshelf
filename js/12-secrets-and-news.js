@@ -118,12 +118,13 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-11-10',
+  id: '2026-11-12',
   items: [
-    '🐾 Your animal now learns new tricks from the hearts it gives you: Wave, Sit, Dance and Celebrate. Hold your finger on it to see them.',
-    '👋 It says hello each new day, with three hearts for you.',
-    '❔ Hold it and tap ❔ to see everything it can do.',
-    '💞 Tap a book on your partner’s shelves to see their cover, back, tags and blurb, and add it to your list.',
+    '☁️ Your Google Drive backup now keeps itself up to date after you change something.',
+    '🔒 You choose what your shared shelf shows: tags, reading progress and your thoughts (off unless you turn them on).',
+    '💌 Paired? Recommend a book to your partner from its card, and see when you are both reading the same book.',
+    '🎯 A new challenge each month on the Goals wall: finish it for 10 hearts.',
+    '🎁 Your animal’s hearts now bring accessories, and it can play with its yarn from its tricks.',
   ],
 };
 const NEWSK = 'bookshelf-news';
