@@ -78,8 +78,12 @@
     }
     if (!petOn()) return;
     const today = dayOf();
+    let away = 0;
     try {
-      if (localStorage.getItem(HK) === today) return;
+      const was = localStorage.getItem(HK);
+      if (was === today) return;
+      /* days since it last said hello */
+      if (/^\d{4}-\d\d-\d\d$/.test(was || '')) away = Math.round((new Date(today) - new Date(was)) / 864e5);
       localStorage.setItem(HK, today);
     } catch (e) {
       return;
@@ -88,18 +92,22 @@
     const new_ = !books.length,
       sk = typeof streakInfo === 'function' ? streakInfo() : { n: 0, readToday: false },
       nm = (look.petName || '').trim(),
-      says = new_
-        ? nm
-          ? L('Hi! I’m {name}.', { name: nm })
-          : L('Hi! Nice to meet you.')
-        : sk.n > 1 && !sk.readToday
-          ? L('🔥 {n} days in a row! Shall we read today?', { n: sk.n })
-          : [L('Welcome back!'), L('I missed you!'), L('Ready for a chapter?'), L('Hello again!')][
-              Math.floor(Math.random() * 4)
-            ];
+      says =
+        away >= 3 && !new_
+          ? L('You’re back! {n} days without you…', { n: away })
+          : new_
+            ? nm
+              ? L('Hi! I’m {name}.', { name: nm })
+              : L('Hi! Nice to meet you.')
+            : sk.n > 1 && !sk.readToday
+              ? L('🔥 {n} days in a row! Shall we read today?', { n: sk.n })
+              : [L('Welcome back!'), L('I missed you!'), L('Ready for a chapter?'), L('Hello again!')][
+                  Math.floor(Math.random() * 4)
+                ];
     catw.classList.remove('sleeping', 'waiting');
-    restart('cheer');
-    sparkle(3, ['♥']);
+    /* a long time away: a bigger welcome */
+    restart(away >= 3 ? 'cheer2' : 'cheer');
+    sparkle(away >= 3 ? 6 : 3, ['♥']);
     sound();
     catw.querySelectorAll('.psay').forEach((x) => x.remove());
     const b = el('b', 'psay', says);
@@ -107,6 +115,12 @@
     setTimeout(() => b.remove(), 4500);
     petNext(5000);
   }, 2500);
+
+  /* its yarn, thrown from the trick menu */
+  catw.addEventListener('playnow', () => {
+    if (playing) return;
+    if (!play()) toast('🧶 ' + L('Put it on the floor to play.'));
+  });
 
   /* ---- cheering when a book is finished (bigger when it reaches your yearly goal) ---- */
   function cheer(big) {

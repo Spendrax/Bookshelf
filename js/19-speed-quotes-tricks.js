@@ -230,6 +230,7 @@ const heartsNow = () => +goals.hearts || 0;
       },
     ],
     ['🎉', 'Celebrate', () => play('cheer2')],
+    ['🧶', 'Play with yarn', () => catw.dispatchEvent(new Event('playnow'))],
   ];
   const drawMenu = () =>
     menu.replaceChildren(
@@ -358,6 +359,12 @@ const heartsNow = () => +goals.hearts || 0;
           ),
         1600,
       );
+    const gift = ACCS.find((a) => a[4] && was < a[4] && now >= a[4]);
+    if (gift)
+      setTimeout(
+        () => toast(L('🎁 New accessory: {t}! Find it in Customize.', { t: L(gift[1]) })),
+        learnt ? 5200 : 1600,
+      );
     const hit = STEPS.find((s) => was < s && now >= s);
     if (hit)
       setTimeout(
@@ -429,6 +436,8 @@ function animalGuide() {
         f: T.Celebrate,
       }),
     ],
+    ['🧶', 'Play (in its tricks) throws its yarn when it is on the floor.'],
+    ['🎁', 'Its hearts also bring accessories: a heart pin, a halo, headphones and a wizard hat.'],
     ['🌱', 'It grows up after 10 books read and cheers every book you finish.'],
     ['☀️', 'It naps at night, suns itself, watches the rain and says hello each new day.'],
     ['🎨', 'In Customize: change its kind, colour, name and accessory, or add a second animal.'],

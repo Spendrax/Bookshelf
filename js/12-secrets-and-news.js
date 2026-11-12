@@ -295,7 +295,7 @@ function roomRewards() {
       }
       /* its own colour and accessory, chosen in Customize (not your animal's) */
       const coat = (OPTS.find((x) => x.k === 'coat').i.find((x) => x[0] === look._fcoat) || [0, 0, {}])[2],
-        acc = ACCS.find((x) => x[0] === look._facc && badgeCount() >= x[2]),
+        acc = ACCS.find((x) => x[0] === look._facc && accOk(x)),
         key = [look._friend, look._fcoat || '', acc ? acc[0] : ''].join('|');
       if (f.dataset.k !== key) {
         f.dataset.k = key;

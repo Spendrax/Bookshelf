@@ -485,6 +485,35 @@ const ACCS = [
     9,
     '<path d="M-6 .8V-6.6L-3-3.2L0-8L3-3.2L6-6.6V.8z" fill="#f2c230" stroke="#c9961a" stroke-width=".5" stroke-linejoin="round"/><circle cx="0" cy="-2.2" r="1" fill="#d6455d"/><circle cx="-3.6" cy="-1.6" r=".8" fill="#4aa3df"/><circle cx="3.6" cy="-1.6" r=".8" fill="#4aa3df"/>',
   ],
+  /* given by the animal's hearts (5th value), not by badges */
+  [
+    'heartpin',
+    'Heart pin',
+    0,
+    '<path transform="translate(3.6 -1.4) scale(.75)" d="M0 0C-4-2.6-6.4-5-4.6-7.4-3.2-9.2-.9-8.6 0-6.8.9-8.6 3.2-9.2 4.6-7.4 6.4-5 4-2.6 0 0z" fill="#e0536c"/>',
+    30,
+  ],
+  [
+    'halo',
+    'Halo',
+    0,
+    '<ellipse cx="0" cy="-9" rx="5.6" ry="1.8" fill="none" stroke="#f2c230" stroke-width="1.5"/>',
+    120,
+  ],
+  [
+    'headphones',
+    'Headphones',
+    0,
+    '<path d="M-6.4 0C-6.4-9 6.4-9 6.4 0" fill="none" stroke="#2b2b31" stroke-width="1.6"/><rect x="-8" y="-2.4" width="3.4" height="5.4" rx="1.5" fill="#d6455d"/><rect x="4.6" y="-2.4" width="3.4" height="5.4" rx="1.5" fill="#d6455d"/>',
+    300,
+  ],
+  [
+    'wizard',
+    'Wizard hat',
+    0,
+    '<ellipse cy=".4" rx="8" ry="1.7" fill="#2f3f8f"/><path d="M-4.8 0L0-12.6L4.8 0z" fill="#3b4fb3"/><path d="M0-7.2l.7 1.5 1.6.2-1.2 1.1.3 1.6L0-3.6l-1.4.8.3-1.6-1.2-1.1 1.6-.2z" fill="#f2c230"/>',
+    600,
+  ],
 ];
 const badgeCount = () => {
   /* in the preview everything is unlocked, to try it */ if (window.EB_SAMPLE) return 99;
@@ -494,6 +523,9 @@ const badgeCount = () => {
     return 0;
   }
 };
+/* an accessory is yours when you have its badges, or the hearts it asks for */
+const accOk = (a) => !!a && badgeCount() >= a[2] && (window.EB_SAMPLE || (+goals.hearts || 0) >= (a[4] || 0));
+const accNeed = (a) => (a[4] ? 'h' + a[4] : a[2]);
 function petAccSvg(pet, acc) {
   const h = PETHEAD[pet],
     a = ACCS.find((x) => x[0] === acc);
@@ -505,9 +537,12 @@ function petAcc() {
   if (!c) return;
   c.querySelectorAll('.acc').forEach((e) => e.remove());
   const a = ACCS.find((x) => x[0] === look._acc);
-  if (!a || badgeCount() < a[2]) return;
+  if (!accOk(a)) return;
   /* worn on the head, so it moves with it */
-  (c.querySelector('.head') || c.querySelector('.pose') || c).insertAdjacentHTML('beforeend', petAccSvg(sid('pet'), a[0]));
+  (c.querySelector('.head') || c.querySelector('.pose') || c).insertAdjacentHTML(
+    'beforeend',
+    petAccSvg(sid('pet'), a[0]),
+  );
 }
 {
   const al = applyLook;

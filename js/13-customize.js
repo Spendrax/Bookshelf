@@ -341,8 +341,12 @@ function czGroup(k, label, items, curVal, pick) {
   items.forEach(([id, name, v, need]) => {
     const b = el('button', 'czt');
     b.type = 'button';
-    const locked = need && badgeCount() < need;
-    b.append(czThumb(k, id, v || {}), locked ? '\u{1F512} ' + L('{n} badges', { n: need }) : name);
+    const hn = typeof need === 'string' ? +need.slice(1) : 0,
+      locked = hn ? !window.EB_SAMPLE && (+goals.hearts || 0) < hn : need && badgeCount() < need;
+    b.append(
+      czThumb(k, id, v || {}),
+      locked ? '\u{1F512} ' + (hn ? hn + ' ♥' : L('{n} badges', { n: need })) : name,
+    );
     b.setAttribute('aria-pressed', id === curVal);
     b.dataset.v = id;
     b.title = name;
@@ -367,7 +371,7 @@ function czPetStage() {
     return st0;
   }
   const a = ACCS.find((x) => x[0] === look._acc),
-    acc = a && badgeCount() >= a[2] ? petAccSvg(pet, a[0]) : '';
+    acc = accOk(a) ? petAccSvg(pet, a[0]) : '';
   st0.innerHTML = `<svg class="cat" viewBox="0 0 60 56" aria-hidden="true" style="${an[0]}">${an[1]}${acc}</svg>`;
   if (look.petName) st0.append(el('div', 'nm', look.petName));
   return st0;
@@ -503,12 +507,12 @@ buildPanel = function () {
     } else if (k === '_acc') {
       if (sid('pet') === 'none') return;
       const a = ACCS.find((x) => x[0] === look._acc),
-        cur0 = a && badgeCount() >= a[2] ? a[0] : '';
+        cur0 = accOk(a) ? a[0] : '';
       out.append(
         czGroup(
           k,
           L('Accessory'),
-          [['', L('None')], ...ACCS.map((x) => [x[0], L(x[1]), null, x[2]])],
+          [['', L('None')], ...ACCS.map((x) => [x[0], L(x[1]), null, accNeed(x)])],
           cur0,
           (v) => setOwn('_acc', v, petAcc),
         ),
@@ -562,8 +566,8 @@ buildPanel = function () {
           czGroup(
             '_facc',
             L('Second animal’s accessory'),
-            [['', L('None')], ...ACCS.map((x) => [x[0], L(x[1]), null, x[2]])],
-            fa && badgeCount() >= fa[2] ? fa[0] : '',
+            [['', L('None')], ...ACCS.map((x) => [x[0], L(x[1]), null, accNeed(x)])],
+            accOk(fa) ? fa[0] : '',
             (v) => setOwn('_facc', v, roomRewards),
           ),
         );
