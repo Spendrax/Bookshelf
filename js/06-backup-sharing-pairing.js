@@ -323,6 +323,8 @@ const shareJson = () =>
     })),
     ...(pairShare()
       ? {
+          /* books recommended to the partner */
+          recs: typeof myRecs === 'function' ? myRecs().slice(-20) : [],
           goals,
           sessions: sessions.slice(-600),
           look: {
@@ -815,6 +817,14 @@ function pPetStart(lk) {
     w.append(nm);
   }
   box.append(w);
+  /* their animal says hello when you come in */
+  setTimeout(() => {
+    if (!w.isConnected || view !== 'proom') return;
+    const me = ownerName().trim(),
+      b = el('b', 'psay', me ? L('Hi {name}!', { name: me.slice(0, 20) }) : L('Hello again!'));
+    w.append(b);
+    setTimeout(() => b.remove(), 4500);
+  }, 1800);
   pPet = { w, svg, pet, way: PETWAY[pet] || 'walk', spot: null, x: 0, y: 0, t: 0, an: null, asleep: false };
   w.addEventListener('click', (e) => {
     e.stopPropagation();
