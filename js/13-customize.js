@@ -681,6 +681,13 @@ buildPanel = function () {
       };
       l.append(s);
       out.append(l);
+      /* how full the app's space on this phone is */
+      const su = el('small', 'storeuse', '');
+      out.append(su);
+      storageUse().then((u) => {
+        const mb = (n) => (n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : Math.max(1, Math.round(n / 1e6)) + ' MB');
+        if (u) su.textContent = '💾 ' + L('Storage used: {a} of {b}', { a: mb(u.used), b: mb(u.quota) });
+      });
     } else if (k === '_remind') {
       const l = document.createElement('label');
       l.textContent = '\u{1F514} ' + L('Daily reading reminder');

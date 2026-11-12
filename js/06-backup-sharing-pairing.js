@@ -1,8 +1,10 @@
 /* ---------- a small in-page question box (works where pop-ups don't) ---------- */
 let askDone = null;
-function ask(msg, ok, no) {
+function ask(msg, ok, no, extra) {
   return new Promise((res) => {
     $('askmsg').textContent = msg;
+    /* something more under the question (a few switches, pictures): a function that returns it */
+    if (extra) $('askmsg').append(extra());
     $('askok').textContent = ok || L('Save');
     $('askno').textContent = no || L('Cancel');
     $('askov').classList.add('on');
@@ -185,9 +187,9 @@ async function gFind() {
   ).json();
   return (j.files || [])[0] || null;
 }
-async function driveBackup() {
+async function driveBackup(quiet) {
   try {
-    toast('☁️ ' + L('Saving to Google Drive…'));
+    if (!quiet) toast('☁️ ' + L('Saving to Google Drive…'));
     const f = await gFind(),
       body = backupJson();
     if (f)
@@ -210,10 +212,12 @@ async function driveBackup() {
       localStorage.setItem(LB, Date.now());
     } catch (e) {}
     checkBackup();
-    toast('☁️ ' + L('Backed up to your Google Drive.'));
+    if (!quiet) toast('☁️ ' + L('Backed up to your Google Drive.'));
     if (shareId()) shareUpload().catch(() => {});
+    return true;
   } catch (e) {
-    toast(L('Google Drive backup didn’t work. Check your connection and try again.'));
+    if (!quiet) toast(L('Google Drive backup didn’t work. Check your connection and try again.'));
+    return false;
   }
 }
 async function driveRestore() {
@@ -257,6 +261,7 @@ async function driveMenu() {
       L('Google Drive backup is on. Back up now, or replace this shelf with the copy in your Drive?'),
       L('Back up now'),
       L('Restore from Drive'),
+      autoBkBox,
     )
   )
     driveBackup();
@@ -293,19 +298,23 @@ const shareJson = () =>
       stars: b.stars || null,
       series: b.series || '',
       seriesNo: b.seriesNo || 0,
-      finished: b.finished || '',
-      started: b.started || '',
+      finished: shareOpt('progress') ? b.finished || '' : '',
+      started: shareOpt('progress') ? b.started || '' : '',
       pages: b.pages || 0,
       color: b.color || '',
       w: b.w || 0,
       h: b.h || 0,
       format: b.format || '',
       /* what helps someone decide to read it too (their own thoughts stay private) */
-      page: b.page || 0,
+      page: shareOpt('progress') ? b.page || 0 : 0,
+      /* their thoughts, only when they chose to share them; spoilers stay hidden */
+      ...(shareOpt('thoughts') && b.note
+        ? { note: (window.spoilStrip ? spoilStrip(b.note) : String(b.note)).slice(0, 2000) }
+        : {}),
       isbn: b.isbn || '',
       blurb: String(b.blurb || '').slice(0, 1500),
       genres: b.genres || [],
-      tags: b.tags || [],
+      tags: shareOpt('tags') ? b.tags || [] : [],
       ...['cover', 'back', 'spine'].reduce((o, f) => {
         const t = b[f] && THUMB.get(b[f]);
         if (t) o[f] = t;
@@ -419,10 +428,11 @@ async function shareMenu() {
     if (
       await ask(
         L(
-          'Your shelf is shared. Anyone with the link sees your books and ratings, never your notes. Send the link again, or stop sharing?',
+          'Your shelf is shared. Anyone with the link sees your books, covers and ratings. Send the link again, or stop sharing?',
         ),
         L('Send link'),
         L('Stop sharing'),
+        shareOptsBox,
       )
     ) {
       try {
@@ -445,10 +455,11 @@ async function shareMenu() {
   if (
     !(await ask(
       L(
-        'Share your shelf with a friend? You get a link: anyone who opens it sees your books, shelves and ratings (never your notes or quotes). It updates each time you back up to Google Drive.',
+        'Share your shelf with a friend? You get a link: anyone who opens it sees your books, covers, shelves and ratings. It updates by itself when you change something.',
       ),
       L('Share'),
       L('Cancel'),
+      shareOptsBox,
     ))
   )
     return;
@@ -1197,6 +1208,8 @@ PRV.addEventListener(
         box.append(c);
       }
       if (b.blurb) box.append(el('p', 'pblurb', String(b.blurb).slice(0, 1500)));
+      if (typeof b.note === 'string' && b.note.trim())
+        box.append(el('p', 'pmeta', '💭 ' + L('Their thoughts')), el('p', 'pblurb', b.note.slice(0, 2000)));
       if (have) box.append(el('p', 'pmeta', L('Already on your shelves.')));
       $('askmsg').append(box);
     };
@@ -1288,10 +1301,11 @@ async function pairMenu() {
   if (
     !(await ask(
       L(
-        'Pair your bookshelf with someone? You’ll each see the other’s shelves, goals and stats on the far side of the room (never notes or quotes). Each of you only changes your own books.',
+        'Pair your bookshelf with someone? You’ll each see the other’s shelves, goals and stats on the far side of the room. Each of you only changes your own books.',
       ),
       L('Pair'),
       L('Cancel'),
+      shareOptsBox,
     ))
   )
     return;

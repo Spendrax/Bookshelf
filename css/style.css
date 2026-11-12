@@ -8256,3 +8256,27 @@ body.calm2 .window .stars {
   opacity: 0.45;
   font-size: 15px;
 }
+
+/* a few switches under a question */
+.optbox {
+  margin-top: 12px;
+  text-align: left;
+  font: 14px/1.35 system-ui, sans-serif;
+}
+.optbox .opth {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.optrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  cursor: pointer;
+}
+.optrow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--acc);
+  flex: none;
+}
