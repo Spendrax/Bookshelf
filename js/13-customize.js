@@ -148,7 +148,11 @@ let czTab = 'room';
 const CZ_TABS = [
   ['room', 'Room', ['theme', 'wall', 'floor', 'window', 'view', 'nightroom']],
   ['furn', 'Furniture', ['wood', 'casest', 'dnfbox', 'rug', 'plant', 'pot', 'season', '_deco']],
-  ['pet', 'Animal', ['pet', '_name', 'coat', '_acc', '_dragon', '_spirit', 'bowls', 'petmove', '_friend']],
+  [
+    'pet',
+    'Animal',
+    ['pet', '_name', 'coat', '_acc', '_wear', '_dragon', '_spirit', 'bowls', 'petmove', '_friend'],
+  ],
   ['clock', 'Clock & weather', ['clock', 'clockc', 'therm', 'thermc', '_wx']],
   ['more', 'More', ['_lang', 'sound', '_backup', '_remind', '_btns']],
 ];
@@ -313,6 +317,14 @@ function czThumb(k, id, v) {
         an[1] + petAccSvg(pet, id),
         an[0] + (k === '_facc' ? friendCoat() : ''),
       ).replace('<svg ', '<svg class="cat" ');
+  } else if (k === '_wear') {
+    const an = ANIMALS[sid('pet')];
+    if (!id || !an) none();
+    else
+      i.innerHTML = czSvg('0 0 60 56', an[1] + petWearSvg(sid('pet'), id), an[0]).replace(
+        '<svg ',
+        '<svg class="cat" ',
+      );
   } else if (k === '_deco') {
     const d = DECOS.find((x) => x[0] === id);
     if (!d) none();
@@ -371,7 +383,8 @@ function czPetStage() {
     return st0;
   }
   const a = ACCS.find((x) => x[0] === look._acc),
-    acc = accOk(a) ? petAccSvg(pet, a[0]) : '';
+    wr = WEARS.find((x) => x[0] === look._wear),
+    acc = (wearOk(wr) ? petWearSvg(pet, wr[0]) : '') + (accOk(a) ? petAccSvg(pet, a[0]) : '');
   st0.innerHTML = `<svg class="cat" viewBox="0 0 60 56" aria-hidden="true" style="${an[0]}">${an[1]}${acc}</svg>`;
   if (look.petName) st0.append(el('div', 'nm', look.petName));
   return st0;
@@ -451,7 +464,7 @@ buildPanel = function () {
     czSaveLook();
     after && after();
     press(k, v);
-    if (k === '_acc' || k === '_dragon' || k === '_spirit') stage();
+    if (k === '_acc' || k === '_wear' || k === '_dragon' || k === '_spirit') stage();
     /* the second animal's previews follow its new colour (or the new animal) */
     if (k === '_fcoat' || k === '_friend') buildPanel();
     setTimeout(() => czShow(k), 60);
@@ -515,6 +528,18 @@ buildPanel = function () {
           [['', L('None')], ...ACCS.map((x) => [x[0], L(x[1]), null, accNeed(x)])],
           cur0,
           (v) => setOwn('_acc', v, petAcc),
+        ),
+      );
+    } else if (k === '_wear') {
+      if (!PETBODY[sid('pet')]) return;
+      const w = WEARS.find((x) => x[0] === look._wear);
+      out.append(
+        czGroup(
+          k,
+          L('Outfit'),
+          [['', L('None')], ...WEARS.map((x) => [x[0], L(x[1]), null, 'h' + x[3]])],
+          wearOk(w) ? w[0] : '',
+          (v) => setOwn('_wear', v, petAcc),
         ),
       );
     } else if (k === '_friend') {

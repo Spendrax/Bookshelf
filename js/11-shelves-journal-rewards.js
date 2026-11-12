@@ -532,10 +532,57 @@ function petAccSvg(pet, acc) {
   if (!h || !a) return '';
   return `<g class="acc" style="transform-box:view-box;transform-origin:0 0" transform="translate(${h[0]} ${h[1]}) rotate(${h[3]}) scale(${h[2]})">${a[3]}</g>`;
 }
+/* ---------- outfits worn at the neck (with or without a hat), given by the animal's hearts.
+   Where each animal's neck is: [x, y, size, tilt] ---------- */
+const PETBODY = {
+  cat: [24, 30.5, 1, 0],
+  dog: [20.5, 31, 0.95, 8],
+  bird: [19.5, 27.5, 0.85, 10],
+  turtle: [15.5, 45.5, 0.45, 0],
+  fox: [21, 33, 0.9, 6],
+  hedgehog: [17.5, 47.5, 0.45, 0],
+  axolotl: [21.5, 46.5, 0.5, 0],
+  frog: [27.5, 48.5, 0.8, 0],
+  owl: [30, 33.5, 0.95, 0],
+  bunny: [19, 35, 0.75, 6],
+  alpaca: [21.5, 24, 0.7, 0],
+  dragon: [17.5, 24.5, 0.6, 18],
+};
+const WEARS = [
+  [
+    'bandana',
+    'Bandana',
+    '<path d="M-7-1.6Q0 1.2 7-1.6L7 .4Q3.4 2.6 0 8.2Q-3.4 2.6-7 .4z" fill="#e67e22"/><circle cx="-2.4" cy="2.4" r=".7" fill="#fff5e6"/><circle cx="2.4" cy="2.4" r=".7" fill="#fff5e6"/><circle cx="0" cy="5" r=".7" fill="#fff5e6"/>',
+    60,
+  ],
+  [
+    'bowtie',
+    'Bow tie',
+    '<path d="M0 1.4L-5.8-2V4.8z M0 1.4L5.8-2V4.8z" fill="#2f4b6e"/><circle cx="0" cy="1.4" r="1.6" fill="#1f3550"/>',
+    200,
+  ],
+  [
+    'scarf',
+    'Scarf',
+    '<path d="M2 2.2L5.6 1.6L6.6 9.6L5.2 8.8L4.2 10L3 8.9z" fill="#a93226"/><path d="M-7.2-1.8Q0 1.4 7.2-1.8L7.2 1.6Q0 4.8-7.2 1.6z" fill="#c0392b"/><path d="M-3.6-.4L-3.6 3.1M0 .1L0 3.6M3.6-.4L3.6 3.1" stroke="#f4e3c1" stroke-width="1"/>',
+    450,
+  ],
+];
+const wearOk = (w) => !!w && (window.EB_SAMPLE || (+goals.hearts || 0) >= w[3]);
+function petWearSvg(pet, id) {
+  const h = PETBODY[pet],
+    w = WEARS.find((x) => x[0] === id);
+  if (!h || !w) return '';
+  return `<g class="wear" style="transform-box:view-box;transform-origin:0 0" transform="translate(${h[0]} ${h[1]}) rotate(${h[3]}) scale(${h[2]})">${w[2]}</g>`;
+}
 function petAcc() {
   const c = document.querySelector('#catw .cat');
   if (!c) return;
-  c.querySelectorAll('.acc').forEach((e) => e.remove());
+  c.querySelectorAll('.acc, .wear').forEach((e) => e.remove());
+  /* at the neck: on the body, so it stays put when the head moves */
+  const w = WEARS.find((x) => x[0] === look._wear);
+  if (wearOk(w))
+    (c.querySelector('.pose') || c).insertAdjacentHTML('beforeend', petWearSvg(sid('pet'), w[0]));
   const a = ACCS.find((x) => x[0] === look._acc);
   if (!accOk(a)) return;
   /* worn on the head, so it moves with it */

@@ -133,3 +133,75 @@ const buddyOf = (b) =>
   };
   setTimeout(recsCheck, 6000);
 }
+
+/* ---------- your partner's animal drops by your room once a day: it walks in along the floor, says hello,
+   stays a minute and walks back out. Tap it and it hops. ---------- */
+{
+  const VK = 'bookshelf-visit';
+  let v = null;
+  const say = (t) => {
+    if (!v) return;
+    v.querySelectorAll('.psay').forEach((x) => x.remove());
+    const b = el('b', 'psay', t);
+    v.append(b);
+    setTimeout(() => b.remove(), 4500);
+  };
+  const hop = () => {
+    if (!v) return;
+    v.classList.remove('vhop');
+    void v.offsetWidth;
+    v.classList.add('vhop');
+  };
+  function leave() {
+    const w = v;
+    if (!w) return;
+    v = null;
+    w.classList.add('out');
+    w.classList.remove('in');
+    setTimeout(() => w.remove(), 3200);
+  }
+  function visit(force) {
+    if (v || !paired() || partnerCopy.on) return false;
+    const lk = partnerData.look,
+      floor = document.querySelector('#roomv > .floor');
+    if (!lk || typeof lk !== 'object' || !floor || view !== 'room' || document.hidden) return false;
+    if (!force && document.querySelector('.ov.on')) return false;
+    const pp = partnerPet(lk);
+    if (!pp) return false;
+    pp.classList.add('visitor');
+    floor.append(pp);
+    v = pp;
+    pp.onclick = (e) => {
+      e.stopPropagation();
+      hop();
+      const h = el('b', 'vheart', '♥');
+      pp.append(h);
+      setTimeout(() => h.remove(), 1200);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(() => pp.classList.add('in')));
+    setTimeout(() => {
+      hop();
+      say(pName() ? L('Hi! I came from {name}’s room.', { name: pName() }) : L('Hi! I came to visit.'));
+    }, 2700);
+    const t = setInterval(() => (v === pp ? hop() : clearInterval(t)), 9000);
+    setTimeout(() => v === pp && leave(), 60000);
+    return true;
+  }
+  window.petVisit = visit;
+  setTimeout(function go(n = 0) {
+    let today = '';
+    try {
+      today = dayOf();
+      if (localStorage.getItem(VK) === today) return;
+    } catch (e) {
+      return;
+    }
+    if (!booksReady || !visit()) {
+      if (n < 20) setTimeout(() => go(n + 1), 6000);
+      return;
+    }
+    try {
+      localStorage.setItem(VK, today);
+    } catch (e) {}
+  }, 14000);
+}

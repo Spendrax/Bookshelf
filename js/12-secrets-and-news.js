@@ -118,8 +118,9 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-11-12',
+  id: '2026-11-12b',
   items: [
+    '🐾 Paired? Your partner’s animal now drops by your room once a day. New neck outfits in Customize: bandana, bow tie and scarf.',
     '☁️ Your Google Drive backup now keeps itself up to date after you change something.',
     '🔒 You choose what your shared shelf shows: tags, reading progress and your thoughts (off unless you turn them on).',
     '💌 Paired? Recommend a book to your partner from its card, and see when you are both reading the same book.',

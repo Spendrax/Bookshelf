@@ -8301,3 +8301,81 @@ body.calm2 .window .stars {
 .chal .sub {
   margin: 8px 0 0;
 }
+
+/* neck outfits follow the same rules as hats when the animal is a spirit */
+.spirit .cat .wear {
+  opacity: 0.75;
+}
+/* the partner's animal, visiting: walks in from the right along the floor */
+.ppet.visitor {
+  position: absolute;
+  top: 12px;
+  right: -90px;
+  width: 52px;
+  translate: 0 -100%;
+  z-index: 3;
+  cursor: pointer;
+  transition: right 2.4s linear;
+  -webkit-tap-highlight-color: transparent;
+}
+.ppet.visitor.in {
+  right: 12%;
+}
+.ppet.visitor.out svg {
+  scale: -1 1;
+}
+.ppet.visitor svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ppet.visitor.vhop svg {
+  animation: vhop 0.5s ease-out;
+}
+@keyframes vhop {
+  40% {
+    translate: 0 -14px;
+  }
+}
+.ppet.visitor .psay {
+  bottom: calc(100% + 30px);
+  /* it stands near the right edge: the bubble grows to the left so it stays on screen */
+  left: auto;
+  right: -10px;
+  translate: none;
+  animation-name: vsay;
+}
+@keyframes vsay {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  8%,
+  88% {
+    opacity: 1;
+  }
+}
+.vheart {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  color: #e0536c;
+  font-size: 16px;
+  pointer-events: none;
+  animation: vheart 1.2s ease-out both;
+}
+@keyframes vheart {
+  from {
+    translate: -50% 0;
+    opacity: 1;
+  }
+  to {
+    translate: -50% -34px;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ppet.visitor {
+    transition: none;
+  }
+}
