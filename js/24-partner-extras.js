@@ -111,6 +111,7 @@ const buddyOf = (b) =>
         author,
         status: 'want',
         stars: null,
+        color: /^#[0-9a-f]{6}$/i.test(src.color || '') ? src.color : '#8b2e2e',
         ...(ok(src.cover) ? { cover: src.cover } : {}),
         ...(+src.pages ? { pages: +src.pages } : {}),
         ...(typeof src.blurb === 'string' && src.blurb ? { blurb: src.blurb.slice(0, 1500) } : {}),
