@@ -626,11 +626,14 @@ $('rpstop').addEventListener(
   true,
 );
 /* ---------- 7. the animal's name ---------- */
+/* shown once for a run of taps: it doesn't pop again while it is up, or until the taps stop for a moment */
+let nameTapAt = 0;
 cat.addEventListener('click', () => {
   if (petDragged) return;
-  const nm = (look.petName || '').trim();
-  if (!nm) return;
-  catw.querySelectorAll('.pname').forEach((x) => x.remove());
+  const nm = (look.petName || '').trim(),
+    t0 = nameTapAt;
+  nameTapAt = Date.now();
+  if (!nm || catw.querySelector('.pname') || nameTapAt - t0 < 2500) return;
   const t = el('b', 'pname', nm);
   catw.append(t);
   setTimeout(() => t.remove(), 1800);
