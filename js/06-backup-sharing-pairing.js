@@ -1191,7 +1191,11 @@ PRV.addEventListener(
     const key = (b.title + '|' + (b.author || '')).toLowerCase(),
       have = books.some((x) => (x.title + '|' + (x.author || '')).toLowerCase() === key);
     const msg = b.title + (b.author ? ' — ' + b.author : '') + (b.stars ? '  ★ ' + fmtStars(b.stars) : '');
-    const strs = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string').slice(0, 12) : []);
+    /* the text items of a list (at most 12), each with an optional prefix */
+    const strs = (a, pre = '') =>
+      Array.isArray(a)
+        ? a.reduce((o, x) => (typeof x === 'string' && o.length < 12 && o.push(pre + x), o), [])
+        : [];
     /* what they put on it: where it sits, how far they are, series, genres, tags, the blurb */
     const info = () => {
       const z = st(b),
@@ -1214,7 +1218,7 @@ PRV.addEventListener(
         ].reduce((a, t) => (t ? a.concat(t) : a), []);
       const box = el('div', 'pinfo');
       box.append(el('p', 'pmeta', lines.join(' · ')));
-      const chips = [...strs(b.genres), ...strs(b.tags).map((t) => '🏷 ' + t)];
+      const chips = [...strs(b.genres), ...strs(b.tags, '🏷 ')];
       if (chips.length) {
         const c = el('div', 'pchips');
         chips.forEach((t) => c.append(el('span', '', t)));

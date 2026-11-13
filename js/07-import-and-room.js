@@ -510,17 +510,18 @@ async function makeReview(y) {
   /* books with a photo of their spine show that photo, like on the shelf */
   const spines = new Map(
     await Promise.all(
-      set
-        .filter((b) => b.spine)
-        .map(
-          (b) =>
+      set.reduce((out, b) => {
+        if (b.spine)
+          out.push(
             new Promise((ok) => {
               const im = new Image();
               im.onload = () => ok([b, im]);
               im.onerror = () => ok([b, null]);
               im.src = b.spine;
             }),
-        ),
+          );
+        return out;
+      }, []),
     ),
   );
   for (const b of set) {
