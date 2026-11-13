@@ -64,7 +64,7 @@ const check = (ok, what) => { console.log((ok ? '  ok   ' : '  FAIL ') + what); 
   check(sw.state === 'activated' && sw.files.includes('14-install.js') && sw.files.includes('i18n.js') && sw.files.includes('style.css'), 'offline cache has every app file');
 
   // customize drawer opens on every tab
-  await page.getByText('⚙ Customize').first().click(); await page.waitForTimeout(500);
+  await page.locator('#set').click(); await page.waitForTimeout(500);
   for (const t of ['Room', 'Furniture', 'More', 'Animal']) { await page.locator('.cztabs button', { hasText: t }).first().click(); await page.waitForTimeout(250); }
   check(await page.evaluate(() => !!document.querySelector('.czg[data-k="_dragon"]')), 'dragon color picker shows');
 

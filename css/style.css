@@ -8379,3 +8379,25 @@ body.calm2 .window .stars {
     transition: none;
   }
 }
+
+/* the app's own icons (js/26-icons.js): line drawings in the text colour */
+svg.ic {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.24em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+  overflow: visible;
+}
+svg.ic .f {
+  fill: currentColor;
+  fill-opacity: 0.16;
+  stroke: none;
+}
+svg.ic circle:not(.f) {
+  fill: none;
+}

@@ -34,6 +34,7 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/23-safety.js` | What the shared file includes (switches), automatic Google Drive backup, storage warning |
 | `js/24-partner-extras.js` | Pair extras: recommend a book to your partner, buddy reads |
 | `js/25-challenge.js` | The monthly challenge card on the goals wall |
+| `js/26-icons.js` | The app's own line icons; swaps emoji in the page for them (never in what people type) |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 
