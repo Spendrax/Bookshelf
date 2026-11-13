@@ -507,10 +507,41 @@ async function makeReview(y) {
   x.fillRect(sx + 18, sy + 18, sw - 36, shh);
   let bx = sx + 30;
   const base = sy + 18 + shh;
+  /* books with a photo of their spine show that photo, like on the shelf */
+  const spines = new Map(
+    await Promise.all(
+      set
+        .filter((b) => b.spine)
+        .map(
+          (b) =>
+            new Promise((ok) => {
+              const im = new Image();
+              im.onload = () => ok([b, im]);
+              im.onerror = () => ok([b, null]);
+              im.src = b.spine;
+            }),
+        ),
+    ),
+  );
   for (const b of set) {
-    const bw = Math.round(26 + ((b.w || 40) - 30) * 0.55),
-      bh = FMTH[b.format] ? Math.round(FMTH[b.format] * 1.1) : Math.round(200 + ((b.h || 180) - 150) * 1.4);
+    const im = spines.get(b),
+      bh = FMTH[b.format] ? Math.round(FMTH[b.format] * 1.1) : Math.round(200 + ((b.h || 180) - 150) * 1.4),
+      bw =
+        im && im.naturalHeight
+          ? Math.max(18, Math.min(80, Math.round((bh * im.naturalWidth) / im.naturalHeight)))
+          : Math.round(26 + ((b.w || 40) - 30) * 0.55);
     if (bx + bw > sx + sw - 30) break;
+    if (im) {
+      x.drawImage(im, bx, base - bh, bw, bh);
+      const gs = x.createLinearGradient(bx, 0, bx + bw, 0);
+      gs.addColorStop(0, 'rgba(0,0,0,.28)');
+      gs.addColorStop(0.3, 'rgba(255,255,255,.06)');
+      gs.addColorStop(1, 'rgba(0,0,0,.22)');
+      x.fillStyle = gs;
+      x.fillRect(bx, base - bh, bw, bh);
+      bx += bw + 3;
+      continue;
+    }
     x.fillStyle = b.color || '#8b2e2e';
     x.fillRect(bx, base - bh, bw, bh);
     const gr = x.createLinearGradient(bx, 0, bx + bw, 0);
