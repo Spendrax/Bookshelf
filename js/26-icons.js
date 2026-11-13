@@ -304,7 +304,10 @@ const ICONS = (() => {
       F('M4 11h16l-1.8 9H5.8z') +
       L('M3 11h18M4 11l1.8 9h12.4L20 11M8 11l3-7M16 11l-3-7M9 14.5v3M12 14.5v3M15 14.5v3'),
     '🪧': F('M4 5h16v9H4z') + L('M4 5h16v9H4zM12 14v7M9 21h6'),
-    '🪑': L('M7 3.5v17M7 12h10M17 12v8.5M7 9h9V3.5M10 12v8.5'),
+    /* a chair seen a little from the side: back with two slats, a seat, four legs */
+    '🪑':
+      F('M7.5 3.5h9a1 1 0 0 1 1 1v6.5h-11V4.5a1 1 0 0 1 1-1zM5 11h14l1.2 2.5H3.8z') +
+      L('M7.5 3.5h9a1 1 0 0 1 1 1v6.5h-11V4.5a1 1 0 0 1 1-1zM10 6.5v4.5M14 6.5v4.5M5 11h14l1.2 2.5H3.8zM5 13.5l-1 7M19 13.5l1 7M8.5 13.5v4.5M15.5 13.5v4.5'),
     '🦗':
       `<ellipse class="f" cx="12" cy="13" rx="3.5" ry="6"/><ellipse cx="12" cy="13" rx="3.5" ry="6"/>` +
       L('M10.5 7.5L7 3M13.5 7.5L17 3M8.5 12l-4-2M15.5 12l4-2M9 16l-4 3M15 16l4 3'),
