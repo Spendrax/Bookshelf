@@ -1306,13 +1306,15 @@ body.season-winter .window .sill:before {
 .therm[data-s='sign'] .ico {
   display: block;
   font-size: 16px;
+  /* the drawn weather icon takes the sign's own word colour, not the room's */
+  color: var(--ths, var(--c1));
 }
 .therm[data-s='sign'] b {
   position: static;
   display: block;
   background: none;
   box-shadow: none;
-  color: var(--c1);
+  color: var(--ths, var(--c1));
   font:
     700 14px/1.25 Georgia,
     serif;

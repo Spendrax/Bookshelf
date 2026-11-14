@@ -828,7 +828,12 @@ const OPTS = [
         { '--th1': '#fbf6ea', '--th2': 'var(--base)', '--th3': '#3b2c20', '--th4': '#c0392b' },
       ],
       ['wood', 'Wood', { '--th1': '#ecd8b4', '--th2': '#7a4f2b', '--th3': '#3b2414', '--th4': '#a8322b' }],
-      ['black', 'Black', { '--th1': '#1c1c1f', '--th2': '#0a0a0b', '--th3': '#f2f2f2', '--th4': '#ff5a4a' }],
+      /* --ths: the words on the hanging sign (its board is the dark colour here, so they must be light) */
+      [
+        'black',
+        'Black',
+        { '--th1': '#1c1c1f', '--th2': '#0a0a0b', '--th3': '#f2f2f2', '--th4': '#ff5a4a', '--ths': '#f2f2f2' },
+      ],
       ['brass', 'Brass', { '--th1': '#f6ecd2', '--th2': '#b08a3e', '--th3': '#3a2e14', '--th4': '#8a5a12' }],
       ['mint', 'Mint', { '--th1': '#e3f3ea', '--th2': '#6fae8f', '--th3': '#1f4635', '--th4': '#e07a5f' }],
       ['rose', 'Rose', { '--th1': '#fbe6e6', '--th2': '#d48b95', '--th3': '#5a2a33', '--th4': '#b8324a' }],
