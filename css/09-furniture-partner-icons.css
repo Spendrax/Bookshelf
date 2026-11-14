@@ -333,3 +333,38 @@ svg.ic circle:not(.f) {
   will-change: opacity;
 }
 
+
+/* Undo: a small button above the message at the bottom (js/27-comforts.js) */
+.undobar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  translate: -50% 0;
+  z-index: 9;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--acc);
+  color: #fff;
+  font: 600 14px system-ui, sans-serif;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  will-change: opacity;
+  cursor: pointer;
+}
+.undobar.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Text size (Customize › More): the places you read grow, the room keeps its size */
+#bview,
+#statsv .card,
+#goalsv .card,
+#pstatsv .card,
+#pgoalsv .card,
+#askov .pnl,
+#newsov .pnl {
+  zoom: var(--tz, 1);
+}

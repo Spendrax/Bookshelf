@@ -612,7 +612,7 @@ async function makeReview(y) {
   x.textAlign = 'center';
   x.fillStyle = acc;
   x.font = '600 28px system-ui, sans-serif';
-  x.fillText('\u{1F4DA} ' + L('My Bookshelf'), W / 2, H - 50);
+  x.fillText(L('My Bookshelf'), W / 2, H - 50);
   $('yrimg').src = c.toDataURL('image/png');
   $('yrimg').alt = L('My {y} in books', { y });
   yrName = `my-${y}-in-books.png`;

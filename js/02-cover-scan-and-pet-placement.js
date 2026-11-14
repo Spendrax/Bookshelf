@@ -963,7 +963,7 @@ function applyLook() {
   const nm = PETNAME[pet];
   $('mvcat').hidden = !nm;
   if (nm) {
-    $('mvcat').textContent = nm[1] + ' ' + L('Move the ' + nm[0]);
+    $('mvcat').textContent = '\u{1F43E} ' + L('Move the ' + nm[0]);
     cat.setAttribute('aria-label', L(nm[0][0].toUpperCase() + nm[0].slice(1)) + ' ' + L('(tap me)'));
   }
 }

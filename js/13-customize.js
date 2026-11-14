@@ -154,7 +154,7 @@ const CZ_TABS = [
     ['pet', '_name', 'coat', '_acc', '_wear', '_dragon', '_spirit', 'bowls', 'petmove', '_friend'],
   ],
   ['clock', 'Clock & weather', ['clock', 'clockc', 'therm', 'thermc', '_wx']],
-  ['more', 'More', ['_lang', 'sound', '_backup', '_remind', '_btns']],
+  ['more', 'More', ['_lang', '_text', 'sound', '_backup', '_remind', '_btns']],
 ];
 const CZ_AT = {
   floor: '.floor',
@@ -717,6 +717,25 @@ buildPanel = function () {
         const mb = (n) => (n > 1e9 ? (n / 1e9).toFixed(1) + ' GB' : Math.max(1, Math.round(n / 1e6)) + ' MB');
         if (u) su.textContent = '💾 ' + L('Storage used: {a} of {b}', { a: mb(u.used), b: mb(u.quota) });
       });
+    } else if (k === '_text') {
+      /* bigger words where you read: the book card, the stats and goals cards, questions */
+      const l = document.createElement('label');
+      l.textContent = L('Text size');
+      const s = document.createElement('select');
+      [
+        ['1', 'Normal'],
+        ['1.12', 'Large'],
+        ['1.25', 'Larger'],
+      ].forEach(([v, n]) => {
+        const o2 = document.createElement('option');
+        o2.value = v;
+        o2.textContent = L(n);
+        s.append(o2);
+      });
+      s.value = textSize();
+      s.onchange = () => textSize(s.value);
+      l.append(s);
+      out.append(l);
     } else if (k === '_remind') {
       const l = document.createElement('label');
       l.textContent = '\u{1F514} ' + L('Daily reading reminder');

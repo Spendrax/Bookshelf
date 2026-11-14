@@ -56,3 +56,5 @@ Object.assign(TR.ht, {"☁️ Your Google Drive backup now keeps itself up to da
 Object.assign(TR.ht, {"Outfit": "Rad", "Bandana": "Bandana", "Bow tie": "Kravat papiyon", "Scarf": "Echap", "Hi! I came from {name}’s room.": "Bonjou! Mwen soti nan chanm {name}.", "Hi! I came to visit.": "Bonjou! Mwen vin fè yon vizit.", "🐾 Paired? Your partner’s animal now drops by your room once a day. New neck outfits in Customize: bandana, bow tie and scarf.": "🐾 Marye? Bèt patnè ou kounye a pase nan chanm ou yon fwa pa jou. Nouvo rad nan Pèsonalize: bandana, kravat papiyon ak echap."});
 
 Object.assign(TR.ht, {"🎨 New look: the app now uses its own hand-drawn icons instead of the phone’s emoji.": "🎨 Nouvo stil: aplikasyon an kounye a sèvi ak pwòp ikòn desine li olye emoji telefòn nan."});
+
+Object.assign(TR.ht, {"Undo": "Defèt", "Removed “{t}”.": "“{t}” retire.", "“{t}” is back.": "“{t}” tounen.", "Text size": "Gwosè tèks", "Normal": "Nòmal", "Large": "Gwo", "Larger": "Pi gwo"});

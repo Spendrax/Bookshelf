@@ -56,3 +56,5 @@ Object.assign(TR.pt, {"☁️ Your Google Drive backup now keeps itself up to da
 Object.assign(TR.pt, {"Outfit": "Roupa", "Bandana": "Bandana", "Bow tie": "Gravata-borboleta", "Scarf": "Cachecol", "Hi! I came from {name}’s room.": "Oi! Vim do quarto de {name}.", "Hi! I came to visit.": "Oi! Vim fazer uma visita.", "🐾 Paired? Your partner’s animal now drops by your room once a day. New neck outfits in Customize: bandana, bow tie and scarf.": "🐾 Pareado? O animal do seu parceiro agora passa pelo seu quarto uma vez por dia. Novas roupas em Personalizar: bandana, gravata-borboleta e cachecol."});
 
 Object.assign(TR.pt, {"🎨 New look: the app now uses its own hand-drawn icons instead of the phone’s emoji.": "🎨 Novo visual: o app agora usa seus próprios ícones desenhados em vez dos emojis do celular."});
+
+Object.assign(TR.pt, {"Undo": "Desfazer", "Removed “{t}”.": "“{t}” removido.", "“{t}” is back.": "“{t}” voltou.", "Text size": "Tamanho do texto", "Normal": "Normal", "Large": "Grande", "Larger": "Maior"});
