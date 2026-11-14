@@ -7540,6 +7540,10 @@ body.calm2 .window .stars {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s;
+  /* always on its own drawing layer. Without this the phone gave it a layer only for the fade and took it back
+     right after, and the menu went missing for one frame as it did (seen in a recording, 3 frames after the fade) */
+  will-change: opacity;
+  transform: translateZ(0);
 }
 .tricks.on {
   opacity: 1;
