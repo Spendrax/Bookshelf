@@ -200,6 +200,7 @@ const heartsNow = () => +goals.hearts || 0;
   let menuT = 0;
   const hideMenu = () => {
     clearTimeout(menuT);
+    if (menu.classList.contains('on')) nameTapAt = Date.now();
     menu.classList.remove('on');
   };
   const play = (cls, ms) => {
@@ -308,6 +309,9 @@ const heartsNow = () => +goals.hearts || 0;
     )
       return;
     drawMenu();
+    /* the name tag sits in the same spot: it steps aside, and stays away while the menu is up and just after */
+    catw.querySelectorAll('.pname').forEach((x) => x.remove());
+    nameTapAt = Date.now() + 6000;
     catw.dispatchEvent(new Event('menuopen'));
     placeMenu();
     menu.classList.add('on');
