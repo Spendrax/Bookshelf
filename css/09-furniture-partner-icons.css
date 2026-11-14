@@ -368,3 +368,12 @@ svg.ic circle:not(.f) {
 #newsov .pnl {
   zoom: var(--tz, 1);
 }
+
+/* the animal's pick of the day can be tapped (other bubbles can't) */
+.psay.ppick {
+  pointer-events: auto;
+  cursor: pointer;
+  animation-duration: 8s;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

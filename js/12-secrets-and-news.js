@@ -118,15 +118,13 @@ async function spiritHatch() {
 /* ---------- "What's new" card: shown once after an important update (people who just installed don't get it).
    For the next important update: give NEWS a new id and new lines (and add their translations to the files in i18n/). ---------- */
 const NEWS = {
-  id: '2026-11-13',
+  id: '2026-11-14',
   items: [
-    '🎨 New look: the app now uses its own hand-drawn icons instead of the phone’s emoji.',
-    '🐾 Paired? Your partner’s animal now drops by your room once a day. New neck outfits in Customize: bandana, bow tie and scarf.',
-    '☁️ Your Google Drive backup now keeps itself up to date after you change something.',
-    '🔒 You choose what your shared shelf shows: tags, reading progress and your thoughts (off unless you turn them on).',
-    '💌 Paired? Recommend a book to your partner from its card, and see when you are both reading the same book.',
-    '🎯 A new challenge each month on the Goals wall: finish it for 10 hearts.',
-    '🎁 Your animal’s hearts now bring accessories, and it can play with its yarn from its tricks.',
+    '⏱ Book cards now show how long is left at your own reading pace, and which volumes of a series you’re missing.',
+    '↩ Removed or moved a book by mistake? An Undo button appears for a few seconds.',
+    '🖼 A picture of your month in books, next to the year’s, on the Stats wall.',
+    '🔎 Text size: make the reading parts bigger in Customize › More.',
+    '🐾 Your animal picks a book of the day from your Want to read list. Tap its bubble to open it.',
   ],
 };
 const NEWSK = 'bookshelf-news';

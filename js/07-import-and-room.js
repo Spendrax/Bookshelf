@@ -442,8 +442,10 @@ function fitText(x, t, w) {
 }
 async function makeReview(y) {
   const set = allReads().filter((b) => (b.finished || '').startsWith(y));
+  /* a year ("2026") or one month of it ("2026-11"), named in words on the picture */
+  const yl = /^\d{4}-\d\d$/.test(y) ? monthLong(+y.slice(5) - 1) + ' ' + y.slice(0, 4) : y;
   if (!set.length) {
-    toast(L('Nothing to show for {y} yet.', { y }));
+    toast(L('Nothing to show for {y} yet.', { y: yl }));
     return;
   }
   const rated = set.filter((b) => b.stars),
@@ -494,7 +496,7 @@ async function makeReview(y) {
   x.textAlign = 'center';
   x.fillStyle = ink;
   x.font = 'bold 66px Georgia, serif';
-  x.fillText(fitText(x, L('My {y} in books', { y }), W - 120), W / 2, 128);
+  x.fillText(fitText(x, L('My {y} in books', { y: yl }), W - 120), W / 2, 128);
   /* the year's books as spines on a shelf */
   const sx = 90,
     sy = 175,
@@ -614,7 +616,7 @@ async function makeReview(y) {
   x.font = '600 28px system-ui, sans-serif';
   x.fillText(L('My Bookshelf'), W / 2, H - 50);
   $('yrimg').src = c.toDataURL('image/png');
-  $('yrimg').alt = L('My {y} in books', { y });
+  $('yrimg').alt = L('My {y} in books', { y: yl });
   yrName = `my-${y}-in-books.png`;
   yrBlob = await new Promise((r) => c.toBlob(r, 'image/png'));
   let canShare = false;
