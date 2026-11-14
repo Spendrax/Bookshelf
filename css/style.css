@@ -7562,6 +7562,13 @@ body.calm2 .window .stars {
   background: rgba(0, 0, 0, 0.08);
   scale: 0.9;
 }
+/* the trick you chose lights up for a moment before the menu goes: the tap is seen to have worked */
+.tricks button.pick {
+  background: var(--acc);
+  color: #fff;
+  scale: 1.12;
+  transition: scale 0.12s;
+}
 @keyframes shiver {
   0%,
   100% {
@@ -7576,17 +7583,24 @@ body.calm2 .window .stars {
     --cr: 3deg;
   }
 }
+/* big enough to be seen on every animal: it rocks side to side three times with a little bounce */
 @keyframes wave {
   0%,
   100% {
     --cr: 0deg;
+    --cy: 0px;
   }
-  25%,
+  15%,
+  45%,
   75% {
-    --cr: -9deg;
+    --cr: -16deg;
+    --cy: -5px;
   }
-  50% {
-    --cr: 7deg;
+  30%,
+  60%,
+  90% {
+    --cr: 14deg;
+    --cy: -5px;
   }
 }
 .catw.shiver .cat > .pose {

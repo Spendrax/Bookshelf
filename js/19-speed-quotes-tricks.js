@@ -208,10 +208,21 @@ const heartsNow = () => +goals.hearts || 0;
     cat.classList.add(cls);
     if (ms) setTimeout(() => cat.classList.remove(cls), ms);
   };
+  /* the later steps of a trick in several parts; a new trick drops the ones still waiting */
+  let steps = [];
+  const later = (fn, ms) => steps.push(setTimeout(fn, ms));
   const TRICKS = [
     ['🌀', 'Spin', () => play('twirl')],
     ['⬆️', 'Jump', () => play('hop', 700)],
-    ['👋', 'Wave', () => (catw.classList.add('wave'), setTimeout(() => catw.classList.remove('wave'), 1300))],
+    [
+      '👋',
+      'Wave',
+      () => {
+        void catw.offsetWidth;
+        catw.classList.add('wave');
+        setTimeout(() => catw.classList.remove('wave'), 1300);
+      },
+    ],
     [
       '🪑',
       'Sit',
@@ -223,10 +234,11 @@ const heartsNow = () => +goals.hearts || 0;
     [
       '💃',
       'Dance',
+      /* starts at once: a hop, a spin, a hop */
       () => {
-        catw.classList.add('wave');
-        setTimeout(() => (catw.classList.remove('wave'), play('hop', 700)), 900);
-        setTimeout(() => play('twirl'), 1700);
+        play('hop', 600);
+        later(() => play('twirl'), 650);
+        later(() => play('hop', 600), 1500);
       },
     ],
     ['🎉', 'Celebrate', () => play('cheer2')],
@@ -244,16 +256,30 @@ const heartsNow = () => +goals.hearts || 0;
         b.title = b.getAttribute('aria-label');
         b.onclick = (e) => {
           e.stopPropagation();
-          hideMenu();
           if (locked) {
+            hideMenu();
             toast(ico + ' ' + L('{t}: unlocks at {n} ♥', { t: L(name), n: need }));
             return;
           }
-          if (petBusy || petDrag || catw.classList.contains('travel')) return;
-          clearTimeout(petT);
-          catw.classList.remove('sleeping', 'waiting', 'sitting');
-          fn();
-          if (name !== 'Sit') petNext(3500);
+          /* the chosen trick lights up, the animal starts at once, then the menu goes */
+          b.classList.add('pick');
+          clearTimeout(menuT);
+          menuT = setTimeout(hideMenu, 260);
+          /* in the middle of something (landing, a walk): it does the trick as soon as it is free */
+          const go = (n = 0) => {
+            if (petBusy || petDrag || catw.classList.contains('travel')) {
+              if (n < 12) setTimeout(() => go(n + 1), 250);
+              return;
+            }
+            clearTimeout(petT);
+            steps.forEach(clearTimeout);
+            steps = [];
+            catw.classList.remove('sleeping', 'waiting', 'sitting', 'wave');
+            cat.classList.remove('hop', 'twirl', 'cheer', 'cheer2');
+            fn();
+            if (name !== 'Sit') petNext(3500);
+          };
+          go();
         };
         return b;
       }),
