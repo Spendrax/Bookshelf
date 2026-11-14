@@ -1,0 +1,782 @@
+/* My Bookshelf styles, part 07 of 09: the book card, the animal's life and how it moves.
+   The parts are read in order and later parts adjust earlier ones, so keep the order. */
+/* ---------- the book card (js/15-book-view.js) ---------- */
+.sheet.viewing #form > :not(.btns),
+.sheet.viewing #savebtn,
+.sheet.viewing #del {
+  display: none;
+}
+.sheet:not(.viewing) #editbtn {
+  display: none;
+}
+.bview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 2px 16px;
+  text-align: center;
+}
+.bview[hidden] {
+  display: none;
+}
+.bvtitle {
+  margin: 0;
+  font: 700 24px/1.2 Georgia, serif;
+  color: var(--ink);
+}
+.bvauthor {
+  margin: -4px 0 0;
+  font: italic 17px Georgia, serif;
+  color: var(--muted);
+}
+.bvseries,
+.bvsmall {
+  margin: 0;
+  font: 13px system-ui, sans-serif;
+  color: var(--muted);
+}
+.bvmeta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.bvpill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font: 600 13px system-ui, sans-serif;
+  color: var(--ink);
+}
+.bvpill.bv-reading {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #fff;
+}
+.bvstars {
+  color: #d9a300;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+.bvbar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin: 4px 10% 0;
+}
+.bvbar i {
+  display: block;
+  height: 100%;
+  background: var(--acc);
+  border-radius: inherit;
+}
+.bvtags {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.bvtags span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  font: 12px system-ui, sans-serif;
+  color: var(--muted);
+}
+.bvnote {
+  margin: 4px 0 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--acc);
+  border-radius: 0 10px 10px 0;
+  background: var(--bg);
+  text-align: left;
+  font: italic 15px/1.5 Georgia, serif;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+.bvblurb {
+  margin: 0;
+  text-align: left;
+  font: 14px/1.5 system-ui, sans-serif;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bvblurb.open {
+  -webkit-line-clamp: unset;
+}
+.bvacts {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.bvacts .qbtn {
+  align-self: auto;
+}
+
+/* ---------- the animal's life (js/16-animal-life.js) ---------- */
+.catw.young {
+  width: 40px;
+}
+@property --yx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --yr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --by {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes cheer {
+  0%,
+  100% {
+    --cy: 0px;
+    --csx: 1;
+    --csy: 1;
+  }
+  15% {
+    --cy: 0px;
+    --csx: 1.12;
+    --csy: 0.86;
+  }
+  40% {
+    --cy: -26px;
+    --csx: 0.92;
+    --csy: 1.1;
+  }
+  62% {
+    --cy: 0px;
+    --csx: 1.1;
+    --csy: 0.9;
+  }
+  80% {
+    --cy: -12px;
+    --csx: 1;
+    --csy: 1;
+  }
+}
+@keyframes cheer2 {
+  0% {
+    --cy: 0px;
+    --cr: 0deg;
+    --csx: 1;
+    --csy: 1;
+  }
+  15% {
+    --cy: 0px;
+    --cr: 0deg;
+    --csx: 1.14;
+    --csy: 0.84;
+  }
+  45% {
+    --cy: -38px;
+    --cr: 180deg;
+    --csx: 1;
+    --csy: 1;
+  }
+  70% {
+    --cy: 0px;
+    --cr: 360deg;
+    --csx: 1.12;
+    --csy: 0.88;
+  }
+  85% {
+    --cy: -10px;
+    --cr: 360deg;
+    --csx: 1;
+    --csy: 1;
+  }
+  100% {
+    --cy: 0px;
+    --cr: 360deg;
+  }
+}
+@keyframes twirl {
+  0% {
+    --cr: 0deg;
+    --cy: 0px;
+  }
+  50% {
+    --cy: -18px;
+  }
+  100% {
+    --cr: 360deg;
+    --cy: 0px;
+  }
+}
+@keyframes bat {
+  0%,
+  100% {
+    --cr: 0deg;
+    --cy: 0px;
+  }
+  35% {
+    --cr: -10deg;
+    --cy: -3px;
+  }
+  65% {
+    --cr: 7deg;
+    --cy: 0px;
+  }
+}
+@keyframes purr {
+  50% {
+    --csx: 1.03;
+    --csy: 0.95;
+  }
+}
+@keyframes bubbob {
+  50% {
+    --by: -4px;
+  }
+}
+.catw .cat.cheer > .pose {
+  animation: cheer 0.9s ease-in-out;
+}
+.catw .cat.cheer2 > .pose {
+  animation: cheer2 1.1s ease-in-out;
+}
+.catw .cat.twirl > .pose {
+  animation: twirl 0.8s ease-in-out;
+}
+.catw .cat.bat > .pose {
+  animation: bat 0.45s ease-in-out;
+}
+.catw.purr .cat > .pose {
+  animation: purr 0.6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.catw.purr .cat .eye {
+  animation: none;
+  transform: scaleY(0.12);
+}
+.catw.purr .cat .tail {
+  animation-duration: 2.4s;
+}
+.rbook {
+  position: absolute;
+  left: -22px;
+  bottom: 0;
+  width: 28px;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+.rbook svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.catw.reading .rbook {
+  opacity: 1;
+}
+.bub {
+  position: absolute;
+  right: -10px;
+  bottom: 80%;
+  font-size: 15px;
+  font-style: normal;
+  scale: var(--dir, 1) 1;
+  translate: 0 var(--by);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.catw.waiting .bub {
+  opacity: 1;
+  animation: bubbob 2s ease-in-out infinite;
+}
+.yarn {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(40deg, rgba(255, 255, 255, 0.35) 0 2px, transparent 2px 5px),
+    radial-gradient(circle at 35% 35%, #f3a6b6, #c9466a);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.25);
+  translate: var(--yx) 0;
+  rotate: var(--yr);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+  z-index: 3;
+}
+.yarn.on {
+  opacity: 1;
+}
+.catw.ghost .rbook,
+.catw.ghost .bub {
+  display: none;
+}
+
+/* falling leaves, snow and petals move through plain numbers too: an animated translate/transform puts each one on
+   its own drawing layer, and then the animal flying above them had to get a layer of its own at take-off — on some
+   phones that new layer was blank for one frame, so the animal blinked just before a trip */
+@property --lf {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --lsx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --lsr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes fall {
+  to {
+    --lf: calc(100cqh + 80px);
+  }
+}
+@keyframes sway {
+  from {
+    --lsx: -26px;
+    --lsr: -40deg;
+  }
+  to {
+    --lsx: 26px;
+    --lsr: 60deg;
+  }
+}
+@keyframes drift {
+  from {
+    --lsx: -14px;
+  }
+  to {
+    --lsx: 14px;
+  }
+}
+.leaf {
+  translate: 0 var(--lf);
+}
+.leaf i {
+  translate: var(--lsx) 0;
+  rotate: var(--lsr);
+}
+
+/* ---------- calm room when idle (js/17-calm.js) ---------- */
+.leaves {
+  transition: opacity 0.8s;
+}
+body.calm .leaves {
+  opacity: 0;
+}
+body.calm2 .leaf,
+body.calm2 .leaf i,
+body.calm2 .edgetab,
+body.calm2 .window .stars {
+  animation-play-state: paused;
+}
+
+/* ---------- how the animal moves (js/18-animal-moves.js): a head of its own, eating, sleeping, waking, habits ---------- */
+@property --hr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --hx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --hy {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --kx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --ky {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --ko {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@property --rs {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+.cat .head {
+  transform: translate(var(--hx), var(--hy)) rotate(var(--hr));
+  transition:
+    --hr 0.45s ease,
+    --hx 0.45s ease,
+    --hy 0.45s ease;
+}
+/* eating: the body leans a little, the head dips into the bowl and chews */
+@keyframes lean {
+  0%,
+  100% {
+    --cr: -4deg;
+  }
+  50% {
+    --cr: -6deg;
+  }
+}
+@keyframes chew {
+  0%,
+  100% {
+    --hr: -26deg;
+    --hy: 2px;
+  }
+  50% {
+    --hr: -18deg;
+    --hy: 3px;
+  }
+}
+@keyframes lick {
+  30%,
+  70% {
+    --hr: 9deg;
+  }
+  50% {
+    --hr: 3deg;
+  }
+}
+.catw.eating .cat > .pose {
+  animation: lean 1.8s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.catw.eating .cat .head {
+  animation: chew 0.45s ease-in-out infinite;
+}
+.catw.eating .cat .tail {
+  animation-duration: 0.9s;
+}
+.catw.licking .cat .head {
+  animation: lick 0.9s ease-in-out;
+}
+.bowl {
+  position: relative;
+}
+.bowl .crumb {
+  position: absolute;
+  top: 2px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #8a5a2b;
+  translate: var(--kx) var(--ky);
+  opacity: var(--ko);
+  pointer-events: none;
+}
+.bowl .ripple {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 5px;
+  margin-left: -8px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  scale: var(--rs);
+  opacity: var(--ko);
+  pointer-events: none;
+}
+/* going to sleep: it turns around once before curling up, and its head droops */
+.catw.sleeping.settling .cat {
+  --csx: 1;
+  --csy: 1;
+}
+.catw.sleeping.settling .cat .eye {
+  transform: scaleY(var(--ps, 1));
+  animation: blink 5s infinite;
+}
+.catw.settling .zz {
+  animation: none;
+}
+.catw.sleeping .cat .head {
+  --hr: -8deg;
+  --hy: 2px;
+}
+/* dreaming: an ear, the head or the tail twitches now and then */
+@keyframes twitch2 {
+  50% {
+    --pr: 14deg;
+  }
+}
+@keyframes dhead {
+  30% {
+    --hr: -3deg;
+  }
+  60% {
+    --hr: -11deg;
+  }
+}
+.catw.sleeping.dream .cat .ear2 {
+  animation: twitch2 0.4s 2;
+}
+.catw.sleeping.dream .cat .head {
+  animation: dhead 0.8s ease-in-out;
+}
+.catw.sleeping.dream .cat .tail {
+  animation: tail 0.8s ease-in-out 1;
+}
+/* waking: a big stretch (front down, back up) and a yawn */
+@keyframes stretch {
+  25% {
+    --csx: 1.16;
+    --csy: 0.84;
+    --cr: -3deg;
+  }
+  55% {
+    --csx: 0.98;
+    --csy: 1.05;
+    --cr: 2deg;
+  }
+}
+@keyframes yawn {
+  35%,
+  65% {
+    --hr: 16deg;
+    --hy: -1px;
+  }
+}
+@keyframes shut {
+  0%,
+  80%,
+  100% {
+    --ps: 1;
+  }
+  20%,
+  65% {
+    --ps: 0.12;
+  }
+}
+.catw.waking .cat:not(.cheer):not(.cheer2):not(.twirl):not(.hop):not(.landed):not(.bat) > .pose {
+  animation: stretch 1.4s ease-in-out;
+  transform-origin: 50% 100%;
+}
+.catw.waking .cat .head,
+.catw.yawning .cat .head {
+  animation: yawn 1.4s ease-in-out;
+}
+.catw.waking .cat .eye,
+.catw.yawning .cat .eye {
+  animation: shut 1.4s ease-in-out;
+}
+.catw.slowblink .cat .eye {
+  animation: shut 0.7s ease-in-out 2;
+}
+/* looking around */
+@keyframes look {
+  20%,
+  45% {
+    --hr: 9deg;
+  }
+  60%,
+  85% {
+    --hr: -5deg;
+    --hx: -1px;
+  }
+}
+.catw.looking .cat .head {
+  animation: look 2.6s ease-in-out;
+}
+/* sitting down for a while */
+.catw.sitting .cat,
+.catw.unsit .cat {
+  transform-origin: 50% 100%;
+}
+.catw.sitting .cat {
+  --csx: 1.04;
+  --csy: 0.92;
+}
+.catw.sitting .cat .head {
+  --hr: 5deg;
+  --hy: 1px;
+}
+/* washing (cats and most others) or scratching an ear (dogs and foxes) */
+@keyframes groom {
+  50% {
+    --hr: -28deg;
+    --hx: 4px;
+    --hy: 3px;
+  }
+}
+@keyframes scr {
+  50% {
+    --hr: 7deg;
+    --hy: -1px;
+  }
+}
+@keyframes scrb {
+  50% {
+    --cy: -1px;
+  }
+}
+.catw.grooming .cat .head {
+  animation: groom 0.65s ease-in-out 4;
+}
+.catw.grooming .cat .eye {
+  animation: none;
+  transform: scaleY(0.3);
+}
+.catw.scratching .cat .head {
+  animation: scr 0.14s linear 10;
+}
+.catw.scratching .cat:not(.hop) > .pose {
+  animation: scrb 0.14s linear 10;
+}
+/* a crouch before jumping, stretched out in the air (the landing squash was already there) */
+@keyframes crouch {
+  to {
+    --csx: 1.12;
+    --csy: 0.84;
+  }
+}
+.catw.crouch .cat > .pose {
+  animation: crouch 0.24s ease-out forwards;
+  transform-origin: 50% 100%;
+}
+.catw.travel:not(.walking):not(.flying) .cat {
+  --csx: 1.07;
+  --csy: 0.95;
+}
+/* walking speeds up and slows down instead of gliding at one speed */
+@media (prefers-reduced-motion: no-preference) {
+  .catw {
+    transition: --px var(--walk, 0s) cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  }
+}
+
+/* sleeping: long tails swap to a curled-up shape round the front paws, birds tuck their heads in.
+   The swap is instant on purpose: fading parts of the animal in and out made the whole drawing blink on some phones. */
+.cat .stail {
+  visibility: hidden;
+}
+.catw.sleeping:not(.settling) .cat .stail {
+  visibility: visible;
+}
+.catw.sleeping:not(.settling) .cat:has(.stail) .tail {
+  visibility: hidden;
+}
+.catw.sleeping:not(.settling) .cat .head {
+  --hr: -12deg;
+  --hy: 3px;
+}
+.catw.sleeping:not(.settling) .cat:has(.btail) .head {
+  --hr: -28deg;
+  --hx: 5px;
+  --hy: 5px;
+}
+.catw.sleeping .cat .head.face,
+.catw.sleeping:not(.settling) .cat .head.face {
+  --hr: 0deg;
+  --hy: 2px;
+}
+
+/* no drawing layer of their own for the animals: moving the animal from one spot to another (landing on the rug,
+   a shelf) then had to build that layer again, and that is when it was missing for a frame */
+
+/* ---------- the body moves inside the drawing ("pose" group), never the drawing's box on the page ----------
+   Every whole-body movement (hop, lean, squash, stretch, cheer…) still sets the same values on the drawing, but
+   they now reach the inner group by inheritance. The drawing's own box stays still, so the phone has no reason to
+   redraw the animal in a new way, which is what showed as a one-frame flash when it changed what it was doing. */
+@property --cy {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --cr {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --csx {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --csy {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --co {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+.cat {
+  translate: none;
+  rotate: none;
+  scale: none;
+  opacity: 1;
+}
+.cat .pose {
+  transform-box: fill-box;
+  transform-origin: inherit;
+  transform: translate(0px, var(--cy)) rotate(var(--cr)) scale(var(--csx), var(--csy));
+  opacity: var(--co);
+}
+.spirit .cat {
+  opacity: 0.88;
+}
+.heart {
+  translate: 0 var(--cy);
+  opacity: var(--co);
+}
+
+/* ---------- turning round also happens inside the drawing ----------
+   The animal used to face the other way by mirroring its whole box on the page. On some phones that mirror flip,
+   at the start of a walk or a landing, came with a frame where the animal was missing. Now only the drawing's
+   inner group is mirrored, so the box on the page never flips. Things beside the animal (the "z"s, its name, the
+   hunger bubble) no longer need to un-mirror themselves. */
+.catw {
+  scale: none;
+}
+.cat .pose {
+  transform: scale(var(--dir), 1) translate(0px, var(--cy)) rotate(var(--cr)) scale(var(--csx), var(--csy));
+}
+.zz {
+  transform: none;
+}
+.pname,
+.bub {
+  scale: none;
+}
+
+/* iPhones (Safari) measure "fill-box" wrongly for shapes inside a moving group, which put the eyes in the wrong place.
+   The two moving groups now turn around points given in the drawing's own units instead. */
+.cat .pose {
+  transform-box: view-box;
+}
+
+/* Customize › Little movements › Still: the tail, ears, eyes, breathing and head stop their small loops, so the
+   animal is redrawn only when it actually does something (saves battery, and helps phones that skip frames) */
+.cat * {
+  animation-play-state: var(--petanim, running) !important;
+}
+
+/* every whole-body animation runs on the drawing's inner group (".pose"), not on the drawing itself: starting an
+   animation on the drawing's own box (walking, landing squash, eating…) is the moment some phones dropped the animal */
+.catw.ghost .cat > .pose {
+  animation: none;
+}
+

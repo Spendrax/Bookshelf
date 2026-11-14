@@ -1,0 +1,793 @@
+/* My Bookshelf styles, part 05 of 09: the e-book reader, the audiobook player, your own shelves, the reading journal, rewards.
+   The parts are read in order and later parts adjust earlier ones, so keep the order. */
+/* ---------- the e-book reader ---------- */
+#rdr {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  background: var(--rbg);
+  color: var(--rfg);
+  --rbg: #fbf6ea;
+  --rfg: #2a2118;
+  --rmu: #8a7a66;
+  --rln: #e4d9c4;
+  color-scheme: light;
+}
+#rdr [hidden] {
+  display: none !important;
+}
+#rdr[data-th='sepia'] {
+  --rbg: #f1e3c6;
+  --rfg: #3b2f20;
+  --rmu: #86704e;
+  --rln: #dccba6;
+}
+#rdr[data-th='dark'] {
+  --rbg: #14110e;
+  --rfg: #d6ccbc;
+  --rmu: #8d8170;
+  --rln: #2c261f;
+  color-scheme: dark;
+}
+.rdtop,
+.rdbot,
+.rdset {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  flex: none;
+  border-bottom: 1px solid var(--rln);
+}
+.rdtop {
+  padding-top: max(4px, env(safe-area-inset-top));
+}
+.rdbot {
+  border-bottom: 0;
+  border-top: 1px solid var(--rln);
+  padding-bottom: max(4px, env(safe-area-inset-bottom));
+}
+.rdtop b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font:
+    600 14px system-ui,
+    sans-serif;
+  text-align: center;
+}
+#rdr .rb {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font:
+    600 18px system-ui,
+    sans-serif;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#rdr .rb:disabled {
+  opacity: 0.3;
+}
+#rdr .rb[aria-pressed='true'] {
+  background: var(--rln);
+}
+.rdset {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+#rdr .rdset .sw {
+  width: 34px;
+  height: 34px;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 50%;
+  border: 2px solid #9a8f80;
+  padding: 0;
+  margin: 0 3px;
+}
+#rdr .rdset .sw[aria-pressed='true'] {
+  outline: 2px solid var(--rfg);
+  outline-offset: 2px;
+}
+.rdset .sep {
+  width: 1px;
+  height: 26px;
+  background: var(--rln);
+  margin: 0 4px;
+}
+.rdmid {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+.rdbody,
+.rdtoc {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.rdtoc {
+  background: var(--rbg);
+  z-index: 1;
+  padding: 8px 14px 30px;
+}
+.rdtoc h3 {
+  font:
+    600 15px system-ui,
+    sans-serif;
+  margin: 8px 4px;
+}
+.rdtoc button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--rln);
+  background: none;
+  color: inherit;
+  font:
+    15px system-ui,
+    sans-serif;
+  padding: 12px 4px;
+  cursor: pointer;
+}
+.rdtoc button.on {
+  font-weight: 700;
+}
+#rdtext {
+  max-width: 38em;
+  margin: 0 auto;
+  padding: 18px 22px 50px;
+  font-family: var(--rff, Georgia, 'Times New Roman', serif);
+  font-size: var(--rfs, 18px);
+  line-height: 1.65;
+  overflow-wrap: break-word;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+#rdtext p {
+  margin: 0 0 0.9em;
+}
+#rdtext h1,
+#rdtext h2,
+#rdtext h3,
+#rdtext h4,
+#rdtext h5,
+#rdtext h6 {
+  line-height: 1.25;
+  margin: 1.3em 0 0.6em;
+  font-family: inherit;
+}
+#rdtext h1 {
+  font-size: 1.5em;
+  text-align: center;
+}
+#rdtext h2 {
+  font-size: 1.3em;
+  text-align: center;
+}
+#rdtext h3 {
+  font-size: 1.12em;
+}
+#rdtext h4,
+#rdtext h5,
+#rdtext h6 {
+  font-size: 1em;
+}
+#rdtext img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+}
+#rdtext a {
+  color: inherit;
+  text-decoration: underline;
+}
+#rdtext table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1em 0;
+}
+#rdtext td,
+#rdtext th {
+  padding: 4px 8px;
+  border: 1px solid var(--rln);
+}
+#rdtext blockquote {
+  margin: 1em 1.2em;
+}
+#rdtext hr {
+  border: 0;
+  border-top: 1px solid var(--rln);
+  margin: 1.6em 20%;
+}
+#rdtext pre {
+  white-space: pre-wrap;
+  font-size: 0.85em;
+}
+#rdtext ul,
+#rdtext ol {
+  padding-left: 1.4em;
+}
+.rd-i {
+  font-style: italic;
+}
+.rd-b {
+  font-weight: 700;
+}
+.rd-c {
+  text-align: center;
+}
+.rd-r {
+  text-align: right;
+}
+.rd-sc {
+  font-variant: small-caps;
+}
+.rd-u {
+  text-decoration: underline;
+}
+.rd-sup {
+  vertical-align: super;
+  font-size: 0.75em;
+  line-height: 0;
+}
+.rd-sub {
+  vertical-align: sub;
+  font-size: 0.75em;
+  line-height: 0;
+}
+#rdr .rdnext {
+  display: block;
+  margin: 2.2em auto 0;
+  min-height: 46px;
+  padding: 0 20px;
+  border: 1px solid var(--rmu);
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font:
+    600 15px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.rdprog {
+  flex: 1;
+  text-align: center;
+  font:
+    12px system-ui,
+    sans-serif;
+  color: var(--rmu);
+}
+.rdbar {
+  height: 3px;
+  background: var(--rln);
+  flex: none;
+}
+.rdbar i {
+  display: block;
+  height: 100%;
+  background: var(--rmu);
+  width: 0;
+}
+#ebres button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-top: 6px;
+  font:
+    14px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+#ebres small {
+  display: block;
+  color: var(--muted);
+}
+#ebrow .qbtn.go {
+  border-style: solid;
+  font-weight: 700;
+}
+
+/* reader: page-by-page mode, search, quote */
+#rdr[data-mode='page'] .rdbody {
+  overflow: hidden;
+}
+#rdr[data-mode='page'] #rdtext {
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px 22px;
+  box-sizing: border-box;
+  column-width: calc(var(--rpw, 100vw) - 44px);
+  column-gap: 44px;
+  column-fill: auto;
+  transition: transform 0.22s ease;
+  will-change: transform;
+}
+#rdr[data-mode='page'] #rdtext img {
+  max-height: calc(var(--rph, 80vh) - 70px);
+  width: auto;
+  max-width: 100%;
+}
+#rdr[data-mode='page'] #rdtext h1,
+#rdr[data-mode='page'] #rdtext h2,
+#rdr[data-mode='page'] #rdtext h3 {
+  break-after: avoid;
+}
+@media (prefers-reduced-motion: reduce) {
+  #rdr[data-mode='page'] #rdtext {
+    transition: none;
+  }
+}
+#rdq {
+  width: 100%;
+  box-sizing: border-box;
+  font:
+    16px system-ui,
+    sans-serif;
+  padding: 10px 12px;
+  border: 1px solid var(--rmu);
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  margin-bottom: 6px;
+}
+#rdhits small,
+.rdtoc button small {
+  display: block;
+  color: var(--rmu);
+  font-size: 12px;
+  margin-top: 2px;
+}
+#rdr .rb.q {
+  flex: 1;
+  font-size: 15px;
+}
+::highlight(rdhit) {
+  background-color: #f5c84b;
+  color: #1a1408;
+}
+/* walls you are not looking at rest: their falling leaves stop until you turn */
+body.restwalls .statsv[inert] .leaf,
+body.restwalls .statsv[inert] .leaf i,
+body.restwalls #roomv.away .leaf,
+body.restwalls #roomv.away .leaf i {
+  animation-play-state: paused;
+}
+/* on the stats and goals walls the leaves now belong to the wall, like in the room: they scroll with it instead of staying stuck to the screen */
+.statsv > .leaves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+}
+/* the leaves fall in front of everything in the room, and the clock's second hand ticks once a second: this way the clock, the thermometer and the bowls are drawn together with the wall instead of as separate pieces the phone could drop while scrolling */
+@property --sa {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.wclock .sh {
+  transform: rotate(var(--sa, 0deg));
+  animation: clocksec 60s steps(60) infinite;
+}
+@keyframes clocksec {
+  to {
+    --sa: 360deg;
+  }
+}
+#leaves {
+  z-index: 5;
+}
+
+/* ---------- reader comforts: spacing, margins, easy-reading font, highlights, read aloud ---------- */
+#rdtext {
+  line-height: var(--rlh, 1.65);
+  padding-left: var(--rmg, 22px);
+  padding-right: var(--rmg, 22px);
+}
+#rdr[data-mode='page'] #rdtext {
+  padding-left: var(--rmg, 22px);
+  padding-right: var(--rmg, 22px);
+  column-width: calc(var(--rpw, 100vw) - 2 * var(--rmg, 22px));
+  column-gap: calc(2 * var(--rmg, 22px));
+}
+#rdr[data-ff='dys'] #rdtext {
+  letter-spacing: 0.04em;
+  word-spacing: 0.14em;
+}
+::highlight(rdhl1) {
+  background-color: #ffe27a;
+  color: #1a1408;
+}
+::highlight(rdhl2) {
+  background-color: #b9ebb0;
+  color: #10230d;
+}
+::highlight(rdhl3) {
+  background-color: #ffc2d6;
+  color: #2a0f18;
+}
+#rdtext .rd-say {
+  background: color-mix(in srgb, var(--rmu) 22%, transparent);
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rmu) 22%, transparent);
+}
+#rdr .rb.hl {
+  width: 30px;
+  height: 30px;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 50%;
+  border: 2px solid #9a8f80;
+  padding: 0;
+  margin: 0 3px;
+}
+#rdr .rb.sm {
+  font-size: 16px;
+  min-width: 40px;
+  padding: 0 4px;
+}
+.rdtoc .rdrow {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--rln);
+}
+.rdtoc .rdrow button {
+  border-bottom: 0;
+}
+.rdtoc .rdrow button.x {
+  width: 44px;
+  flex: none;
+  text-align: center;
+  font-size: 18px;
+  color: var(--rmu);
+}
+.rdtoc .rdrow i {
+  flex: none;
+  width: 8px;
+  margin: 10px 8px 10px 0;
+  border-radius: 4px;
+}
+/* ---------- audiobook player ---------- */
+#apl {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg);
+  color: var(--ink);
+  padding: max(8px, env(safe-area-inset-top)) 18px max(14px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+#apl .aptop {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 6px;
+}
+#apl .aptop b {
+  flex: 1;
+  text-align: center;
+  font:
+    600 15px system-ui,
+    sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#apl button {
+  border: 0;
+  background: none;
+  color: inherit;
+  font:
+    600 16px system-ui,
+    sans-serif;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+#apl .apcov {
+  width: min(56vw, 240px);
+  aspect-ratio: 2/3;
+  margin: 18px 0 12px;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  font:
+    700 18px Georgia,
+    serif;
+  padding: 12px;
+  box-sizing: border-box;
+}
+#apl .aptrk {
+  font:
+    14px system-ui,
+    sans-serif;
+  color: var(--muted);
+  text-align: center;
+  min-height: 1.3em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#apl input[type='range'] {
+  width: 100%;
+  margin: 14px 0 2px;
+  accent-color: var(--acc);
+}
+#apl .aptime {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font:
+    12px system-ui,
+    sans-serif;
+  color: var(--muted);
+}
+#apl .apmain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 10px 0;
+}
+#apl .apmain .pp {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--acc);
+  color: #fff;
+  font-size: 28px;
+}
+#apl .apmain .sk {
+  font-size: 15px;
+  border: 1px solid var(--line);
+  padding: 0 10px;
+}
+#apl .apopt {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+#apl .apopt button {
+  border: 1px solid var(--line);
+  padding: 0 12px;
+  font-weight: 500;
+  font-size: 14px;
+}
+#apl .aplist {
+  width: 100%;
+  margin-top: 14px;
+}
+#apl .aplist button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-weight: 400;
+  font-size: 14px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 10px 4px;
+}
+#apl .aplist button.on {
+  font-weight: 700;
+}
+/* ---------- your own shelves ---------- */
+.case.cs {
+  margin-top: 26px;
+  order: 3;
+}
+.case.cs .plq .n {
+  opacity: 0.7;
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-left: -2px;
+}
+.case.cs .cshint {
+  font:
+    italic 13px Georgia,
+    serif;
+  color: #f4e6cf;
+  opacity: 0.7;
+  padding: 26px 14px 30px;
+  text-align: center;
+}
+.shchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.shchips button {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font:
+    14px system-ui,
+    sans-serif;
+  cursor: pointer;
+  min-height: 36px;
+}
+.shchips button[aria-pressed='true'] {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #fff;
+}
+#shlist li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+}
+#shlist input {
+  flex: 1;
+  min-width: 0;
+  font:
+    15px system-ui,
+    sans-serif;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+}
+#shlist {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+/* ---------- reading journal ---------- */
+#jrlist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+#jrlist .je {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    14px system-ui,
+    sans-serif;
+  white-space: pre-wrap;
+}
+#jrlist .je small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+#jrlist .je div {
+  flex: 1;
+  min-width: 0;
+}
+#jrlist .je button {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  min-width: 32px;
+  min-height: 32px;
+  cursor: pointer;
+}
+#jrlist textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 70px;
+}
+
+/* rewards in the room: a decoration on the bookcase and a second animal */
+.deco {
+  position: absolute;
+  left: 100px;
+  bottom: 100%;
+  margin-bottom: -2px;
+  width: 46px;
+  pointer-events: none;
+}
+.friend {
+  position: absolute;
+  left: 16px;
+  bottom: 100%;
+  margin-bottom: -4px;
+  width: 40px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  scale: -1 1;
+}
+.friend svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.case.cs .csb {
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* the second animal walks along the top of its bookcase, sits and naps */
+.friend {
+  translate: var(--fx, 0px) 0;
+  scale: var(--fd, -1) 1;
+  transition:
+    translate var(--fw, 0s) linear,
+    scale 0.2s ease;
+}
+.friend.walking .cat > .pose {
+  animation: walkbob 0.32s ease-in-out infinite;
+}
+.friend.walking .cat .tail {
+  animation-duration: 0.8s;
+}
+.friend .cat > .pose {
+  transition:
+    --csx 0.8s ease,
+    --csy 0.8s ease;
+}
+.friend.sleeping .cat {
+  --csx: 1.08;
+  --csy: 0.74;
+  transform-origin: 50% 100%;
+}
+.friend.sleeping .cat .eye {
+  animation: none;
+  transform: scaleY(0.12);
+}
+.friend.sleeping .cat .tail,
+.friend.sleeping .cat .btail,
+.friend.sleeping .cat .bob,
+.friend.sleeping .cat .ear2 {
+  animation: none;
+}
+.friend.sleeping .cat .body {
+  animation-duration: 5.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .friend {
+    transition: none;
+  }
+}
+

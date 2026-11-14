@@ -1,0 +1,897 @@
+/* My Bookshelf styles, part 06 of 09: the Customize drawer, fewer drawing layers, install help.
+   The parts are read in order and later parts adjust earlier ones, so keep the order. */
+/* a phone turned sideways keeps the phone layout (one column), instead of the computer layout squeezed into a short screen */
+/* ---------- Customize is a drawer: the room stays in view above it and changes as you tap, so the room itself is the preview ---------- */
+#lov {
+  align-items: flex-end;
+  background: none;
+  padding: 0;
+  pointer-events: none;
+}
+#lov .pnl {
+  pointer-events: auto;
+  max-width: 560px;
+  width: 100%;
+  height: min(58vh, 540px);
+  max-height: none;
+  border-radius: 18px 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.4);
+  border-top: 1px solid var(--line);
+}
+#lov .pnl > h2,
+#lov .pnl > #safe,
+#lov .pnl > .btns {
+  display: none;
+}
+#lov #pgrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+body.dressing #roomv {
+  padding-bottom: 58vh;
+}
+.czhead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px 8px 12px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+.cztabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+}
+.cztabs::-webkit-scrollbar {
+  display: none;
+}
+.cztabs button {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 9px 12px;
+  border-radius: 999px;
+  font:
+    600 14px system-ui,
+    sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  min-height: 40px;
+  white-space: nowrap;
+}
+.cztabs button[aria-selected='true'] {
+  background: var(--acc);
+  color: #fff;
+}
+.czhead .czdone {
+  flex: none;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0 16px;
+  min-height: 40px;
+  font:
+    600 14px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.czbody {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 12px 18px;
+  flex: 1;
+  min-height: 0;
+}
+.czg {
+  margin-top: 12px;
+}
+.czg > b {
+  display: block;
+  font:
+    600 13px system-ui,
+    sans-serif;
+  color: var(--muted);
+  margin: 0 2px 6px;
+}
+/* the tiles wrap onto several lines: rows that scrolled sideways were redrawn as new pieces on every tap, which showed as a blank flash on some phones */
+.czrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 3px;
+  padding: 3px;
+}
+.czt {
+  flex: none;
+  width: 72px;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--ink);
+  font:
+    12px/1.2 system-ui,
+    sans-serif;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.czt i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 4px;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  overflow: hidden;
+  font:
+    600 15px system-ui,
+    sans-serif;
+  font-style: normal;
+  box-sizing: border-box;
+  color: var(--ink);
+}
+.czt i.em {
+  font-size: 26px;
+}
+.czt[aria-pressed='true'] i {
+  border-color: var(--acc);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 28%, transparent);
+}
+.czt[aria-pressed='true'] {
+  font-weight: 700;
+}
+.czt[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+.czt i svg {
+  width: 50px;
+  height: 47px;
+  display: block;
+  overflow: visible;
+}
+.czt i u {
+  display: block;
+  text-decoration: none;
+}
+.czstage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 128px;
+  border-radius: 14px;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(var(--wall) 0 76%, var(--base) 76% 80%, var(--fl1) 80%);
+}
+.czstage svg.cat {
+  width: 108px;
+  height: 101px;
+  margin-bottom: 12px;
+  overflow: visible;
+}
+.czstage .nm {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  text-align: center;
+  font:
+    italic 12px Georgia,
+    serif;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.czbody label {
+  display: block;
+  font:
+    600 13px system-ui,
+    sans-serif;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.czbody label select,
+.czbody label input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  font:
+    15px system-ui,
+    sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px;
+}
+.czbtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.czbtns button {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 10px;
+  font:
+    14px system-ui,
+    sans-serif;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.czbody .wxrow {
+  margin-top: 12px;
+}
+.czbody #safe2 {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 14px 2px 0;
+}
+/* the highlight is a plain outline: a filter made the phone build and drop a drawing layer, which blanked the drawer for a frame */
+@keyframes czpulse {
+  0%,
+  100% {
+    outline-color: transparent;
+  }
+  40% {
+    outline-color: #fff;
+  }
+}
+.czpulse {
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+  animation: czpulse 0.7s ease-in-out;
+}
+#lov .pnl {
+  transform: translateZ(0);
+  contain: paint;
+}
+body.dressing #leaves,
+body.dressing .leaves {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .czpulse {
+    animation: none;
+  }
+}
+
+/* pop-up windows keep their own drawing layer: it used to be thrown away the moment the fade-in ended, and the phone showed one frame without the window */
+.ov {
+  will-change: opacity;
+}
+/* the grips are see-through: only thin corner marks and small bars on the sides are drawn, so the picture under them stays visible; the area that answers the finger is larger than the mark */
+.cropbox {
+  border-width: 1px;
+}
+.cropbox i {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+}
+.cropbox i:before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 0 solid #fff;
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.8));
+}
+.cropbox i[data-h='nw'] {
+  left: -19px;
+  top: -19px;
+  cursor: nwse-resize;
+}
+.cropbox i[data-h='nw']:before {
+  left: 17px;
+  top: 17px;
+  border-width: 4px 0 0 4px;
+}
+.cropbox i[data-h='ne'] {
+  right: -19px;
+  top: -19px;
+  cursor: nesw-resize;
+}
+.cropbox i[data-h='ne']:before {
+  right: 17px;
+  top: 17px;
+  border-width: 4px 4px 0 0;
+}
+.cropbox i[data-h='sw'] {
+  left: -19px;
+  bottom: -19px;
+  cursor: nesw-resize;
+}
+.cropbox i[data-h='sw']:before {
+  left: 17px;
+  bottom: 17px;
+  border-width: 0 0 4px 4px;
+}
+.cropbox i[data-h='se'] {
+  right: -19px;
+  bottom: -19px;
+  cursor: nwse-resize;
+}
+.cropbox i[data-h='se']:before {
+  right: 17px;
+  bottom: 17px;
+  border-width: 0 4px 4px 0;
+}
+.cropbox i[data-h='n'],
+.cropbox i[data-h='s'] {
+  left: 19px;
+  right: 19px;
+  width: auto;
+  height: 28px;
+  cursor: ns-resize;
+}
+.cropbox i[data-h='w'],
+.cropbox i[data-h='e'] {
+  top: 19px;
+  bottom: 19px;
+  height: auto;
+  width: 28px;
+  cursor: ew-resize;
+}
+.cropbox i[data-h='n'] {
+  top: -14px;
+}
+.cropbox i[data-h='s'] {
+  bottom: -14px;
+}
+.cropbox i[data-h='w'] {
+  left: -14px;
+}
+.cropbox i[data-h='e'] {
+  right: -14px;
+}
+.cropbox i[data-h='n']:before,
+.cropbox i[data-h='s']:before {
+  width: 22px;
+  height: 4px;
+  background: #fff;
+  left: 50%;
+  margin-left: -11px;
+}
+.cropbox i[data-h='w']:before,
+.cropbox i[data-h='e']:before {
+  width: 4px;
+  height: 22px;
+  background: #fff;
+  top: 50%;
+  margin-top: -11px;
+}
+.cropbox i[data-h='n']:before {
+  top: 12px;
+}
+.cropbox i[data-h='s']:before {
+  bottom: 12px;
+}
+.cropbox i[data-h='w']:before {
+  left: 12px;
+}
+.cropbox i[data-h='e']:before {
+  right: 12px;
+}
+
+/* feedback & support */
+.fbkind {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.fbkind button {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    14px system-ui,
+    sans-serif;
+}
+.fbkind button[aria-pressed='true'] {
+  background: var(--acc);
+  color: #fff;
+  border-color: var(--acc);
+}
+.fbnote {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+#fbtext {
+  resize: vertical;
+  min-height: 110px;
+}
+.fbpat {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  padding: 11px;
+  border-radius: 10px;
+  background: #f96854;
+  color: #fff;
+  font:
+    600 15px system-ui,
+    sans-serif;
+  text-decoration: none;
+}
+#fbsup h3 {
+  margin: 6px 0 4px;
+}
+
+@property --tx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --ty {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --tsc {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+/* Fewer drawing layers at rest. Anything that animates its position or opacity gets its own layer, and everything drawn after it in the room is then cut into extra full-size layers too; each time a layer comes or goes the phone redraws those, which showed as a one-frame blink. These small animations now run on plain numbers instead, which needs no layer. */
+@property --zo {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+@property --zx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --zy {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --eo {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0.35;
+}
+@property --ex {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes zz {
+  0% {
+    --zo: 0;
+    --zx: 0px;
+    --zy: 0px;
+  }
+  25% {
+    --zo: 0.9;
+  }
+  100% {
+    --zo: 0;
+    --zx: 10px;
+    --zy: -22px;
+  }
+}
+.zz {
+  opacity: var(--zo);
+  translate: var(--zx) var(--zy);
+}
+@keyframes edgeR {
+  0%,
+  100% {
+    --eo: 0.15;
+    --ex: 0px;
+  }
+  50% {
+    --eo: 0.55;
+    --ex: 3px;
+  }
+}
+@keyframes edgeL {
+  0%,
+  100% {
+    --eo: 0.15;
+    --ex: 0px;
+  }
+  50% {
+    --eo: 0.55;
+    --ex: -3px;
+  }
+}
+.edgetab {
+  opacity: var(--eo);
+  translate: var(--ex) 0;
+}
+.bk .lnote .ltag,
+.csb .lnote .ltag,
+.lnote .ltag {
+  animation: none !important;
+}
+/* the twinkling stars and the storm flash were the worst case: they sit in the window, near the top of the room, so the whole rest of the room (bookcases, shelves, clock) was pushed onto one huge extra layer that blinked whenever a book flew in or out */
+@property --tw {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@keyframes twinkle {
+  to {
+    --tw: 0.6;
+  }
+}
+.window .stars {
+  filter: brightness(var(--tw));
+}
+@property --fl {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@keyframes flash {
+  0%,
+  91%,
+  95%,
+  100% {
+    --fl: 1;
+  }
+  92%,
+  94% {
+    --fl: 2.3;
+  }
+}
+.window[data-wx='storm'] .sky {
+  filter: brightness(var(--fl));
+}
+
+/* a recommendation received through a link */
+.recbook {
+  margin: 0;
+  font:
+    700 20px Georgia,
+    serif;
+  color: var(--ink);
+}
+.recauthor {
+  margin: 0;
+  font:
+    italic 15px Georgia,
+    serif;
+  color: var(--muted);
+}
+.recstars {
+  margin: 0;
+  font-size: 22px;
+  color: #e0a526;
+  letter-spacing: 2px;
+}
+.recnote {
+  margin: 0;
+  font:
+    italic 15px/1.45 Georgia,
+    serif;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+.recquote {
+  margin: 0;
+  font:
+    14px/1.4 Georgia,
+    serif;
+  color: var(--muted);
+  border-left: 3px solid var(--line);
+  padding-left: 10px;
+}
+.recline {
+  margin: 0;
+  font:
+    italic 13px/1.4 Georgia,
+    serif;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+#recov {
+  z-index: 22;
+}
+#recov .pnl {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* the book window only scrolls up and down: a long word without spaces (an e-book file name, a link) made it wider than the screen, so it could be pushed sideways */
+.sheet {
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+.sheet > * {
+  min-width: 0;
+}
+#ebnote,
+.sheet p,
+.sheet small,
+.sheet label,
+.sheet .recline,
+.ebrow a {
+  overflow-wrap: anywhere;
+}
+.pnl {
+  overflow-x: hidden;
+}
+.pnl p,
+.pnl li,
+.pnl small {
+  overflow-wrap: anywhere;
+}
+
+/* install button and its help */
+#installbtn[hidden] {
+  display: none;
+}
+.inststeps {
+  margin: 4px 0 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font:
+    15px/1.4 system-ui,
+    sans-serif;
+  color: var(--ink);
+}
+.inststeps b {
+  font-weight: 650;
+}
+.inststeps .ico {
+  display: inline-block;
+  min-width: 1.2em;
+  text-align: center;
+}
+#instov .pnl {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* pictures in a book blend into the page: a white background (often around a small ornament between scenes) no longer shows as a white square */
+#rdr:not([data-th='dark']) #rdtext img {
+  mix-blend-mode: multiply;
+}
+
+/* the flying book carries a plain shadow instead of an animated shadow filter: the filter needed an extra drawing surface every frame, and on the phone that pushed the room's own drawing out of memory, so the whole room blinked once the book landed */
+.fly .fl {
+  box-shadow: 0 10px 14px rgba(0, 0, 0, calc(0.4 * var(--fsh, 1)));
+}
+
+/* The animal, its bowls and the little message at the bottom no longer get drawing layers of their own while they move: each time one appeared or went away the phone redrew the room and blanked it for a frame (seen when the animal goes to eat). Their movements now run on plain numbers, which needs no extra layer. */
+@property --cy {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --cr {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --csx {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@property --csy {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@property --co {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+@property --px {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --dir {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --fx {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fd {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: -1;
+}
+@property --bty {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --brt {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --lv {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --jy {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+.cat {
+  translate: 0 var(--cy);
+  rotate: var(--cr);
+  scale: var(--csx) var(--csy);
+  opacity: var(--co);
+}
+@keyframes nom {
+  0%,
+  100% {
+    --cr: -15deg;
+    --cy: 0px;
+  }
+  50% {
+    --cr: -9deg;
+    --cy: 1px;
+  }
+}
+@keyframes hop {
+  40% {
+    --cy: -16px;
+  }
+}
+@keyframes landed {
+  0% {
+    --csx: 1.18;
+    --csy: 0.78;
+    --cy: 0px;
+  }
+  45% {
+    --csx: 0.94;
+    --csy: 1.08;
+    --cy: -3px;
+  }
+  75% {
+    --csx: 1.03;
+    --csy: 0.97;
+    --cy: 0px;
+  }
+  100% {
+    --csx: 1;
+    --csy: 1;
+    --cy: 0px;
+  }
+}
+@keyframes arrive {
+  0% {
+    --cy: -44px;
+    --co: 0;
+  }
+  60% {
+    --cy: 4px;
+    --co: 1;
+  }
+  100% {
+    --cy: 0px;
+    --co: 1;
+  }
+}
+@keyframes walkbob {
+  50% {
+    --cy: -2.5px;
+  }
+}
+@keyframes flap {
+  to {
+    --cy: -3px;
+    --csy: 0.93;
+  }
+}
+@keyframes kick {
+  from {
+    --ps: 1.07;
+  }
+  to {
+    --ps: 0.98;
+  }
+}
+.heart {
+  translate: 0 var(--cy);
+  opacity: var(--co);
+}
+@keyframes up {
+  to {
+    --cy: -34px;
+    --co: 0;
+  }
+}
+.bowl {
+  translate: 0 var(--bty);
+  rotate: var(--brt);
+  transition: --lv 0.6s;
+}
+.bowl .fill {
+  transition: none;
+  translate: 0 var(--jy);
+}
+.bowl .wat {
+  transition: none;
+}
+@keyframes jig {
+  to {
+    --jy: 0.6px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .catw {
+    transition: --px var(--walk, 0s) linear;
+  }
+  .friend {
+    transition: --fx var(--fw, 0s) linear;
+  }
+}
+/* the message at the bottom always exists and is only shown or hidden */
+#toast {
+  display: block !important;
+  will-change: opacity;
+  opacity: 0;
+  pointer-events: none;
+}
+#toast.on {
+  opacity: 1;
+}
+#toast:empty {
+  padding: 0;
+}
+
+/* fewer full-screen drawing layers while you are in the room, so the phone has memory to spare and does not have to drop the room's drawing (that is what showed as the room going blank for a moment):
+   the plain colour behind the walls is painted by the page itself instead of an extra full-screen layer, and the two side arrows get small layers of their own instead of being merged into a full-screen one */
+html {
+  background: var(--wall2);
+}
+.hexback {
+  display: none !important;
+}
+.edgetab {
+  will-change: transform;
+}
+

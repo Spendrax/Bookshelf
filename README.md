@@ -6,7 +6,15 @@ Live at https://spendrax.github.io/Bookshelf/
 | File | What's in it |
 |---|---|
 | `index.html` | The page: the room, the walls and every pop-up window |
-| `css/style.css` | All the styling |
+| `css/01-room-and-animal.css` | Styles, part 01 (read in order): the page, the header, the room and the animal's drawing |
+| `css/02-shelves-forms-walls.css` | Styles, part 02 (read in order): bowls, shelves and books, the book form, pop-up windows, the stats and goals walls |
+| `css/03-lamp-spines-seasons-clock.css` | Styles, part 03 (read in order): the lamp, tags on spines, the seasons, the clock and thermometer |
+| `css/04-additions-and-fixes.css` | Styles, part 04 (read in order): multi-scan, the tour, badges; review fixes and the polish pass |
+| `css/05-reader-audio-shelves-journal.css` | Styles, part 05 (read in order): the e-book reader, the audiobook player, your own shelves, the reading journal, rewards |
+| `css/06-customize-and-layers.css` | Styles, part 06 (read in order): the Customize drawer, fewer drawing layers, install help |
+| `css/07-book-card-and-animal-life.css` | Styles, part 07 (read in order): the book card, the animal's life and how it moves |
+| `css/08-tricks-covers-book-extras.css` | Styles, part 08 (read in order): the trick menu, cover choices, book card extras, the partner's room |
+| `css/09-furniture-partner-icons.css` | Styles, part 09 (read in order): bookcase styles, partner extras, the challenge, outfits, the visitor, the app's icons |
 | `i18n.js` | Picks the language and loads only its file; keeps every language's genre names |
 | `i18n/<lang>.js` | Each language's translations (`L('text')` returns the text in the chosen language) |
 | `js/01-core.js` | Languages, saving books, helpers, the shelf and the add/edit form |

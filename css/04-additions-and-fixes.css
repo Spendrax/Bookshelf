@@ -1,0 +1,393 @@
+/* My Bookshelf styles, part 04 of 09: multi-scan, the tour, badges; review fixes and the polish pass.
+   The parts are read in order and later parts adjust earlier ones, so keep the order. */
+/* ---------- ten additions: multi-scan, tour, badges, daily goal, pet name, night room, ambience ---------- */
+.multi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 2px;
+  font:
+    14px system-ui,
+    sans-serif;
+  color: #fff;
+  cursor: pointer;
+}
+.scanbox .multi {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.scanbox .multi input {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: none;
+}
+#multishelf {
+  width: 100%;
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 8px;
+  font:
+    15px system-ui,
+    sans-serif;
+}
+.tour {
+  text-align: center;
+  max-width: 380px;
+}
+.tour .tico {
+  font-size: 54px;
+  line-height: 1.2;
+  margin-top: 4px;
+}
+.tour p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 8px 4px 14px;
+  min-height: 92px;
+}
+.tdots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.tdots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.tdots i.on {
+  background: var(--acc);
+}
+.tour .btns {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+.tour .btns button {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    600 15px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.tour .btns .pri {
+  background: var(--acc);
+  color: #fff;
+  border-color: var(--acc);
+}
+.badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 8px;
+}
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 4px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    600 11.5px/1.25 system-ui,
+    sans-serif;
+  text-align: center;
+  cursor: pointer;
+}
+.badge span {
+  font-size: 24px;
+  line-height: 1;
+}
+.badge.locked {
+  opacity: 0.42;
+  filter: grayscale(1);
+}
+.daily {
+  margin-top: 10px;
+  font:
+    14px system-ui,
+    sans-serif;
+}
+.daily .dtrack {
+  height: 9px;
+  border-radius: 5px;
+  background: var(--line);
+  overflow: hidden;
+  margin: 5px 0 8px;
+}
+.daily .dtrack i {
+  display: block;
+  height: 100%;
+  background: var(--acc);
+  border-radius: 5px;
+  transition: width 0.6s;
+}
+/* the animal is mirrored when it faces right, so the name is mirrored back to stay readable */
+.pname {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 16px);
+  translate: -50% 0;
+  scale: var(--dir, 1) 1;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 9px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font:
+    600 12px system-ui,
+    sans-serif;
+  z-index: 3;
+  pointer-events: none;
+  animation: pname 1.8s ease-out forwards;
+}
+@keyframes pname {
+  0% {
+    opacity: 0;
+    margin-bottom: -6px;
+  }
+  15%,
+  75% {
+    opacity: 1;
+    margin-bottom: 0;
+  }
+  100% {
+    opacity: 0;
+    margin-bottom: 6px;
+  }
+}
+#nightshade {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: #070a1e;
+  opacity: 0;
+  transition:
+    opacity 3s,
+    background 1.5s;
+}
+body.night-live.nightroom #nightshade {
+  opacity: 0.36;
+}
+body.night-live.nightroom.lampon:not(.nolamp) #nightshade {
+  opacity: 0.17;
+  background: #2a1606;
+}
+.rpill #rpamb {
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 6px 9px;
+}
+.pnl input.petname {
+  font:
+    15px system-ui,
+    sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ---------- review fixes: lighter idle work, bigger touch targets, clearer text, keyboard focus ---------- */
+/* leaves now fall by being moved, not by changing their position, so the page is no longer re-measured on every frame */
+.leaves {
+  container-type: size;
+}
+@keyframes fall {
+  to {
+    translate: 0 calc(100cqh + 80px);
+  }
+}
+/* animations on the walls you aren't looking at are no longer paused and resumed around a turn: starting and stopping them at the moment of landing is the kind of change that made things blink */
+/* the scanner's red line only moves while the scanner is open */
+.cam .guide:after {
+  animation-play-state: paused;
+}
+#scan.on .cam .guide:after {
+  animation-play-state: running;
+}
+/* comfortable touch targets: pill buttons are taller; tiny round buttons, upload buttons and bowls get an invisible larger tap area */
+.fbtn {
+  min-height: 38px;
+  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.plus,
+.bowl {
+  position: relative;
+}
+.plus:after,
+.bowl:after {
+  content: '';
+  position: absolute;
+  inset: -11px;
+}
+/* small grey lines were too faint on the wall */
+.sub,
+.stsub {
+  color: color-mix(in srgb, var(--hdm, var(--muted)) 55%, var(--hd, var(--ink)));
+}
+/* a visible ring for keyboard users everywhere, including the books that lift when focused */
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+.cov:focus-visible,
+.spine:focus-visible,
+.qnote:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+.stage:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
+/* tell the phone when the room is dark, so its own scrollbars and pickers match */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+button,
+a,
+select,
+input,
+label {
+  touch-action: manipulation;
+}
+
+/* ---------- polish pass on the screens around the room ---------- */
+/* two-field rows could push the book form wider than its panel (date fields refuse to shrink) */
+.two {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.two > * {
+  min-width: 0;
+}
+input[type='date'] {
+  min-width: 0;
+}
+/* the "Photo" buttons under cover / back / spine shared a name with the scanner's camera box and were drawn as tall boxes */
+.slot .cam {
+  position: static;
+  width: auto;
+  aspect-ratio: auto;
+  max-height: none;
+  overflow: visible;
+  background: var(--card);
+  border-radius: 6px;
+}
+.slot button {
+  min-height: 34px;
+  padding: 6px 8px;
+}
+/* Save stays within reach at the bottom of the book form instead of at the end of a long scroll */
+.sheet form > .btns:last-child {
+  position: sticky;
+  bottom: -18px;
+  z-index: 3;
+  margin: 6px -18px -18px;
+  padding: 10px 18px 14px;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 14px 14px;
+}
+/* Customize: two columns on phones too (half the scrolling), and a tidy button row with Done on its own line */
+@media (max-width: 420px) {
+  .pgrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.pgrid > label {
+  min-width: 0;
+}
+.pgrid > .fbtn {
+  grid-column: 1/-1;
+}
+#lov .btns button {
+  flex: 1 1 40%;
+  min-height: 42px;
+}
+#lov .btns .pri {
+  flex-basis: 100%;
+  order: 9;
+}
+/* one rule for corners: inputs and form buttons 10px, small secondary actions are pills, cards 14px */
+input,
+textarea,
+.pnl select,
+.btns button,
+.isbnrow button,
+.scanb {
+  border-radius: 10px;
+}
+/* buttons give a little under the finger */
+/* the press is shown by darkening, not shrinking: shrinking made the phone build a drawing layer on every tap, which blanked the screen for a frame */
+button:not(.bk):not(.spine):not(.cov):active {
+  box-shadow: inset 0 0 0 99px rgba(0, 0, 0, 0.14);
+}
+@media (prefers-reduced-motion: reduce) {
+  button:active {
+    scale: 1;
+  }
+}
+
+/* the spare walls and the backing always exist (parked off screen) instead of being switched on and off around a turn */
+.hexwall {
+  display: block;
+  transform: translateX(-300vw);
+}
+.hexback {
+  display: block;
+  background: var(--wall2) !important;
+}
+/* a wall is given keyboard focus when you land on it; it must not draw a focus ring (that ring showed as a coloured line at the corner while turning) */
+#roomv:focus,
+#roomv:focus-visible,
+.statsv:focus,
+.statsv:focus-visible {
+  outline: none;
+}
+.rbrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 18px;
+}
+.rbgo {
+  display: block;
+  background: none;
+  border: 0;
+  padding: 8px 2px;
+  margin: 2px 0 4px;
+  font:
+    13px system-ui,
+    sans-serif;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+  min-height: 0;
+}
+

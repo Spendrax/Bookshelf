@@ -1,0 +1,335 @@
+/* My Bookshelf styles, part 09 of 09: bookcase styles, partner extras, the challenge, outfits, the visitor, the app's icons.
+   The parts are read in order and later parts adjust earlier ones, so keep the order. */
+/* ---------- bookcase styles and the "didn't finish" box (Customize → Furniture); all through variables, so a
+   partner's room shows their choice too ---------- */
+.case {
+  background: var(--case-bg, linear-gradient(90deg, var(--wood2), var(--wood) 50%, var(--wood2)));
+  border-radius: var(--case-r, 8px 8px 0 0);
+  box-shadow: var(--case-sh, 8px 0 18px rgba(0, 0, 0, 0.25));
+}
+.unit {
+  background: var(--unit-bg, var(--wood2));
+}
+.case .row {
+  background: var(--row-bg, rgba(0, 0, 0, 0.28));
+  box-shadow: var(--row-sh, inset 0 10px 18px rgba(0, 0, 0, 0.35));
+  border-radius: var(--row-r, 0);
+}
+.board {
+  height: var(--board-h, 16px);
+  background: var(--board-bg, linear-gradient(var(--wood), var(--wood2)));
+}
+.crate {
+  width: var(--cr-w, 200px);
+}
+.crate .crfront {
+  height: var(--cr-h, 52px);
+  background: var(--cr-bg, repeating-linear-gradient(0deg, var(--wood) 0 14px, var(--wood2) 14px 17px));
+  border-radius: var(--cr-r, 3px);
+  clip-path: var(--cr-clip, none);
+}
+/* the two quick ways to add a book, at the top of the form */
+.quickscan {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.quickscan[hidden] {
+  display: none;
+}
+.quickscan .qsh,
+.quickscan .qsor {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.quickscan .qsh {
+  font:
+    700 16px Georgia,
+    serif;
+  color: var(--ink);
+}
+.qsb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--acc);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+.qsb b {
+  font-size: 16px;
+}
+.qsb small {
+  font-size: 12px;
+  opacity: 0.9;
+}
+/* open shelves: a top board for the lamp, plant and decorations to stand on */
+.case::before {
+  content: '';
+  display: var(--case-topd, none);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(var(--wood), var(--wood2));
+  box-shadow: 0 5px 8px rgba(0, 0, 0, 0.3);
+}
+/* room under the top board for the gold plaque (open shelves) */
+.case {
+  padding-top: var(--case-pt, 10px);
+}
+/* the second animal on the sill sits in front of the window's cross bars, like your main animal */
+.window > .friend {
+  z-index: 4;
+}
+
+/* a partner's book: their photos of the spine, front and back */
+.ppics {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+.ppics img {
+  height: 150px;
+  max-width: 40%;
+  object-fit: contain;
+  border-radius: 3px;
+  box-shadow: 0 3px 10px #0006;
+  cursor: zoom-in;
+}
+.ppics img.big {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: auto;
+  max-height: 85vh;
+  max-width: 92vw;
+  z-index: 10;
+  cursor: zoom-out;
+}
+
+/* a partner's book: what they put on it */
+.pinfo .pmeta {
+  margin: 8px 0 0;
+  font: 14px/1.4 system-ui, sans-serif;
+  opacity: 0.8;
+}
+.pchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pchips span {
+  font: 13px system-ui, sans-serif;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.pblurb {
+  margin: 10px 0 0;
+  max-height: 30vh;
+  overflow: auto;
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+/* the animal speaks: a little bubble above it */
+.psay {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  translate: -50% 0;
+  scale: none;
+  width: max-content;
+  max-width: 190px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 3px 10px #0004;
+  font: 600 13px/1.3 system-ui, sans-serif;
+  text-align: center;
+  z-index: 6;
+  pointer-events: none;
+  animation: psay 4.5s both;
+}
+@keyframes psay {
+  0% { opacity: 0; translate: -50% 6px; }
+  8%, 88% { opacity: 1; translate: -50% 0; }
+  100% { opacity: 0; translate: -50% -4px; }
+}
+.tricks button.locked {
+  opacity: 0.45;
+  font-size: 15px;
+}
+
+/* a few switches under a question */
+.optbox {
+  margin-top: 12px;
+  text-align: left;
+  font: 14px/1.35 system-ui, sans-serif;
+}
+.optbox .opth {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.optrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  cursor: pointer;
+}
+.optrow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--acc);
+  flex: none;
+}
+
+/* the month's challenge, on the goals wall */
+.chal .chtext {
+  margin: 0 0 10px;
+  font: 600 17px/1.3 Georgia, serif;
+}
+.chbar {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  overflow: hidden;
+}
+.chbar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acc);
+}
+.chal .sub {
+  margin: 8px 0 0;
+}
+
+/* neck outfits follow the same rules as hats when the animal is a spirit */
+.spirit .cat .wear {
+  opacity: 0.75;
+}
+/* the partner's animal, visiting: walks in from the right along the floor */
+.ppet.visitor {
+  position: absolute;
+  top: 12px;
+  right: -90px;
+  width: 52px;
+  translate: 0 -100%;
+  z-index: 3;
+  cursor: pointer;
+  transition: right 2.4s linear;
+  -webkit-tap-highlight-color: transparent;
+}
+.ppet.visitor.in {
+  right: 12%;
+}
+.ppet.visitor.out svg {
+  scale: -1 1;
+}
+.ppet.visitor svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ppet.visitor.vhop svg {
+  animation: vhop 0.5s ease-out;
+}
+@keyframes vhop {
+  40% {
+    translate: 0 -14px;
+  }
+}
+.ppet.visitor .psay {
+  bottom: calc(100% + 30px);
+  /* it stands near the right edge: the bubble grows to the left so it stays on screen */
+  left: auto;
+  right: -10px;
+  translate: none;
+  animation-name: vsay;
+}
+@keyframes vsay {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  8%,
+  88% {
+    opacity: 1;
+  }
+}
+.vheart {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  color: #e0536c;
+  font-size: 16px;
+  pointer-events: none;
+  animation: vheart 1.2s ease-out both;
+}
+@keyframes vheart {
+  from {
+    translate: -50% 0;
+    opacity: 1;
+  }
+  to {
+    translate: -50% -34px;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ppet.visitor {
+    transition: none;
+  }
+}
+
+/* the app's own icons (js/26-icons.js): line drawings in the text colour */
+svg.ic {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.24em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+  overflow: visible;
+}
+svg.ic .f {
+  fill: currentColor;
+  fill-opacity: 0.16;
+  stroke: none;
+}
+svg.ic circle:not(.f) {
+  fill: none;
+}
+
+/* small things that fade in and out keep their own drawing layer the whole time: the phone used to give each one a
+   layer for the fade and take it back afterwards, and the thing could go missing for one frame as it did */
+.bub,
+.hcount,
+.friend .fname,
+.rbook,
+.yarn {
+  will-change: opacity;
+}
+

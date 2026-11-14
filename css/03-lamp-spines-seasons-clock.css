@@ -1,0 +1,1376 @@
+/* My Bookshelf styles, part 03 of 09: the lamp, tags on spines, the seasons, the clock and thermometer.
+   The parts are read in order and later parts adjust earlier ones, so keep the order. */
+/* tap the lamp to switch it on or off */
+.lamp {
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter 0.25s;
+}
+.lamp:focus {
+  outline: none;
+}
+.lamp:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.lamp .shade,
+.lamp .bulb {
+  transition:
+    fill 0.25s,
+    opacity 0.25s;
+}
+.lamp.off,
+body.night-live .lamp.off {
+  filter: none;
+}
+.lamp.off .shade {
+  fill: #a88b52;
+}
+.lamp.off .bulb {
+  opacity: 0;
+}
+.wxrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+.wxrow .wxlab {
+  width: 100%;
+  font-size: 12px;
+  color: var(--muted);
+}
+.wxrow input {
+  flex: 1;
+  min-width: 140px;
+  font:
+    15px system-ui,
+    sans-serif;
+  padding: 7px 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .window .wx,
+  .window .stars,
+  .window[data-wx='storm'] .sky {
+    animation: none;
+  }
+}
+.front .fg {
+  display: block;
+  font:
+    italic 10px/1.3 Georgia,
+    serif;
+  opacity: 0.85;
+  margin: 4px 0 2px;
+}
+.front .fg:empty {
+  display: none;
+}
+.genreline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 12px;
+  font:
+    12px system-ui,
+    sans-serif;
+}
+.genreline .lbl {
+  width: 100%;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.genreline .gedit {
+  width: 30px;
+  height: 30px;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 14px !important;
+}
+#genov {
+  z-index: 14;
+}
+#genov .pnl {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#genov h2 {
+  margin: 0;
+}
+.gift {
+  position: absolute;
+  right: 14%;
+  top: -52px;
+  width: 62px;
+  height: 62px;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+  animation: giftbob 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.3));
+}
+@keyframes giftbob {
+  50% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+}
+.gift .lid {
+  transition:
+    transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1),
+    opacity 0.5s;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.gift.open .lid {
+  transform: translate(10px, -26px) rotate(26deg);
+  opacity: 0;
+}
+.gift .spark {
+  animation: spark 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes spark {
+  50% {
+    transform: scale(0.4);
+    opacity: 0.3;
+  }
+}
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
+  .gift {
+    right: 6%;
+  }
+}
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 12px;
+  z-index: 60;
+  pointer-events: none;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gift,
+  .gift .spark {
+    animation: none;
+  }
+}
+
+/* did-not-finish crate */
+.crate {
+  position: absolute;
+  right: 5%;
+  top: 26px;
+  width: 200px;
+  height: 96px;
+  z-index: 1;
+}
+.crate #dnfbox {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 22px;
+  height: 92px;
+}
+.crate .dnfrow {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100%;
+  padding: 0 6px;
+  overflow: hidden;
+  min-height: 0;
+  background: none;
+  box-shadow: none;
+}
+.crate .crfront {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 52px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(0deg, var(--wood) 0 14px, var(--wood2) 14px 17px);
+  box-shadow:
+    0 6px 10px rgba(0, 0, 0, 0.35),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.crate .crlab {
+  font:
+    700 11px system-ui,
+    sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #3a2a10;
+  background: linear-gradient(#ecd08a, #b8913f);
+  padding: 3px 10px;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.spine.mini {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0;
+  justify-content: flex-start;
+}
+.spine.mini > * {
+  display: none !important;
+}
+.dnfrow .dnfhint {
+  display: none;
+  align-self: center;
+  font:
+    11px system-ui,
+    sans-serif;
+  color: var(--hdm, var(--muted));
+  text-align: center;
+  width: 100%;
+  padding-bottom: 40px;
+}
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
+  .crate {
+    right: 3%;
+    width: 150px;
+    top: 40px;
+  }
+}
+.floor:has(.crate) {
+  min-height: 150px;
+}
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
+  .floor:has(.crate) .rug {
+    width: 40%;
+  }
+}
+/* series number and lending on spines */
+.spine .sn {
+  font:
+    700 10px system-ui,
+    sans-serif;
+  opacity: 0.9;
+  margin-bottom: 4px;
+  flex: none;
+}
+.bk.lent {
+  rotate: -6deg;
+  transform-origin: 100% 100%;
+  margin-left: 20px;
+  z-index: 3;
+  overflow: visible;
+}
+/* lent books: a cord loops out of the top of the book, and its name tag hangs on the book itself */
+.bk .lnote {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -12px;
+  height: 22px;
+  display: block;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+.bk .lnote svg {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 26px;
+  height: 22px;
+  margin-left: -13px;
+  overflow: visible;
+}
+.bk .lnote path {
+  fill: none;
+  stroke: #b8433a;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+.bk .lnote .ltag {
+  position: absolute;
+  left: 50%;
+  top: 21px;
+  transform-origin: 50% 0;
+  translate: -50% 0;
+  rotate: 3deg;
+  display: block;
+  background: #f4e4bd;
+  color: #3a2a10;
+  font:
+    600 9px/1.15 system-ui,
+    sans-serif;
+  border: 1px solid #c9a86a;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: lsway 4s ease-in-out infinite;
+}
+/* on a spine the tag is narrow and reads downwards, like the title */
+.spine .lnote .ltag {
+  writing-mode: vertical-rl;
+  padding: 9px 2px 5px;
+  border-radius: 6px 6px 2px 2px;
+  max-height: 58px;
+  max-width: none;
+}
+.spine .lnote .ltag:before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 3px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: #b8433a;
+}
+/* on a cover there is room for it to read across */
+.cov .lnote .ltag {
+  padding: 7px 4px 3px;
+  border-radius: 6px 6px 2px 2px;
+  max-width: 66px;
+  max-height: none;
+  font-size: 8px;
+}
+.cov .lnote .ltag:before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: #b8433a;
+}
+@keyframes lsway {
+  50% {
+    rotate: -2deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bk .lnote .ltag {
+    animation: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bk .lnote .ltag {
+    animation: none;
+  }
+}
+.three {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 520px) {
+  .three {
+    grid-template-columns: 1fr 1fr;
+  }
+  .three > label:first-child {
+    grid-column: 1/-1;
+  }
+}
+.front .fs {
+  display: block;
+  font:
+    italic 10px Georgia,
+    serif;
+  opacity: 0.85;
+  margin-top: 3px;
+}
+.front .fs:empty {
+  display: none;
+}
+.reread {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font:
+    13px system-ui,
+    sans-serif;
+  color: var(--muted);
+}
+.reread ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.rowbtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* pick my next book */
+@keyframes wobble {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: -4deg;
+  }
+  75% {
+    rotate: 4deg;
+  }
+}
+.bk.wobble {
+  animation: wobble 0.28s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+/* reading timer */
+.rpill {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  font:
+    14px system-ui,
+    sans-serif;
+  max-width: calc(100% - 32px);
+}
+.rpill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.rpill b {
+  font-variant-numeric: tabular-nums;
+}
+.rpill button {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: var(--acc);
+  color: #fff;
+  font:
+    600 13px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.streak {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+.streak .fl {
+  font:
+    700 26px Georgia,
+    serif;
+  color: var(--ink);
+}
+.streak .sub {
+  font-size: 14px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.week {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 64px;
+  margin-top: 10px;
+}
+.week div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.week i {
+  display: block;
+  width: 70%;
+  max-width: 22px;
+  min-height: 2px;
+  background: var(--acc);
+  border-radius: 3px 3px 0 0;
+}
+.week .today i {
+  background: #e08a2e;
+}
+.nextlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.nextlist li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font:
+    15px Georgia,
+    serif;
+  color: var(--ink);
+}
+.nextlist small {
+  font:
+    12px system-ui,
+    sans-serif;
+  color: var(--muted);
+}
+#askin {
+  font:
+    16px system-ui,
+    sans-serif;
+  width: 140px;
+}
+/* seasons */
+.seasonal {
+  position: absolute;
+  right: 14px;
+  bottom: 100%;
+  margin-bottom: -2px;
+  width: 54px;
+  height: 60px;
+  pointer-events: none;
+}
+.seasonal svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.lights {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: -7px;
+  height: 22px;
+  pointer-events: none;
+  z-index: 2;
+}
+.lights svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.lights .bulb {
+  position: absolute;
+  width: 7px;
+  height: 9px;
+  margin-left: -3.5px;
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: 0 0 8px 2px currentColor;
+  animation: twk 1.8s ease-in-out infinite;
+}
+.lights svg {
+  position: absolute;
+  inset: 0;
+}
+@keyframes twk {
+  50% {
+    opacity: 0.35;
+  }
+}
+.leaves {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+.leaf {
+  position: absolute;
+  top: -40px;
+  width: 16px;
+  height: 16px;
+  animation: fall linear infinite;
+}
+.leaf i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0 80% 0 80%;
+  animation: sway ease-in-out infinite alternate;
+}
+
+/* the season falls on every wall: on stats and goals it stays in view while you scroll */
+.statsv > .leaves {
+  position: sticky;
+  top: 0;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100vh;
+  margin-bottom: -100vh;
+  flex: none;
+  z-index: 2;
+}
+.leaf.snow {
+  width: 9px;
+  height: 9px;
+}
+.leaf.snow i {
+  border-radius: 50%;
+  background: #fff !important;
+  box-shadow:
+    0 0 2px rgba(80, 90, 110, 0.45),
+    0 0 4px rgba(255, 255, 255, 0.9);
+  animation-name: drift;
+}
+.leaf.petal {
+  width: 12px;
+  height: 12px;
+}
+.leaf.petal i {
+  border-radius: 60% 0 60% 0;
+}
+@keyframes drift {
+  from {
+    transform: translateX(-14px);
+  }
+  to {
+    transform: translateX(14px);
+  }
+}
+@keyframes sway {
+  from {
+    transform: translateX(-26px) rotate(-40deg);
+  }
+  to {
+    transform: translateX(26px) rotate(60deg);
+  }
+}
+body.season-winter .window .sill:before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: -6px;
+  height: 9px;
+  border-radius: 8px 8px 2px 2px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+@media (prefers-reduced-motion: reduce) {
+  .leaves,
+  .bk.wobble {
+    display: none;
+  }
+  .lights .bulb {
+    animation: none;
+  }
+}
+.bowls {
+  position: absolute;
+  left: max(14px, 4%);
+  top: 4px;
+  display: var(--bowld, var(--catd, flex));
+  gap: 30px;
+  z-index: 3;
+  align-items: flex-end;
+}
+.bowl {
+  width: 46px;
+  height: 23px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.3));
+  -webkit-tap-highlight-color: transparent;
+}
+.bowl svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.bowl .fill {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scaleY(var(--lv, 1));
+  transition: transform 0.6s;
+}
+.bowl .wat {
+  opacity: var(--lv, 1);
+  transition: opacity 0.6s;
+}
+.bowl.nom .fill {
+  animation: jig 0.3s ease-in-out infinite alternate;
+}
+.bowl.nom .wat {
+  animation: rip 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes rip {
+  to {
+    fill: #a9d3f2;
+  }
+}
+
+.catw.eating .cat > .pose {
+  animation: nom 0.45s ease-in-out infinite;
+  transform-origin: 78% 100%;
+}
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
+  .bowls {
+    gap: 18px;
+  }
+  .bowl {
+    width: 38px;
+    height: 19px;
+  }
+}
+.credit {
+  font:
+    12px system-ui,
+    sans-serif;
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+#res:empty + #st:empty + .credit {
+  display: none;
+}
+#aboutov .pnl {
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#aboutov h2 {
+  margin: 0;
+  font:
+    700 22px Georgia,
+    serif;
+}
+#aboutov .lede {
+  font-size: 15px;
+  margin: 0;
+}
+#aboutov .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#aboutov .links a {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+  font:
+    600 14px system-ui,
+    sans-serif;
+}
+#aboutov h3 {
+  margin: 6px 0 0;
+  font:
+    700 15px Georgia,
+    serif;
+}
+#aboutov ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+#aboutov .ver {
+  font-size: 12px;
+  color: var(--muted);
+}
+#aboutov ul a {
+  color: inherit;
+}
+
+/* ---------- a real clock and an outdoor thermometer hanging beside the window ---------- */
+.wclock {
+  position: absolute;
+  left: -74px;
+  top: 18px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fbf6ea 0 62%, #efe6d2 100%);
+  border: 5px solid var(--base);
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.28),
+    inset 0 1px 3px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  z-index: 2;
+}
+.wclock:before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -1deg,
+    #5a4634 0 2deg,
+    transparent 2deg 30deg,
+    #5a4634 30deg 32deg,
+    transparent 32deg 60deg,
+    #5a4634 60deg 62deg,
+    transparent 62deg 90deg,
+    #5a4634 90deg 92deg,
+    transparent 92deg 120deg,
+    #5a4634 120deg 122deg,
+    transparent 122deg 150deg,
+    #5a4634 150deg 152deg,
+    transparent 152deg 180deg,
+    #5a4634 180deg 182deg,
+    transparent 182deg 210deg,
+    #5a4634 210deg 212deg,
+    transparent 212deg 240deg,
+    #5a4634 240deg 242deg,
+    transparent 242deg 270deg,
+    #5a4634 270deg 272deg,
+    transparent 272deg 300deg,
+    #5a4634 300deg 302deg,
+    transparent 302deg 330deg,
+    #5a4634 330deg 332deg,
+    transparent 332deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 72%, #000 73%);
+  mask: radial-gradient(circle, transparent 0 72%, #000 73%);
+}
+.wclock i {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  border-radius: 2px;
+  background: #3b2c20;
+}
+.wclock .hh {
+  width: 3px;
+  height: 11px;
+  margin-left: -1.5px;
+}
+.wclock .mh {
+  width: 2px;
+  height: 16px;
+  margin-left: -1px;
+}
+.wclock .sh {
+  width: 1px;
+  height: 17px;
+  margin-left: -0.5px;
+  background: #c0392b;
+  animation: clocksec 60s linear infinite;
+}
+.wclock:after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px;
+  border-radius: 50%;
+  background: #3b2c20;
+}
+
+.therm {
+  position: absolute;
+  right: -60px;
+  top: 34px;
+  width: 30px;
+  height: 108px;
+  border-radius: 15px;
+  background: linear-gradient(#f7f1e3, #e9dfc8);
+  border: 3px solid var(--base);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 2;
+}
+.therm .tube {
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  bottom: 30px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 3px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.therm .tube:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--lvl, 35%);
+  background: #d23b2e;
+  transition: height 1.5s;
+}
+.therm .tube:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(transparent 0 5px, rgba(0, 0, 0, 0.28) 5px 6px);
+  -webkit-mask: linear-gradient(90deg, #000 0 40%, transparent 40%);
+  mask: linear-gradient(90deg, #000 0 40%, transparent 40%);
+}
+.therm .bulb {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: #d23b2e;
+  box-shadow: inset -2px -2px 3px rgba(0, 0, 0, 0.25);
+}
+.therm b {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  bottom: -24px;
+  text-align: center;
+  font:
+    700 13px/18px system-ui,
+    sans-serif;
+  color: var(--ink);
+  background: var(--paper, #f6efe0);
+  border-radius: 9px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #3b2c20;
+}
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
+  .wclock {
+    left: -66px;
+    top: 10px;
+    width: 44px;
+    height: 44px;
+    border-width: 4px;
+  }
+  .wclock .hh {
+    height: 9px;
+  }
+  .wclock .mh {
+    height: 14px;
+  }
+  .wclock .sh {
+    height: 15px;
+  }
+  .therm {
+    right: -56px;
+    top: 16px;
+    width: 26px;
+    height: 92px;
+  }
+  .therm .tube {
+    bottom: 27px;
+  }
+  .therm .bulb {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    bottom: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wclock .sh {
+    display: none;
+  }
+}
+/* wide screens: the window sits near the left edge, so the clock hangs on the right, above the thermometer */
+@media (min-width: 721px) and (min-height: 521px), (min-width: 721px) and (orientation: portrait) {
+  .wclock {
+    left: auto;
+    right: -68px;
+    top: -14px;
+  }
+  .therm {
+    right: -58px;
+    top: 58px;
+  }
+}
+
+/* ---------- clock & temperature styles (Customize) ---------- */
+.wclock {
+  --c1: var(--ck1, #fbf6ea);
+  --c2: var(--ck2, var(--base));
+  --c3: var(--ck3, #3b2c20);
+  --c4: var(--ck4, #c0392b);
+}
+.therm {
+  --c1: var(--th1, #fbf6ea);
+  --c2: var(--th2, var(--base));
+  --c3: var(--th3, #3b2c20);
+  --c4: var(--th4, #d23b2e);
+}
+.wclock[data-s='none'],
+.therm[data-s='none'] {
+  display: none;
+}
+.wclock {
+  background: var(--c1);
+  border-color: var(--c2);
+}
+.wclock:before {
+  background: conic-gradient(
+    from -1deg,
+    var(--c3) 0 2deg,
+    transparent 2deg 30deg,
+    var(--c3) 30deg 32deg,
+    transparent 32deg 60deg,
+    var(--c3) 60deg 62deg,
+    transparent 62deg 90deg,
+    var(--c3) 90deg 92deg,
+    transparent 92deg 120deg,
+    var(--c3) 120deg 122deg,
+    transparent 122deg 150deg,
+    var(--c3) 150deg 152deg,
+    transparent 152deg 180deg,
+    var(--c3) 180deg 182deg,
+    transparent 182deg 210deg,
+    var(--c3) 210deg 212deg,
+    transparent 212deg 240deg,
+    var(--c3) 240deg 242deg,
+    transparent 242deg 270deg,
+    var(--c3) 270deg 272deg,
+    transparent 272deg 300deg,
+    var(--c3) 300deg 302deg,
+    transparent 302deg 330deg,
+    var(--c3) 330deg 332deg,
+    transparent 332deg
+  );
+}
+.wclock i,
+.wclock:after {
+  background: var(--c3);
+}
+.wclock .sh {
+  background: var(--c4);
+}
+/* minimal: just hands and four dots, no rim */
+.wclock[data-s='minimal'] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.wclock[data-s='minimal']:before {
+  inset: 0;
+  background: radial-gradient(circle at 50% 4px, var(--c3) 2.5px, transparent 3px),
+    radial-gradient(circle at 50% calc(100% - 4px), var(--c3) 2.5px, transparent 3px),
+    radial-gradient(circle at 4px 50%, var(--c3) 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 4px) 50%, var(--c3) 2.5px, transparent 3px);
+  -webkit-mask: none;
+  mask: none;
+}
+/* roman numerals around the face */
+.wclock[data-s='roman']:before {
+  display: none;
+}
+.wclock .rn {
+  position: absolute;
+  inset: 0;
+  font:
+    700 8px/1 Georgia,
+    serif;
+  color: var(--c3);
+  pointer-events: none;
+}
+.wclock .rn span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  margin: -4px 0 0 -9px;
+  text-align: center;
+}
+/* digital & flip: a little box with numbers */
+.wclock[data-s='digital'],
+.wclock[data-s='flip'] {
+  width: auto;
+  height: auto;
+  border-radius: 9px;
+  padding: 5px 8px;
+  border-width: 4px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+.wclock[data-s='digital']:before,
+.wclock[data-s='digital']:after,
+.wclock[data-s='flip']:before,
+.wclock[data-s='flip']:after {
+  display: none;
+}
+.wclock .dg {
+  font:
+    700 17px/1 ui-monospace,
+    'Courier New',
+    monospace;
+  letter-spacing: 1px;
+  color: var(--c4);
+  text-shadow: 0 0 6px var(--c4);
+}
+/* its own name: "blink" is the animal's eye blink */
+.wclock .dg u {
+  text-decoration: none;
+  animation: colon 1s steps(1) infinite;
+}
+@keyframes colon {
+  50% {
+    opacity: 0.15;
+  }
+}
+.wclock[data-s='flip'] {
+  background: var(--c2);
+  padding: 4px;
+}
+.wclock .fc {
+  position: relative;
+  display: block;
+  min-width: 24px;
+  padding: 4px 3px;
+  border-radius: 4px;
+  background: var(--c1);
+  color: var(--c3);
+  font:
+    700 16px/1 system-ui,
+    sans-serif;
+  text-align: center;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+}
+.wclock .fc:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.35);
+}
+/* temperature styles */
+.therm {
+  background: var(--c1);
+  border-color: var(--c2);
+}
+.therm .tube:before,
+.therm .bulb {
+  background: var(--c4);
+}
+.therm b {
+  background: var(--c1);
+  color: var(--c3);
+}
+.therm[data-s='dial'] {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  top: 40px;
+}
+.therm .arc {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: conic-gradient(from 225deg, #4a90d9, #7bc4a4 30%, #f0c040 55%, #e0603a 75%, transparent 75%);
+  -webkit-mask: radial-gradient(circle, transparent 0 60%, #000 62%);
+  mask: radial-gradient(circle, transparent 0 60%, #000 62%);
+}
+.therm .nd {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 19px;
+  margin: -19px 0 0 -1px;
+  background: var(--c4);
+  border-radius: 2px;
+  transform-origin: 50% 100%;
+  transform: rotate(var(--ang, -135deg));
+  transition: transform 1.5s;
+}
+.therm .nd:after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  bottom: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c3);
+}
+.therm[data-s='dial'] b {
+  bottom: -24px;
+}
+.therm[data-s='digital'] {
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  padding: 5px 8px;
+  top: 44px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.therm[data-s='digital'] b {
+  position: static;
+  background: none;
+  box-shadow: none;
+  font:
+    700 16px/1 ui-monospace,
+    'Courier New',
+    monospace;
+  color: var(--c4);
+  text-shadow: 0 0 6px var(--c4);
+}
+.therm .ico {
+  font-size: 15px;
+  line-height: 1;
+}
+.therm[data-s='sign'] {
+  background: none;
+  border: none;
+  box-shadow: none;
+  width: 54px;
+  height: auto;
+  top: 0;
+}
+.therm .cord {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 36px;
+  height: 26px;
+  margin-left: -18px;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1px), #6b5a48 50%, transparent calc(50% + 1px))
+      left/50% 100% no-repeat,
+    linear-gradient(to top left, transparent calc(50% - 1px), #6b5a48 50%, transparent calc(50% + 1px))
+      right/50% 100% no-repeat;
+}
+.therm .cord:before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #8a7a68;
+}
+.therm .tboard {
+  position: relative;
+  margin-top: 25px;
+  height: auto;
+  padding: 5px 2px 6px;
+  border-radius: 6px;
+  background: var(--c2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+.therm[data-s='sign'] .ico {
+  display: block;
+  font-size: 16px;
+}
+.therm[data-s='sign'] b {
+  position: static;
+  display: block;
+  background: none;
+  box-shadow: none;
+  color: var(--c1);
+  font:
+    700 14px/1.25 Georgia,
+    serif;
+}
+/* boxes that grow with their text: keep their edge next to the window */
+.wclock[data-s='digital'],
+.wclock[data-s='flip'] {
+  left: auto;
+  right: calc(100% + 16px);
+}
+.therm[data-s='digital'] {
+  right: auto;
+  left: calc(100% + 14px);
+}
+@media (min-width: 721px) and (min-height: 521px), (min-width: 721px) and (orientation: portrait) {
+  .wclock[data-s='digital'],
+  .wclock[data-s='flip'] {
+    right: auto;
+    left: calc(100% + 14px);
+    top: -30px;
+  }
+  .therm[data-s='sign'] {
+    top: 44px;
+  }
+  .therm[data-s='dial'],
+  .therm[data-s='digital'] {
+    top: 62px;
+  }
+}
+
+/* a bit of wall between the window and the clock / temperature */
+@media (max-width: 720px), (max-height: 520px) and (orientation: landscape) {
+  .wclock[data-s] {
+    left: auto;
+    right: calc(100% + 34px);
+  }
+  .therm[data-s] {
+    right: auto;
+    left: calc(100% + 42px);
+  }
+  .therm[data-s='sign'] {
+    top: -4px;
+  }
+}
+@media (min-width: 721px) and (min-height: 521px), (min-width: 721px) and (orientation: portrait) {
+  .leftcol {
+    width: 300px;
+  }
+  .leftcol > .window {
+    margin-left: 90px;
+  }
+  .therm[data-s] {
+    left: auto;
+    right: calc(100% + 30px);
+    top: 40px;
+  }
+  .therm[data-s='sign'] {
+    top: 20px;
+  }
+}
+
