@@ -96,7 +96,7 @@ function autoBkBox() {
     const r = mc.apply(this, arguments);
     dirty = true;
     clearTimeout(t);
-    t = setTimeout(() => gTok && Date.now() < gTokEnd && run(), 120000);
+    t = setTimeout(() => driveSilent() && run(), 120000);
     return r;
   };
   /* something changed since the last backup, before this visit */
@@ -105,7 +105,7 @@ function autoBkBox() {
     'click',
     (e) => {
       if (!dirty || busy || !driveOn() || !autoBkOn()) return;
-      if (gTok && Date.now() < gTokEnd) return;
+      if (driveSilent()) return;
       /* not in the middle of something: a question box, the camera, a form */
       if (document.querySelector('.ov.on, #scan.on') || e.target.closest('input,select,textarea,.catw'))
         return;
@@ -118,8 +118,10 @@ function autoBkBox() {
   /* leaving the app with a good pass: save now */
   document.addEventListener(
     'visibilitychange',
-    () => document.hidden && gTok && Date.now() < gTokEnd && run(),
+    () => document.hidden && driveSilent() && run(),
   );
+  /* signed in for good: a change made before this visit is saved a little after opening, with no tap needed */
+  setTimeout(() => driveSilent() && run(), 15000);
 }
 
 /* ---------- storage: say so before the phone's space for the app runs out (photos fill it) ---------- */
