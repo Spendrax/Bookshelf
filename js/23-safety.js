@@ -79,15 +79,18 @@ function autoBkBox() {
       return 0;
     }
   };
-  const run = async () => {
+  const run = async (quiet = true) => {
     /* never an empty shelf over a good backup */
     if (busy || !dirty || !driveOn() || !autoBkOn() || !navigator.onLine || !booksReady || !books.length)
       return;
     busy = true;
     dirty = false;
     try {
+      /* in the background: a pass is renewed quietly, but a sign-in window never opens without a tap */
+      gQuiet = quiet;
       if (!(await driveBackup(true))) dirty = true;
     } finally {
+      gQuiet = false;
       busy = false;
     }
   };
@@ -111,7 +114,8 @@ function autoBkBox() {
         return;
       if (Date.now() - num(LB) < 20 * 36e5 || Date.now() - triedAt < 6 * 36e5) return;
       triedAt = Date.now();
-      run();
+      /* a real tap: here the sign-in window may open */
+      run(false);
     },
     true,
   );

@@ -45,6 +45,7 @@ Live at https://spendrax.github.io/Bookshelf/
 | `js/26-icons.js` | The app's own line icons; swaps emoji in the page for them (never in what people type) |
 | `js/27-comforts.js` | Undo after removing or moving a book, the text size setting, names for screen readers |
 | `js/28-reading-extras.js` | Time left and missing series volumes on the book card, the month picture, the animal's pick of the day, the goal shared with a partner |
+| `js/29-drive-stay.js` | Stays signed in to Google Drive through the app's helper server (server/), with the old sign-in window as the fallback |
 | `sw.js` | Offline copy (bump the cache name on every release) |
 | `tests/smoke.js` | Quick test to run before every push |
 

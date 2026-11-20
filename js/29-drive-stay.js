@@ -21,9 +21,25 @@ const gKeep = (v) => {
 };
 /* a pass can be had without a window: one in hand, or a sealed key to renew it */
 const driveSilent = () => (gTok && Date.now() < gTokEnd) || !!(GWK && gSealed());
+/* set while a backup runs by itself: then no sign-in window may open, only a quiet renewal */
+let gQuiet = false;
+/* the helper refused a sign-in (a setup problem): the old window is used for a day, even after reopening */
+const GDOWN = 'bookshelf-gdrive-helperdown';
 {
   let down = 0,
     busy = null;
+  const stuck = () => {
+    try {
+      return Date.now() - (+localStorage.getItem(GDOWN) || 0) < 864e5;
+    } catch (e) {
+      return false;
+    }
+  };
+  const giveUp = () => {
+    try {
+      localStorage.setItem(GDOWN, Date.now());
+    } catch (e) {}
+  };
   const set = (t, s) => {
     gTok = t;
     gTokEnd = Date.now() + ((+s || 3600) - 60) * 1000;
@@ -48,15 +64,16 @@ const driveSilent = () => (gTok && Date.now() < gTokEnd) || !!(GWK && gSealed())
       return { ok: false, status: 0, j: {} };
     }
   }
-  const helperUp = () => !!GWK && Date.now() - down > 6e5;
+  const helperUp = () => !!GWK && Date.now() - down > 6e5 && !stuck();
   /* a fresh pass from the sealed key, no window */
   async function renew() {
     const s = gSealed();
-    if (!s || !helperUp()) return null;
+    if (!s || !GWK || Date.now() - down < 6e5) return null;
     const r = await helper('/refresh', { sealed: s });
     if (r.ok && r.j.access_token) return set(r.j.access_token, r.j.expires_in);
-    /* the key was cancelled (access removed in the Google account, or a long time unused): sign in again next time */
-    if (r.status === 401) gKeep('');
+    /* the key was cancelled (access removed in the Google account, or a long time unused): sign in again next time.
+       Any other refusal keeps the key: it may work again later */
+    if (r.status === 401 && r.j.error === 'invalid_grant') gKeep('');
     return null;
   }
   /* the one sign-in: Google's window gives a one-time code, the helper turns it into a pass and a sealed key */
@@ -71,8 +88,14 @@ const driveSilent = () => (gTok && Date.now() < gTokEnd) || !!(GWK && gSealed())
             callback: async (r) => {
               if (!r || !r.code) return rej(new Error('denied'));
               const x = await helper('/exchange', { code: r.code });
-              if (!x.ok || !x.j.access_token) return rej(new Error('exchange'));
+              if (!x.ok || !x.j.access_token) {
+                /* a setup problem on the helper's side: don't send people round in circles, use the old way */
+                giveUp();
+                return rej(new Error('helper ' + (x.j.error || 'status ' + x.status)));
+              }
+              /* signed in, but Google gave no long-lasting key: this time works, next time the old way */
               if (x.j.sealed) gKeep(x.j.sealed);
+              else giveUp();
               res(set(x.j.access_token, x.j.expires_in));
             },
             error_callback: (e) => rej(e),
@@ -88,6 +111,7 @@ const driveSilent = () => (gTok && Date.now() < gTokEnd) || !!(GWK && gSealed())
     busy = (async () => {
       const t = await renew();
       if (t) return t;
+      if (gQuiet) throw new Error('needs a tap');
       return helperUp() ? signIn() : oldWay();
     })();
     return busy.finally(() => (busy = null));

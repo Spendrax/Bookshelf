@@ -216,7 +216,9 @@ async function driveBackup(quiet) {
     if (shareId()) shareUpload().catch(() => {});
     return true;
   } catch (e) {
-    if (!quiet) toast(L('Google Drive backup didn’t work. Check your connection and try again.'));
+    /* the helper's own reason, when it gave one, so a setup problem can be told apart from a bad connection */
+    const why = e && /^helper /.test(e.message || '') ? ' (' + e.message.slice(7) + ')' : '';
+    if (!quiet) toast(L('Google Drive backup didn’t work. Check your connection and try again.') + why);
     return false;
   }
 }
