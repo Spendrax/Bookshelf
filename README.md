@@ -69,3 +69,6 @@ Live at https://spendrax.github.io/Bookshelf/
 ```
 npm i --no-save playwright && node tests/smoke.js
 ```
+
+## Google Drive helper (server/)
+`server/bookshelf-drive-worker.js` is a small Cloudflare Worker that keeps you signed in to Google Drive. It stores nothing: Google's long-lasting key is sealed with the worker's own secret and kept by the app. Its settings (client ID, client secret, sealing secret) live only in Cloudflare, never in this repo.
