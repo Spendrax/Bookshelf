@@ -24,7 +24,7 @@ const driveSilent = () => (gTok && Date.now() < gTokEnd) || !!(GWK && gSealed())
 /* set while a backup runs by itself: then no sign-in window may open, only a quiet renewal */
 let gQuiet = false;
 /* the helper refused a sign-in (a setup problem): the old window is used for a day, even after reopening */
-const GDOWN = 'bookshelf-gdrive-helperdown';
+const GDOWN = 'bookshelf-gdrive-helperdown2';
 {
   let down = 0,
     busy = null;
@@ -85,6 +85,10 @@ const GDOWN = 'bookshelf-gdrive-helperdown';
             client_id: GCID,
             scope: 'https://www.googleapis.com/auth/drive.file',
             ux_mode: 'popup',
+            /* Google only hands out a long-lasting key when you agree on its screen. Everyone already agreed once
+               with the old sign-in, so without this Google skipped the screen and gave no key, and the app went
+               back to asking. Shown once: after that the key is kept and this window no longer opens. */
+            prompt: 'consent',
             callback: async (r) => {
               if (!r || !r.code) return rej(new Error('denied'));
               const x = await helper('/exchange', { code: r.code });
