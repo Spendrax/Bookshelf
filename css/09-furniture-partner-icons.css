@@ -377,3 +377,37 @@ svg.ic circle:not(.f) {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+
+/* hearts leaderboard, inside the Hearts card (js/30-leaderboard.js) */
+.lboard {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.lboard h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.lboard ol {
+  margin: 0;
+  padding-left: 26px;
+  font: 14px/1.6 system-ui, sans-serif;
+}
+.lboard li span {
+  display: inline-block;
+  min-width: 55%;
+}
+.lboard li.me {
+  font-weight: 700;
+  color: var(--acc);
+}
+.lboard .lbleave {
+  margin-top: 8px;
+  border: 0;
+  background: none;
+  color: inherit;
+  opacity: 0.6;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}

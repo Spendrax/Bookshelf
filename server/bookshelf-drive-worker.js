@@ -14,6 +14,10 @@
      SEAL_KEY              secret  a long random sentence you make up (40+ characters); never change it,
                                    or everyone has to sign in again
      APP_ORIGIN            text    optional, default https://spendrax.github.io
+   Binding (Settings › Bindings): a KV namespace named LB, for the hearts leaderboard
+
+   Leaderboard (opt-in in the app): POST /lb { id, name, hearts, join } returns { top, rank }.
+     join false removes you. It keeps only a nickname, a heart count and a random id made by the phone.
 
    Addresses:
      GET  /health    open it in a browser: says whether the settings are in place
@@ -51,6 +55,16 @@ export default {
 
     if (request.method !== 'POST') return reply(404, { error: 'not_found' });
     if (request.headers.get('Origin') !== origin) return reply(403, { error: 'wrong_origin' });
+    if (url.pathname === '/lb') {
+      if (!env.LB) return reply(503, { error: 'not_configured' });
+      let b;
+      try {
+        b = await request.json();
+      } catch (e) {
+        return reply(400, { error: 'bad_request' });
+      }
+      return reply(200, await board(env.LB, b));
+    }
     if (!ready) return reply(503, { error: 'not_configured' });
 
     let body;
@@ -164,4 +178,53 @@ async function unseal(sealed, secret) {
   } catch (e) {
     return null;
   }
+}
+
+/* ---- hearts leaderboard: one list in KV, for a few hundred people at most.
+   A heart count can only grow by so much a day (the app gives a few dozen on a busy day), so a faked jump is
+   cut down to what was possible since the last time. ---- */
+const PER_DAY = 300,
+  FIRST_MAX = 20000;
+const BAD = /(fuck|shit|bitch|cunt|dick|cock|pussy|nigg|fag|whore|slut|rape|nazi|hitler|putain|salope|pute|connard|connasse|enculé|encule|tabarn|câlisse|calisse|ostie|criss|merde|pd\b)/i;
+async function board(kv, b) {
+  const id = typeof b.id === 'string' && /^[a-z0-9]{24,40}$/.test(b.id) ? b.id : null;
+  let list = [];
+  try {
+    list = JSON.parse((await kv.get('board')) || '[]');
+  } catch (e) {}
+  const now = Date.now(),
+    i = id ? list.findIndex((x) => x.id === id) : -1;
+  let error = null;
+  if (id && b.join === false && i >= 0) {
+    list.splice(i, 1);
+    await kv.put('board', JSON.stringify(list));
+  } else if (id && b.join) {
+    const name = String(b.name || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 20);
+    if (name.length < 2 || !/^[\p{L}\p{N} ._'-]+$/u.test(name) || BAD.test(name.replace(/[^\p{L}]/gu, '')))
+      error = 'bad_name';
+    else if (list.some((x, j) => j !== i && x.n.toLowerCase() === name.toLowerCase())) error = 'name_taken';
+    else {
+      const want = Math.max(0, Math.floor(+b.hearts || 0)),
+        was = i >= 0 ? list[i] : null,
+        days = was ? (now - was.t) / 864e5 : 0,
+        h = was ? Math.min(want, was.h + Math.ceil(PER_DAY * Math.max(days, 0.25))) : Math.min(want, FIRST_MAX);
+      const row = { id, n: name, h: Math.max(h, was ? was.h : 0), t: now };
+      if (i >= 0) list[i] = row;
+      else list.push(row);
+      list.sort((a, c) => c.h - a.h);
+      if (list.length > 2000) list.length = 2000;
+      await kv.put('board', JSON.stringify(list));
+    }
+  }
+  const at = id ? list.findIndex((x) => x.id === id) : -1;
+  return {
+    top: list.slice(0, 20).map((x) => ({ n: x.n, h: x.h, me: x.id === id || undefined })),
+    rank: at >= 0 ? at + 1 : null,
+    hearts: at >= 0 ? list[at].h : null,
+    count: list.length,
+    error,
+  };
 }
