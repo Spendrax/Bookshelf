@@ -411,3 +411,12 @@ svg.ic circle:not(.f) {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* the top 3 of the leaderboard: medals, a little bigger */
+.lboard li.pod {
+  font-size: 15px;
+  font-weight: 600;
+}
+.lboard li.pod:first-child {
+  font-size: 16px;
+}

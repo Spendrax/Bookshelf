@@ -36,6 +36,7 @@
       const d = await r.json();
       if (d.error) return d;
       put({ id, on: join, last: Date.now(), data: { top: d.top, rank: d.rank, count: d.count } });
+      podium(d.rank);
       return d;
     } catch (e) {
       return { error: 'offline' };
@@ -44,6 +45,22 @@
     }
   }
   const redraw = () => view === 'goals' && renderGoals();
+  /* reaching the top 3 (or a better place in it) for the first time: a medal, a cheer from the animal, a badge */
+  const MEDAL = ['', '🥇', '🥈', '🥉'];
+  function podium(rank) {
+    const best = +goals.lbBest || 99;
+    if (!rank || rank > 3 || rank >= best) return;
+    goals.lbBest = rank;
+    saveGoals();
+    toast(MEDAL[rank] + ' ' + L('You’re #{r} on the hearts leaderboard!', { r: rank }));
+    const c = document.querySelector('#catw .cat');
+    if (c) {
+      c.classList.remove('cheer2');
+      void c.offsetWidth;
+      c.classList.add('cheer2');
+      setTimeout(() => c.classList.remove('cheer2'), 1800);
+    }
+  }
 
   async function join() {
     const box = el('div', 'optbox'),
@@ -55,7 +72,9 @@
     box.append(inp);
     if (
       !(await ask(
-        L('Join the hearts leaderboard? Everyone who joined sees your nickname and heart count. You can leave any time.'),
+        L(
+          'Join the hearts leaderboard? Everyone who joined sees your nickname and heart count. You can leave any time.',
+        ),
         L('Join'),
         L('Cancel'),
         () => box,
@@ -75,7 +94,13 @@
     redraw();
   }
   async function leave() {
-    if (!(await ask(L('Leave the leaderboard? Your nickname and hearts are removed from it.'), L('Leave'), L('Cancel'))))
+    if (
+      !(await ask(
+        L('Leave the leaderboard? Your nickname and hearts are removed from it.'),
+        L('Leave'),
+        L('Cancel'),
+      ))
+    )
       return;
     await sync(false);
     put({ on: false, data: null });
@@ -88,7 +113,9 @@
     try {
       /* a partner's wall is drawn with their data: no leaderboard there */
       if (partnerCopy.on) return r;
-      const hc = [...$('glbody').querySelectorAll('.card h2')].find((h) => h.textContent.includes(L('Hearts')));
+      const hc = [...$('glbody').querySelectorAll('.card h2')].find((h) =>
+        h.textContent.includes(L('Hearts')),
+      );
       if (!hc) return r;
       const s = get(),
         sec = el('div', 'lboard');
@@ -102,14 +129,18 @@
       } else {
         const d = s.data || {},
           ol = el('ol');
-        (d.top || []).forEach((x) => {
-          const li = el('li', x.me ? 'me' : '');
-          li.append(el('span', '', String(x.n)), el('b', '', '♥ ' + nf(+x.h || 0)));
+        (d.top || []).forEach((x, i) => {
+          const li = el('li', (x.me ? 'me ' : '') + (i < 3 ? 'pod' : ''));
+          li.append(
+            el('span', '', (MEDAL[i + 1] ? MEDAL[i + 1] + ' ' : '') + String(x.n)),
+            el('b', '', '♥ ' + nf(+x.h || 0)),
+          );
           ol.append(li);
         });
         if ((d.top || []).length) sec.append(ol);
         else sec.append(el('p', 'sub', L('Loading…')));
-        if (d.rank && d.rank > 20) sec.append(el('p', 'sub', L('You are #{r} of {n}', { r: d.rank, n: d.count })));
+        if (d.rank && d.rank > 20)
+          sec.append(el('p', 'sub', L('You are #{r} of {n}', { r: d.rank, n: d.count })));
         const b = el('button', 'lbleave', L('Leave the leaderboard'));
         b.type = 'button';
         b.onclick = leave;

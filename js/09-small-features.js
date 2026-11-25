@@ -513,6 +513,7 @@ function badgeList() {
     ['h100', '\u{1F496}', 'Beloved', 'Get 100 hearts from your animal', (+goals.hearts || 0) >= 100],
     ['h1k', '\u{1F49E}', 'Best friends', 'Get 1,000 hearts from your animal', (+goals.hearts || 0) >= 1000],
     ['h10k', '\u{1F451}', 'Soulmates', 'Get 10,000 hearts from your animal', (+goals.hearts || 0) >= 10000],
+    ['podium', '\u{1F3C6}', 'On the podium', 'Reach the top 3 of the hearts leaderboard', (+goals.lbBest || 99) <= 3],
   ];
 }
 function badgeCard() {
