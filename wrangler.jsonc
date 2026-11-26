@@ -2,14 +2,12 @@
 // Cloudflare builds this repo on every push: without this file it published the website files as the server
 // and wiped its code. With it, every push deploys server/bookshelf-drive-worker.js. The website itself is
 // served by GitHub Pages, not by this.
-// GOOGLE_CLIENT_ID is public (it is in the app too), so it lives here and can never be lost.
-// The two secrets (GOOGLE_CLIENT_SECRET, SEAL_KEY) stay in the Cloudflare dashboard; deploys keep them.
+// GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and SEAL_KEY are secrets in the Cloudflare dashboard; deploys keep them.
 {
   "name": "bookshelf-drive",
   "main": "server/bookshelf-drive-worker.js",
   "compatibility_date": "2026-11-01",
   "workers_dev": true,
   "keep_vars": true,
-  "vars": { "GOOGLE_CLIENT_ID": "754800695613-g022ane0liku6h3esokrqd238ngv9jro.apps.googleusercontent.com" },
   "kv_namespaces": [{ "binding": "LB", "id": "fab0a15b00ee43abac676bfa78382c56" }]
 }
