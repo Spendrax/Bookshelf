@@ -1,0 +1,13 @@
+// The app's helper server on Cloudflare (Google Drive sign-in and the hearts leaderboard).
+// Cloudflare builds this repo on every push: without this file it published the website files as the server
+// and wiped its code. With it, every push deploys server/bookshelf-drive-worker.js. The website itself is
+// served by GitHub Pages, not by this.
+// Secrets (GOOGLE_CLIENT_SECRET, SEAL_KEY) and the GOOGLE_CLIENT_ID setting stay in the Cloudflare dashboard.
+{
+  "name": "bookshelf-drive",
+  "main": "server/bookshelf-drive-worker.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "keep_vars": true,
+  "kv_namespaces": [{ "binding": "LB", "id": "fab0a15b00ee43abac676bfa78382c56" }]
+}
