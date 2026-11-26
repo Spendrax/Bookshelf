@@ -35,7 +35,13 @@
       if (!r.ok) throw new Error('http ' + r.status);
       const d = await r.json();
       if (d.error) return d;
-      put({ id, on: join, last: Date.now(), data: { top: d.top, rank: d.rank, count: d.count } });
+      put({
+        id,
+        on: join,
+        last: Date.now(),
+        sent: +goals.hearts || 0,
+        data: { top: d.top, rank: d.rank, count: d.count },
+      });
       podium(d.rank);
       return d;
     } catch (e) {
@@ -146,7 +152,10 @@
         b.onclick = leave;
         sec.append(b);
         /* refreshed every three hours, or right away the first time */
-        if (!s.last || Date.now() - s.last > 3 * 36e5) sync(true).then((x) => x && !x.error && redraw());
+        /* fresh when you look: at most every 15 minutes, or 2 minutes after your hearts changed (a few writes a day each) */
+        const age = Date.now() - (s.last || 0);
+        if (age > 15 * 6e4 || (age > 2 * 6e4 && s.sent !== (+goals.hearts || 0)))
+          sync(true).then((x) => x && !x.error && redraw());
       }
       hc.parentElement.append(sec);
     } catch (e) {}
